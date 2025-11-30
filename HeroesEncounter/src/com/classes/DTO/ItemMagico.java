@@ -1,6 +1,6 @@
 package com.classes.DTO;
 
-public class ItemMagico {
+public class ItemMagico extends Item {
 
 	private int bonusMagia;
 	private int custoManaReduzido;

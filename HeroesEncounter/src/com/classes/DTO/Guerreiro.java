@@ -3,30 +3,40 @@ package com.classes.DTO;
 import java.util.Arrays;
 import java.util.List;
 
+import com.classes.BO.HabilidadesBO;
+import com.classes.BO.ItemBO;
+
 public class Guerreiro extends Jogador {
 
-	private static final int ID_CLASSE_GUERREIRO = 1;
-	private static final List<String> TIPOS_PERMITIDOS = Arrays.asList("Espada Pesada", "Machado");
+    private static final int ID_CLASSE_GUERREIRO = 1;
+    private static final List<String> TIPOS_PERMITIDOS = Arrays.asList("Espada Pesada", "Machado");
 
-	public Guerreiro() {
-		this.setIdClasse(ID_CLASSE_GUERREIRO);
-		this.setHpMax(150);
-		this.setHp(150);
-		this.setManaMax(0);
+    public Guerreiro() {
+        this.setIdClasse(ID_CLASSE_GUERREIRO);
+        this.setHpMax(150);
+        this.setHp(150);
+        this.setManaMax(0);
         this.setMana(0);
-		this.setAtaque(20);
-		this.setOuro(100);
-		this.setIdStatus(1);
-		this.setNivel(1);
-        
-	}
+        this.setAtaque(20);
+        this.setOuro(100);
+        this.setNivel(1);
+    }
 
-	@Override
-	public List<String> getTiposArmasPermitidas() {
-		return TIPOS_PERMITIDOS;
-	}
+    public void inicializarKit(ItemBO itemBO, HabilidadesBO habBO) {
+        ItemArma machado = (ItemArma) itemBO.procurarPorCodigo(1);
+        this.setArmaEquipada(machado);
+        this.adicionarItem(machado, 1, true);
 
-	public void HabilidadeForte() {
-	}
+        ItemConsumivel cura = (ItemConsumivel) itemBO.procurarPorCodigo(4);
+        this.adicionarItem(cura, 1, false);
 
+        this.getHabilidades().add(habBO.procurarPorCodigo(7));
+        this.getHabilidades().add(habBO.procurarPorCodigo(8));
+        this.getHabilidades().add(habBO.procurarPorCodigo(9));
+    }
+
+    @Override
+    public List<String> getTiposArmasPermitidas() {
+        return TIPOS_PERMITIDOS;
+    }
 }

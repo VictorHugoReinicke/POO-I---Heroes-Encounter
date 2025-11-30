@@ -6,41 +6,40 @@ import java.util.List;
 
 public class JogadorBO {
 
+	private JogadorDAO jogadorDAO;
+	
+	public JogadorBO() {
+        this.jogadorDAO = new JogadorDAO();
+    }
+	
 	public boolean inserir(Jogador jogador) {
-		if (existe(jogador) != true) {
-			JogadorDAO marcasDAO = new JogadorDAO();
-			return marcasDAO.inserir(jogador);
+		if (this.existe(jogador) != true) { 
+			return jogadorDAO.inserir(jogador); 
 		}
 		return false;
 	}
 
 	public boolean alterar(Jogador jogador) {
-		JogadorDAO jogadoresDAO = new JogadorDAO();
-		return jogadoresDAO.alterar(jogador);
+		return jogadorDAO.alterar(jogador);
 	}
 
 	public boolean excluir(Jogador jogador) {
-		JogadorDAO jogadoresDAO = new JogadorDAO();
-		return jogadoresDAO.excluir(jogador);
+		return jogadorDAO.excluir(jogador);
 	}
 
 	public Jogador procurarPorCodigo(Jogador jogador) {
-		JogadorDAO jogadoresDAO = new JogadorDAO();
-		return jogadoresDAO.procurarPorCodigo(jogador);
+		return jogadorDAO.procurarPorCodigo(jogador);
 	}
 
 	public Jogador procurarPorNome(Jogador jogador) {
-		JogadorDAO jogadoresDAO = new JogadorDAO();
-		return jogadoresDAO.procurarPorNome(jogador);
+		return jogadorDAO.procurarPorNome(jogador);
 	}
 
 	public boolean existe(Jogador jogador) {
-		JogadorDAO jogadoresDAO = new JogadorDAO();
-		return jogadoresDAO.existe(jogador);
+		return jogadorDAO.existe(jogador);
 	}
 
 	public List<Jogador> pesquisarTodos() {
-		JogadorDAO jogadoresDAO = new JogadorDAO();
-		return jogadoresDAO.pesquisarTodos();
+		return jogadorDAO.pesquisarTodos();
 	}
 }

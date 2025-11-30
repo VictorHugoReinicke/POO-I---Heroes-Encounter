@@ -3,13 +3,12 @@ package com.classes.DAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.classes.DTO.Guerreiro;
 import com.classes.DTO.Jogador;
-import com.classes.DTO.Mago;
-import com.classes.DTO.Paladino;
+import com.classes.DTO.JogadorFactory;
 import com.classes.Conexao.Conexao;
 
 public class JogadorDAO {
@@ -17,26 +16,37 @@ public class JogadorDAO {
 	final String NOMEDATABELA = "Jogador";
 
 	public boolean inserir(Jogador jogador) {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "INSERT INTO " + NOMEDATABELA
-					+ " (nome, gold, vida_atual, idClasse, mana_atual) VALUES (?, ?, ?, ?, ?)";
-			PreparedStatement ps = conn.prepareStatement(sql);
+	    try {
+	        Connection conn = Conexao.conectar();
+	        String sql = "INSERT INTO " + NOMEDATABELA + " (nome, gold, vida_atual, idClasse, mana_atual) VALUES (?, ?, ?, ?, ?)";
+	        // Use RETURN_GENERATED_KEYS para obter o ID gerado
+	        PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
-			ps.setString(1, jogador.getNome()); // nome
-			ps.setInt(2, jogador.getOuro()); // gold (de Jogador)
-			ps.setInt(3, jogador.getHp());// vida_atual (de SerVivo)
-			ps.setInt(4, jogador.getIdClasse()); // idClasse (de Jogador)
-			ps.setInt(5, jogador.getMana()); // mana_atual (de SerVivo)
+	        ps.setString(1, jogador.getNome());
+	        ps.setInt(2, jogador.getOuro());
+	        ps.setInt(3, jogador.getHp());
+	        ps.setInt(4, jogador.getIdClasse());
+	        ps.setInt(5, jogador.getMana());
 
-			ps.executeUpdate();
-			ps.close();
-			conn.close();
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+	        int linhasAfetadas = ps.executeUpdate();
+	        
+	        if (linhasAfetadas > 0) {
+	            // Obter o ID gerado
+	            ResultSet generatedKeys = ps.getGeneratedKeys();
+	            if (generatedKeys.next()) {
+	                int idGerado = generatedKeys.getInt(1);
+	                jogador.setId(idGerado); // Define o ID no objeto jogador
+	            }
+	            generatedKeys.close();
+	        }
+	        
+	        ps.close();
+	        conn.close();
+	        return true;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
 
 	public boolean alterar(Jogador jogador) {
@@ -83,7 +93,8 @@ public class JogadorDAO {
 	public Jogador procurarPorCodigo(Jogador jogador) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA + " WHERE id = ?;";
+			String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA
+					+ " WHERE id = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, jogador.getId());
 			ResultSet rs = ps.executeQuery();
@@ -109,7 +120,8 @@ public class JogadorDAO {
 	public Jogador procurarPorNome(Jogador jogador) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA + " WHERE nome = ?;";
+			String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA
+					+ " WHERE nome = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, jogador.getNome());
 			ResultSet rs = ps.executeQuery();
@@ -166,33 +178,20 @@ public class JogadorDAO {
 	}
 
 	private Jogador montarObjeto(ResultSet rs) throws Exception {
+
 		int idClasse = rs.getInt("idClasse");
-		Jogador obj = null;
 
-		switch (idClasse) {
-		case 1:
-			obj = new Guerreiro();
-			break;
-		case 2:
-			obj = new Mago();
-			break;
-		case 3:
-			obj = new Paladino();
-			break;
-		default:
-			throw new IllegalArgumentException(
-					"ID da Classe (" + idClasse + ") inválido encontrado no banco de dados.");
-		}
+		Jogador jogador = JogadorFactory.criarJogador(idClasse);
 
-		obj.setId(rs.getInt("id"));
-		obj.setNome(rs.getString("nome"));
-		obj.setHp(rs.getInt("vida_atual"));
-		obj.setMana(rs.getInt("mana_atual"));
-		obj.setOuro(rs.getInt("gold"));
+		jogador.setId(rs.getInt("id"));
+		jogador.setNome(rs.getString("nome"));
+		jogador.setHp(rs.getInt("vida_atual"));
+		jogador.setMana(rs.getInt("mana_atual"));
+		jogador.setOuro(rs.getInt("gold"));
 
-		obj.setIdClasse(idClasse);
+		jogador.setIdClasse(idClasse);
 
-		return obj;
+		return jogador;
 	}
 
 	public List<Jogador> montarLista(ResultSet rs) {

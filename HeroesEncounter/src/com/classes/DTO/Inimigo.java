@@ -1,19 +1,32 @@
 package com.classes.DTO;
 
-import java.util.List;
+import com.classes.Enums.TipoIA;
 
-public class Inimigo extends SerVivo {
+public abstract class Inimigo extends SerVivo {
 
-	private String tipo;
 	private int recompensaOuro;
-	private String iaTipo;
+	private int ataque;
+	private int defesa;
+	private TipoIA tipoIA;
 
-	public String getTipo() {
-		return tipo;
+	public Inimigo() {
+		super();
 	}
 
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
+	public int getAtaque() {
+		return ataque;
+	}
+
+	public void setAtaque(int ataque) {
+		this.ataque = ataque;
+	}
+
+	public int getDefesa() {
+		return defesa;
+	}
+
+	public void setDefesa(int defesa) {
+		this.defesa = defesa;
 	}
 
 	public int getRecompensaOuro() {
@@ -24,14 +37,15 @@ public class Inimigo extends SerVivo {
 		this.recompensaOuro = recompensaOuro;
 	}
 
-	public String getIaTipo() {
-		return iaTipo;
+	public TipoIA getTipoIA() {
+		return tipoIA;
 	}
 
-	public void setIaTipo(String iaTipo) {
-		this.iaTipo = iaTipo;
+	public void setTipoIA(TipoIA tipoIA) {
+		this.tipoIA = tipoIA;
 	}
-	
-	public void decidirAcao(Jogador jogador) {}
-	
+
+	public void decidirAcao(Jogador jogador) {
+	}
+
 }

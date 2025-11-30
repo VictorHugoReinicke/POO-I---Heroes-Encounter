@@ -1,23 +1,29 @@
 package com.classes.DTO;
 
-public class ItemDefesa {
+public class ItemDefesa extends Item{
 
-	private int armaduraExtra;
-	private double bonusEsquiva;
+	private int bonusDefesa;
+	private int bonusEsquiva;
 
-	public int getArmaduraExtra() {
-		return armaduraExtra;
+	public ItemDefesa(String nome, int bonusDefesa, int bonusEsquiva) {
+        super(nome, "Defesa"); 
+        this.bonusDefesa= bonusDefesa;
+        this.bonusEsquiva = bonusEsquiva;
+    }
+	
+	public int getBonusDefesa() {
+		return bonusDefesa;
 	}
 
-	public void setArmaduraExtra(int armaduraExtra) {
-		this.armaduraExtra = armaduraExtra;
+	public void setBonusDefesa(int bonusDefesa) {
+		this.bonusDefesa = bonusDefesa;
 	}
 
-	public double getBonusEsquiva() {
+	public int getBonusEsquiva() {
 		return bonusEsquiva;
 	}
 
-	public void setBonusEsquiva(double bonusEsquiva) {
+	public void setBonusEsquiva(int bonusEsquiva) {
 		this.bonusEsquiva = bonusEsquiva;
 	}
 

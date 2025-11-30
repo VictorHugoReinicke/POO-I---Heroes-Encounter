@@ -1,44 +1,32 @@
 package com.classes.DTO;
 
-import java.util.List;
-
 public class Shop {
 
-	private List<Item> itensVenda;
-	private int precoMinimo;
-	private int precoMaximo;
+	private int id;
+	private String nome;
 
-	public List<Item> getItensVenda() {
-		return itensVenda;
+	public Shop(String nome) {
+		this.nome = nome;
 	}
 
-	public void setItensVenda(List<Item> itensVenda) {
-		this.itensVenda = itensVenda;
+	public Shop() {
+		super();
 	}
 
-	public int getPrecoMinimo() {
-		return precoMinimo;
+	public int getId() {
+		return id;
 	}
 
-	public void setPrecoMinimo(int precoMinimo) {
-		this.precoMinimo = precoMinimo;
+	public void setId(int id) {
+		this.id = id;
 	}
 
-	public int getPrecoMaximo() {
-		return precoMaximo;
+	public String getNome() {
+		return nome;
 	}
 
-	public void setPrecoMaximo(int precoMaximo) {
-		this.precoMaximo = precoMaximo;
-	}
-
-	public void listarItens() {
-	}
-
-	public boolean venderParaJogador(Jogador jogador, Item item) {
-
-		return true;
-
+	public void setNome(String nome) {
+		this.nome = nome;
 	}
 
 }

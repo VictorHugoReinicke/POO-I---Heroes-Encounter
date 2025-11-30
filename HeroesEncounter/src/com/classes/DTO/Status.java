@@ -2,63 +2,60 @@ package com.classes.DTO;
 
 public class Status {
 
-	private String nome;
-	private int duracaoTurnos;
-	
-	private int efeitoAtaque;
-	private int efeitoDefesa;
-	private int efeitoCura;
+    private int id;
+    private String nome; // Ex: Veneno, Queimadura, Atordoamento
+    private int danoTurno; // Dano que o status causa no final do turno (pode ser 0)
+    private double modificadorDefesa; // Modificador (%) na defesa do alvo (Ex: 0.5 para -50%)
+    private int duracaoTurnos; // Quantos turnos o efeito dura
 
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public int getDuracaoTurnos() {
-		return duracaoTurnos;
-	}
-
-	public void setDuracaoTurnos(int duracaoTurnos) {
-		this.duracaoTurnos = duracaoTurnos;
-	}
-
-	public int getEfeitoAtaque() {
-		return efeitoAtaque;
-	}
-
-	public void setEfeitoAtaque(int efeitoAtaque) {
-		this.efeitoAtaque = efeitoAtaque;
-	}
-
-	public int getEfeitoDefesa() {
-		return efeitoDefesa;
-	}
-
-	public void setEfeitoDefesa(int efeitoDefesa) {
-		this.efeitoDefesa = efeitoDefesa;
-	}
-
-	public int getEfeitoCura() {
-		return efeitoCura;
-	}
-
-	public void setEfeitoCura(int efeitoCura) {
-		this.efeitoCura = efeitoCura;
-	}
-
-	public void aplicarEfeito(SerVivo alvo) {
-		if (this.duracaoTurnos <= 0) {
-            return; 
-        }
-
-        if (this.efeitoCura != 0) {
-            alvo.setHp(alvo.getHp() + this.efeitoCura);
-        }
-        
-        this.duracaoTurnos--;
+    public Status() {
     }
-	
+
+    public Status(String nome, int danoTurno, double modificadorDefesa, int duracaoTurnos) {
+        this.nome = nome;
+        this.danoTurno = danoTurno;
+        this.modificadorDefesa = modificadorDefesa;
+        this.duracaoTurnos = duracaoTurnos;
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public int getDanoTurno() {
+        return danoTurno;
+    }
+
+    public void setDanoTurno(int danoTurno) {
+        this.danoTurno = danoTurno;
+    }
+
+    public double getModificadorDefesa() {
+        return modificadorDefesa;
+    }
+
+    public void setModificadorDefesa(double modificadorDefesa) {
+        this.modificadorDefesa = modificadorDefesa;
+    }
+
+    public int getDuracaoTurnos() {
+        return duracaoTurnos;
+    }
+
+    public void setDuracaoTurnos(int duracaoTurnos) {
+        this.duracaoTurnos = duracaoTurnos;
+    }
 }

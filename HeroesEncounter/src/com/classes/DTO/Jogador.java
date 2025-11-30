@@ -1,22 +1,23 @@
 package com.classes.DTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Jogador extends SerVivo {
 
-	private List<Item> inventario;
-	private int limiteInventario;
+	private List<JogadorItem> inventario = new ArrayList<>();
+	private int limiteInventario = 5;
 	private int ouro;
-	private List<Habilidade> habilidades;
+	private List<Habilidade> habilidades = new ArrayList<>();
 	private ItemArma armaEquipada;
 	private ItemDefesa armaduraEquipada;
 	private int idClasse;
 
-	public List<Item> getInventario() {
+	public List<JogadorItem> getInventario() {
 		return inventario;
 	}
 
-	public void setInventario(List<Item> inventario) {
+	public void setInventario(List<JogadorItem> inventario) {
 		this.inventario = inventario;
 	}
 
@@ -59,15 +60,15 @@ public abstract class Jogador extends SerVivo {
 	public void setArmaduraEquipada(ItemDefesa armaduraEquipada) {
 		this.armaduraEquipada = armaduraEquipada;
 	}
-	
-	public int getIdClasse() {
-        return idClasse;
-    }
 
-    public void setIdClasse(int idClasse) {
-        this.idClasse = idClasse;
-    }
-	
+	public int getIdClasse() {
+		return idClasse;
+	}
+
+	public void setIdClasse(int idClasse) {
+		this.idClasse = idClasse;
+	}
+
 	public void usarHabilidade(Habilidade habilidade) {
 	}
 
@@ -78,6 +79,14 @@ public abstract class Jogador extends SerVivo {
 
 		return true;
 
+	}
+
+	public void adicionarItem(Item item, int quantidade, boolean equipado) {
+	    JogadorItem ji = new JogadorItem();
+	    ji.setItem(item);
+	    ji.setQuantidade(quantidade);
+	    ji.setEquipado(equipado);
+	    this.getInventario().add(ji);
 	}
 	
 	public abstract List<String> getTiposArmasPermitidas();

@@ -1,5 +1,31 @@
 package com.classes.DTO;
 
-public class InimigoMagico {
+import com.classes.Enums.TipoIA;
 
+public class InimigoMagico extends Inimigo {
+
+	private double resistenciaMagica;
+
+	public InimigoMagico() {
+		super();
+
+		this.setHpMax(50);
+		this.setHp(this.getHpMax());
+		this.setNome("Inimigo Mágico");
+
+		this.setAtaque(10);
+		this.setDefesa(5);
+		this.setRecompensaOuro(15);
+		this.setTipoIA(TipoIA.AGRESSIVO);
+
+		this.setResistenciaMagica(0.10);
+	}
+
+	public double getResistenciaMagica() {
+		return resistenciaMagica;
+	}
+
+	public void setResistenciaMagica(double resistenciaMagica) {
+		this.resistenciaMagica = resistenciaMagica;
+	}
 }

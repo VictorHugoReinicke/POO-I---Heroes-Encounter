@@ -1,10 +1,20 @@
 package com.classes.DTO;
 
-public class ItemConsumivel {
+public class ItemConsumivel extends Item{
 
 	private int cura;
-	private int manaRestaurada;
+	private int mana;
 
+	public ItemConsumivel(String nome, int cura, int mana) {
+        super(nome, "Consumivel"); 
+        this.cura = cura;
+        this.mana = mana;
+    }
+	
+	public ItemConsumivel() {
+
+    }
+	
 	public int getCura() {
 		return cura;
 	}
@@ -13,12 +23,12 @@ public class ItemConsumivel {
 		this.cura = cura;
 	}
 
-	public int getManaRestaurada() {
-		return manaRestaurada;
+	public int getMana() {
+		return mana;
 	}
 
-	public void setManaRestaurada(int manaRestaurada) {
-		this.manaRestaurada = manaRestaurada;
+	public void setMana(int mana) {
+		this.mana = mana;
 	}
 
 }
