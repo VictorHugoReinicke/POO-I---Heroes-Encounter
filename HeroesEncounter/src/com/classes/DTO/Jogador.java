@@ -6,7 +6,7 @@ import java.util.List;
 public abstract class Jogador extends SerVivo {
 
 	private List<JogadorItem> inventario = new ArrayList<>();
-	private int limiteInventario = 5;
+	private int limiteInventario = 10;
 	private int ouro;
 	private List<Habilidade> habilidades = new ArrayList<>();
 	private ItemArma armaEquipada;
@@ -80,6 +80,8 @@ public abstract class Jogador extends SerVivo {
 		return true;
 
 	}
+	
+	
 
 	public void adicionarItem(Item item, int quantidade, boolean equipado) {
 	    JogadorItem ji = new JogadorItem();

@@ -12,7 +12,6 @@ public abstract class SerVivo implements IAtacavel {
 	private int ataque;
 	private int defesa;
 	private double esquiva;
-	private int nivel;
 	private int idStatus;
 	List<Status> statusAtivo;
 	
@@ -95,14 +94,6 @@ public abstract class SerVivo implements IAtacavel {
 
 	public void setEsquiva(double esquiva) {
 		this.esquiva = esquiva;
-	}
-
-	public int getNivel() {
-		return nivel;
-	}
-
-	public void setNivel(int nivel) {
-		this.nivel = nivel;
 	}
 
 	public List<Status> getStatusAtivo() {

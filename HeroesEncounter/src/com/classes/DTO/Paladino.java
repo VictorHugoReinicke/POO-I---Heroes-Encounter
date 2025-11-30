@@ -18,8 +18,6 @@ public class Paladino extends Jogador {
 		this.setManaMax(80);
 		this.setMana(80);
 		this.setAtaque(15);
-		this.setNivel(1);
-		this.setIdStatus(1);
 		this.setOuro(100);
 	}
 

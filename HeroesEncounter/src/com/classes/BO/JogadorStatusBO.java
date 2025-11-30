@@ -64,41 +64,42 @@ public class JogadorStatusBO {
         }
     }
 
+	public boolean removerStatus(int idJogador, int idStatus) {
+        try {
+            JogadorStatus registro = jogadorStatusDAO.procurarRegistro(idJogador, idStatus);
+            if (registro != null) {
+                return jogadorStatusDAO.excluir(registro);
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("Erro ao remover status: " + e.getMessage());
+            return false;
+        }
+    }
+	
     /**
      * Lógica executada no final de cada turno de combate.
      * Decrementa a duração e remove status esgotados.
      */
-    public void processarFimDeTurno(int idJogador) {
-        
-        List<JogadorStatus> statusAtivos = jogadorStatusDAO.listarStatusPorJogador(idJogador);
-        
-        for (JogadorStatus js : statusAtivos) {
-            
-            int turnos = js.getTurnosRestantes();
-            
-            if (turnos > 1) {
-                // Diminui o contador
-                js.setTurnosRestantes(turnos - 1);
-                jogadorStatusDAO.alterar(js);
-                
-                // Aplica Dano por Turno (se houver)
-                if (js.getStatus().getDanoTurno() > 0) {
-                     System.out.printf("🔥 Dano de status %s aplicado ao Jogador ID %d: %d\n", 
-                         js.getStatus().getNome(), idJogador, js.getStatus().getDanoTurno());
-                     // Aqui você chamaria um método do JogadorBO para aplicar o dano
-                }
-                
-                System.out.printf("   -> Status %s decaiu. Restam %d turnos.\n", 
-                    js.getStatus().getNome(), js.getTurnosRestantes());
-                
-            } else {
-                // Turno restante chegou a 0 ou 1, então remove (fim do efeito)
-                jogadorStatusDAO.excluir(js);
-                System.out.printf("👻 Status %s (ID %d) removido do Jogador ID %d.\n", 
-                    js.getStatus().getNome(), js.getIdStatus(), idJogador);
-            }
-        }
-    }
+	public void processarFimDeTurno(int idJogador) {
+	    
+	    List<JogadorStatus> statusAtivos = jogadorStatusDAO.listarStatusPorJogador(idJogador);
+	    
+	    for (JogadorStatus js : statusAtivos) {
+	        
+	        int turnos = js.getTurnosRestantes();
+	        
+	        if (turnos > 1) {
+	            // Diminui o contador
+	            js.setTurnosRestantes(turnos - 1);
+	            jogadorStatusDAO.alterar(js);
+	            
+	        } else {
+	            // Turno restante chegou a 0 ou 1, então remove (fim do efeito)
+	            jogadorStatusDAO.excluir(js);
+	        }
+	    }
+	}
 
     // ------------------------------------------------------------------
     // --- 2. MÉTODOS DE BUSCA E UTILIDADE ---

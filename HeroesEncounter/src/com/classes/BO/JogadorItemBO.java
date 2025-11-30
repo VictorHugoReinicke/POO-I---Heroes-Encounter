@@ -153,6 +153,40 @@ public class JogadorItemBO {
     }
 
 
+    public boolean usarItem(int idJogador, int idItem) {
+        try {
+            JogadorItem registro = jogadorItemDAO.procurarRegistro(idJogador, idItem);
+            
+            if (registro == null) {
+                System.out.println("❌ Item não encontrado no inventário do jogador");
+                return false;
+            }
+            
+            if (registro.getQuantidade() <= 0) {
+                System.out.println("❌ Item esgotado no inventário");
+                return false;
+            }
+            
+            // Remove 1 unidade
+            int novaQuantidade = registro.getQuantidade() - 1;
+            
+            if (novaQuantidade <= 0) {
+                // Remove o registro se acabou
+                System.out.println("✅ Item esgotado e removido do inventário");
+                return jogadorItemDAO.excluir(registro);
+            } else {
+                // Atualiza a quantidade
+                registro.setQuantidade(novaQuantidade);
+                System.out.printf("✅ Item usado. Nova quantidade: %d\n", novaQuantidade);
+                return jogadorItemDAO.alterar(registro);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erro ao usar item: " + e.getMessage());
+            return false;
+        }
+    }
+    
     // ------------------------------------------------------------------
     // --- 3. MÉTODOS DE BUSCA E DELEGAÇÃO ---
     // ------------------------------------------------------------------

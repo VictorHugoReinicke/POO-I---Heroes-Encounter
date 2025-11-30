@@ -42,4 +42,6 @@ public class JogadorBO {
 	public List<Jogador> pesquisarTodos() {
 		return jogadorDAO.pesquisarTodos();
 	}
+	
+	
 }

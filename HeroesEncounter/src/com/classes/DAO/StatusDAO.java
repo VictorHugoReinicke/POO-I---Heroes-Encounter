@@ -14,33 +14,33 @@ public class StatusDAO {
 
 	final String NOMEDATABELA = "Status";
 
-    // ------------------------------------------------------------------
-    // --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-    // ------------------------------------------------------------------
+	// ------------------------------------------------------------------
+	// --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
+	// ------------------------------------------------------------------
 
 	public boolean inserir(Status status) {
 		try {
 			Connection conn = Conexao.conectar();
 			String sql = "INSERT INTO " + NOMEDATABELA
-					+ " (nome, dano_turno, modificador_defesa, duracao_turnos) VALUES (?, ?, ?, ?)";
-			
-            // Usamos RETURN_GENERATED_KEYS para obter o ID após a inserção
+					+ " (nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva) VALUES (?, ?, ?, ?, ?)"; // ✅
+																														// Adicionado
+																														// chance_esquiva
+
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
 			ps.setString(1, status.getNome());
 			ps.setInt(2, status.getDanoTurno());
-            // Para double/DECIMAL, usamos setDouble
 			ps.setDouble(3, status.getModificadorDefesa());
 			ps.setInt(4, status.getDuracaoTurnos());
+			ps.setDouble(5, status.getChanceEsquiva()); // ✅ Novo parâmetro
 
 			ps.executeUpdate();
-			
-            // Busca o ID gerado e atualiza o DTO
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                status.setId(rs.getInt(1)); 
-            }
-            
+
+			ResultSet rs = ps.getGeneratedKeys();
+			if (rs.next()) {
+				status.setId(rs.getInt(1));
+			}
+
 			ps.close();
 			conn.close();
 			return true;
@@ -54,15 +54,18 @@ public class StatusDAO {
 		try {
 			Connection conn = Conexao.conectar();
 			String sql = "UPDATE " + NOMEDATABELA
-					+ " SET nome = ?, dano_turno = ?, modificador_defesa = ?, duracao_turnos = ? " 
-                    + "WHERE id = ?;";
+					+ " SET nome = ?, dano_turno = ?, modificador_defesa = ?, duracao_turnos = ?, chance_esquiva = ? " // ✅
+																														// Adicionado
+																														// chance_esquiva
+					+ "WHERE id = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.setString(1, status.getNome());
 			ps.setInt(2, status.getDanoTurno());
 			ps.setDouble(3, status.getModificadorDefesa());
 			ps.setInt(4, status.getDuracaoTurnos());
-			ps.setInt(5, status.getId());
+			ps.setDouble(5, status.getChanceEsquiva()); // ✅ Novo parâmetro
+			ps.setInt(6, status.getId());
 
 			ps.executeUpdate();
 			ps.close();
@@ -90,72 +93,90 @@ public class StatusDAO {
 		}
 	}
 
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA ---
-    // ------------------------------------------------------------------
+	// ------------------------------------------------------------------
+	// --- 2. MÉTODOS DE BUSCA ---
+	// ------------------------------------------------------------------
 
 	public Status procurarPorCodigo(int id) {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos FROM " + NOMEDATABELA
-					+ " WHERE id = ?;";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, id);
-			ResultSet rs = ps.executeQuery();
-            
-			if (rs.next()) {
-				Status obj = montarObjeto(rs);
-				ps.close();
-				rs.close();
-				conn.close();
-				return obj;
-			}
-            
-			ps.close();
-			rs.close();
-			conn.close();
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	    try {
+	        Connection conn = Conexao.conectar();
+	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA // ✅ Adicionado chance_esquiva
+	                + " WHERE id = ?;";
+	        PreparedStatement ps = conn.prepareStatement(sql);
+	        ps.setInt(1, id);
+	        ResultSet rs = ps.executeQuery();
+	        
+	        if (rs.next()) {
+	            Status obj = montarObjeto(rs);
+	            ps.close();
+	            rs.close();
+	            conn.close();
+	            return obj;
+	        }
+	        
+	        ps.close();
+	        rs.close();
+	        conn.close();
+	        return null;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 
 	public Status procurarPorNome(Status status) {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos FROM " + NOMEDATABELA
-					+ " WHERE nome = ?;";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, status.getNome());
-			ResultSet rs = ps.executeQuery();
-            
-			if (rs.next()) {
-				Status obj = montarObjeto(rs);
-				ps.close();
-				rs.close();
-				conn.close();
-				return obj;
-			}
-            
-			ps.close();
-			rs.close();
-			conn.close();
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	    try {
+	        Connection conn = Conexao.conectar();
+	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA // ✅ Adicionado chance_esquiva
+	                + " WHERE nome = ?;";
+	        PreparedStatement ps = conn.prepareStatement(sql);
+	        ps.setString(1, status.getNome());
+	        ResultSet rs = ps.executeQuery();
+	        
+	        if (rs.next()) {
+	            Status obj = montarObjeto(rs);
+	            ps.close();
+	            rs.close();
+	            conn.close();
+	            return obj;
+	        }
+	        
+	        ps.close();
+	        rs.close();
+	        conn.close();
+	        return null;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
-    
-    public boolean existe(Status status) {
+
+	public List<Status> pesquisarTodos() {
+	    try {
+	        Connection conn = Conexao.conectar();
+	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA + ";"; // ✅ Adicionado chance_esquiva
+	        PreparedStatement ps = conn.prepareStatement(sql);
+	        ResultSet rs = ps.executeQuery();
+	        List<Status> listObj = montarLista(rs);
+	        
+	        ps.close();
+	        rs.close();
+	        conn.close();
+	        
+	        return listObj;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+	public boolean existe(Status status) {
 		try {
 			Connection conn = Conexao.conectar();
 			String sql = "SELECT * FROM " + NOMEDATABELA + " WHERE nome = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, status.getNome());
 			ResultSet rs = ps.executeQuery();
-            
+
 			if (rs.next()) {
 				ps.close();
 				rs.close();
@@ -168,41 +189,20 @@ public class StatusDAO {
 		return false;
 	}
 
-	public List<Status> pesquisarTodos() {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos FROM " + NOMEDATABELA + ";";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery();
-			List<Status> listObj = montarLista(rs);
-			
-            ps.close();
-			rs.close();
-			conn.close();
-            
-            return listObj;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-    // ------------------------------------------------------------------
-    // --- 3. MÉTODOS AUXILIARES ---
-    // ------------------------------------------------------------------
-
+	// ------------------------------------------------------------------
+	// --- 3. MÉTODOS AUXILIARES ---
+	// ------------------------------------------------------------------
 	private Status montarObjeto(ResultSet rs) throws Exception {
-		
-		Status s = new Status();
-        
-        s.setId(rs.getInt("id"));
-        s.setNome(rs.getString("nome"));
-        s.setDanoTurno(rs.getInt("dano_turno"));
-        // Para o tipo DECIMAL/double, usamos getDouble
-        s.setModificadorDefesa(rs.getDouble("modificador_defesa")); 
-        s.setDuracaoTurnos(rs.getInt("duracao_turnos"));
-        
-		return s;
+	    Status s = new Status();
+	    
+	    s.setId(rs.getInt("id"));
+	    s.setNome(rs.getString("nome"));
+	    s.setDanoTurno(rs.getInt("dano_turno"));
+	    s.setModificadorDefesa(rs.getDouble("modificador_defesa")); 
+	    s.setDuracaoTurnos(rs.getInt("duracao_turnos"));
+	    s.setChanceEsquiva(rs.getDouble("chance_esquiva")); // ✅ Nova linha
+	    
+	    return s;
 	}
 
 	private List<Status> montarLista(ResultSet rs) {

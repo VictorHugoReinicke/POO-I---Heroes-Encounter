@@ -16,14 +16,12 @@ public class Mago extends Jogador {
         this.setIdClasse(ID_CLASSE_MAGO);
         this.setHpMax(70);
         this.setHp(70);
-        this.setAtaque(5);
+        this.setAtaque(10);
         this.setOuro(100);
         this.setIdStatus(1);
         this.setManaMax(150);
         this.setMana(150);
         this.setOuro(100);
-        this.setIdStatus(1);
-        this.setNivel(1);
         this.setDanoMagico(25);
     }
 

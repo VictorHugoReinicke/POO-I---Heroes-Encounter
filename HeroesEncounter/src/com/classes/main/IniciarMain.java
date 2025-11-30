@@ -9,16 +9,14 @@ public class IniciarMain {
 
         System.out.println("\n======== INICIANDO SETUP DO JOGO ========\n");
 
-        ClasseBO classeBO     = new ClasseBO();
-        StatusBO statusBO     = new StatusBO();
-        InimigoBO inimigoBO   = new InimigoBO();
-        HabilidadesBO habBO   = new HabilidadesBO();
-        ItemBO itemBO         = new ItemBO();
-        ShopBO shopBO         = new ShopBO();
+        ClasseBO classeBO = new ClasseBO();
+        InimigoBO inimigoBO = new InimigoBO();
+        HabilidadesBO habBO = new HabilidadesBO();
+        ItemBO itemBO = new ItemBO();
+        ShopBO shopBO = new ShopBO();
         ShopItemBO shopItemBO = new ShopItemBO();
 
         popularClasses(classeBO);
-        popularStatus(statusBO);
         popularInimigos(inimigoBO);
         popularHabilidades(habBO);
         popularItens(itemBO);
@@ -41,20 +39,6 @@ public class IniciarMain {
     }
 
     // ====================================================
-    // 2. STATUS
-    // ====================================================
-    private static void popularStatus(StatusBO statusBO) {
-        System.out.println(">> Populando Status...");
-
-        adicionarStatus(statusBO, new Status("Veneno", 10, 0.0, 3));
-        adicionarStatus(statusBO, new Status("Atordoamento", 0, 0.5, 2));
-        adicionarStatus(statusBO, new Status("Sangramento", 8, 0.0, 4));
-        adicionarStatus(statusBO, new Status("Fraqueza", 0, 0.3, 3));
-
-        System.out.println("✔ Status OK\n");
-    }
-
-    // ====================================================
     // 3. INIMIGOS
     // ====================================================
     private static void popularInimigos(InimigoBO inimigoBO) {
@@ -64,9 +48,9 @@ public class IniciarMain {
         Inimigo besta = InimigoFactory.criarInimigo("Besta");
         if (besta != null) {
             besta.setNome("Urso Selvagem");
-            besta.setHpMax(40);
-            besta.setAtaque(5);
-            besta.setDefesa(2);
+            besta.setHpMax(70);
+            besta.setAtaque(20);
+            besta.setDefesa(10);
             adicionarInimigo(inimigoBO, besta);
         }
 
@@ -74,9 +58,9 @@ public class IniciarMain {
         Inimigo ladrao = InimigoFactory.criarInimigo("Ladrao");
         if (ladrao != null) {
             ladrao.setNome("Assaltante das Sombras");
-            ladrao.setHpMax(30);
-            ladrao.setAtaque(6);
-            ladrao.setDefesa(2);
+            ladrao.setHpMax(60);
+            ladrao.setAtaque(25);
+            ladrao.setDefesa(10);
             adicionarInimigo(inimigoBO, ladrao);
         }
 
@@ -84,9 +68,9 @@ public class IniciarMain {
         Inimigo magico = InimigoFactory.criarInimigo("InimigoMagico");
         if (magico != null) {
             magico.setNome("Slime Arcano");
-            magico.setHpMax(25);
-            magico.setAtaque(3);
-            magico.setDefesa(1);
+            magico.setHpMax(40);
+            magico.setAtaque(30);
+            magico.setDefesa(7);
             adicionarInimigo(inimigoBO, magico);
         }
 
@@ -94,9 +78,9 @@ public class IniciarMain {
         Inimigo chefe = InimigoFactory.criarInimigo("Chefe");
         if (chefe != null) {
             chefe.setNome("Lobo Alfa Supremo");
-            chefe.setHpMax(60);
-            chefe.setAtaque(10);
-            chefe.setDefesa(4);
+            chefe.setHpMax(200);
+            chefe.setAtaque(30);
+            chefe.setDefesa(50);
             adicionarInimigo(inimigoBO, chefe);
         }
 
@@ -120,8 +104,8 @@ public class IniciarMain {
     private static void popularItens(ItemBO itemBO) {
         System.out.println(">> Populando Itens...");
 
-        ItemArma espadaLonga   = new ItemArma("Espada Longa", 10, 0, 5);
-        ItemArma cajadoArcano  = new ItemArma("Cajado Arcano", 4, 6, 8);
+        ItemArma espadaLonga = new ItemArma("Espada Longa", 10, 0, 5);
+        ItemArma cajadoArcano = new ItemArma("Cajado Arcano", 4, 6, 8);
         ItemDefesa escudoMadeira = new ItemDefesa("Escudo de Madeira", 0, 5);
 
         ItemConsumivel pocaoVida = new ItemConsumivel("Poção de Vida", 50, 0);
@@ -151,7 +135,7 @@ public class IniciarMain {
 
         System.out.println("✔ Loja criada: " + loja.getNome());
 
-        // Itens do Shop
+        // Itens do Shop - ✅ ATUALIZADO com quantidades específicas
         adicionarShopItem(siBO, loja, itemBO.procurarPorNome("Espada Longa"), 100, 5);
         adicionarShopItem(siBO, loja, itemBO.procurarPorNome("Cajado Arcano"), 150, 3);
         adicionarShopItem(siBO, loja, itemBO.procurarPorNome("Escudo de Madeira"), 80, 4);
@@ -171,13 +155,6 @@ public class IniciarMain {
         }
     }
 
-    private static void adicionarStatus(StatusBO bo, Status s) {
-        if (!bo.existe(s)) {
-            bo.inserir(s);
-            System.out.println("   + Status criado: " + s.getNome());
-        }
-    }
-
     private static void adicionarInimigo(InimigoBO bo, Inimigo i) {
         if (!bo.existe(i)) {
             bo.inserir(i);
@@ -193,14 +170,20 @@ public class IniciarMain {
     }
 
     private static void adicionarShopItem(ShopItemBO bo, Shop shop, Item item, int preco, int quantidade) {
-        if (item == null) return;
+        if (item == null) {
+            System.out.println("   ⚠️ Item não encontrado para adicionar ao shop");
+            return;
+        }
 
+        // ✅ CORREÇÃO: Usar o novo construtor do ShopItem
         ShopItem si = new ShopItem(shop.getId(), item.getId(), preco, quantidade);
 
         if (!bo.inserir(si)) {
+            // Se já existe, atualiza
             bo.alterar(si);
+            System.out.println("   ↻ Item atualizado no shop: " + item.getNome() + " (Preço: " + preco + ", Qtd: " + quantidade + ")");
+        } else {
+            System.out.println("   + Item adicionado ao shop: " + item.getNome() + " (Preço: " + preco + ", Qtd: " + quantidade + ")");
         }
-
-        System.out.println("   + Item adicionado ao shop: " + item.getNome());
     }
 }

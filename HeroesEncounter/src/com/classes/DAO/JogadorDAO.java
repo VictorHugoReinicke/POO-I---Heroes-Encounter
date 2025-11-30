@@ -3,6 +3,7 @@ package com.classes.DAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,20 +76,73 @@ public class JogadorDAO {
 	}
 
 	public boolean excluir(Jogador jogador) {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "DELETE FROM " + NOMEDATABELA + " WHERE id = ?;";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, jogador.getId());
-			ps.executeUpdate();
-			ps.close();
-			conn.close();
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+        Connection conn = null;
+        try {
+            conn = Conexao.conectar();
+            conn.setAutoCommit(false); // ✅ INICIA TRANSACTION
+            
+            int idJogador = jogador.getId();
+            System.out.println("🗑️ Iniciando deleção em cascata do jogador ID: " + idJogador);
+            
+            // ✅ 1. PRIMEIRO DELETA OS ITENS DO JOGADOR
+            System.out.println("📦 Deletando itens do jogador...");
+            String sqlItens = "DELETE FROM jogadoritem WHERE idJogador = ?";
+            try (PreparedStatement ps = conn.prepareStatement(sqlItens)) {
+                ps.setInt(1, idJogador);
+                int itensDeletados = ps.executeUpdate();
+                System.out.println("✅ Itens deletados: " + itensDeletados);
+            }
+            
+            // ✅ 2. DELETA OS STATUS DO JOGADOR
+            System.out.println("⚡ Deletando status do jogador...");
+            String sqlStatus = "DELETE FROM jogadorstatus WHERE idJogador = ?";
+            try (PreparedStatement ps = conn.prepareStatement(sqlStatus)) {
+                ps.setInt(1, idJogador);
+                int statusDeletados = ps.executeUpdate();
+                System.out.println("✅ Status deletados: " + statusDeletados);
+            }
+                     
+                  
+            // ✅ 5. FINALMENTE DELETA O JOGADOR
+            System.out.println("👤 Deletando jogador...");
+            String sqlJogador = "DELETE FROM " + NOMEDATABELA + " WHERE id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(sqlJogador)) {
+                ps.setInt(1, idJogador);
+                int jogadorDeletado = ps.executeUpdate();
+                
+                if (jogadorDeletado > 0) {
+                    conn.commit(); // ✅ CONFIRMA TODAS AS DELEÇÕES
+                    System.out.println("✅ Jogador deletado com sucesso!");
+                    return true;
+                } else {
+                    conn.rollback(); // ✅ CANCELA TUDO SE FALHAR
+                    System.out.println("❌ Nenhum jogador foi deletado");
+                    return false;
+                }
+            }
+            
+        } catch (Exception e) {
+            try {
+                if (conn != null) {
+                    conn.rollback(); // ✅ CANCELA EM CASO DE ERRO
+                }
+            } catch (SQLException ex) {
+                System.err.println("❌ Erro no rollback: " + ex.getMessage());
+            }
+            System.err.println("❌ Erro ao deletar jogador: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true); // ✅ RESTAURA AUTO-COMMIT
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("❌ Erro ao fechar conexão: " + e.getMessage());
+            }
+        }
+    }
 
 	public Jogador procurarPorCodigo(Jogador jogador) {
 		try {

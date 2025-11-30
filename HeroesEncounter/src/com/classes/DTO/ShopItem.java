@@ -7,6 +7,7 @@ public class ShopItem {
 
 	private int precoVenda;
 	private int quantidade;
+	private int quantidadeDisponivel;
 
 	private Item item;
 	private Shop shop;
@@ -16,6 +17,7 @@ public class ShopItem {
 		this.idItem = idItem;
 		this.precoVenda = precoVenda;
 		this.quantidade = quantidade;
+		this.quantidadeDisponivel = quantidade;
 	}
 
 	public ShopItem() {
@@ -53,7 +55,26 @@ public class ShopItem {
 		this.quantidade = quantidade;
 	}
 
-	
+	public int getQuantidadeDisponivel() {
+		return quantidadeDisponivel;
+	}
+
+	public void setQuantidadeDisponivel(int quantidadeDisponivel) {
+		this.quantidadeDisponivel = quantidadeDisponivel;
+	}
+
+	public boolean temEstoque() {
+		return quantidadeDisponivel > 0;
+	}
+
+	public boolean diminuirEstoque() {
+		if (temEstoque()) {
+			quantidadeDisponivel--;
+			return true;
+		}
+		return false;
+	}
+
 	public Item getItem() {
 		return item;
 	}
