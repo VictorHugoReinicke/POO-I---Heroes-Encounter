@@ -5,62 +5,67 @@ import java.net.*;
 import java.util.*;
 
 public class NetworkManager {
-    private static final int PORT = 12345;
+    private static final int[] PORTS = {12345, 12346, 12347, 12348, 12349}; // Múltiplas portas para tentar
     private ServerSocket serverSocket;
-    private Socket clientSocket;
+    private Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private boolean isHost = false;
+    private int currentPort;
     
     public boolean startAsHost() {
-        try {
-            serverSocket = new ServerSocket(PORT);
-            isHost = true;
-            System.out.println("Host iniciado. Aguardando jogador 2... IP: " + getLocalIP());
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+        for (int port : PORTS) {
+            try {
+                serverSocket = new ServerSocket(port);
+                this.currentPort = port;
+                isHost = true;
+                System.out.println("Host iniciado na porta " + port + ". Aguardando jogador 2... IP: " + getLocalIP());
+                
+                // Aguardar conexão imediatamente
+                System.out.println("Aguardando conexão na porta " + port + "...");
+                socket = serverSocket.accept();
+                initializeStreams();
+                
+                System.out.println("Jogador 2 conectado!");
+                return true;
+                
+            } catch (IOException e) {
+                System.out.println("Porta " + port + " ocupada, tentando próxima...");
+                continue; // Tenta a próxima porta
+            }
         }
+        
+        System.err.println("Todas as portas estão ocupadas!");
+        return false;
     }
     
     public boolean connectAsClient(String hostIP) {
-        try {
-            clientSocket = new Socket(hostIP, PORT);
-            isHost = false;
-            initializeStreams();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+        // Tenta conectar nas portas possíveis
+        for (int port : PORTS) {
+            try {
+                System.out.println("Tentando conectar em " + hostIP + ":" + port);
+                socket = new Socket(hostIP, port);
+                this.currentPort = port;
+                isHost = false;
+                initializeStreams();
+                System.out.println("Conectado com sucesso na porta " + port);
+                return true;
+                
+            } catch (IOException e) {
+                System.out.println("Falha na porta " + port + ", tentando próxima...");
+                continue;
+            }
         }
-    }
-    
-    public Socket waitForClient() {
-        try {
-            Socket client = serverSocket.accept();
-            this.clientSocket = client; // ✅ CORREÇÃO: Atribuir ao clientSocket
-            initializeStreams();
-            return client;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        
+        System.err.println("Não foi possível conectar em nenhuma porta!");
+        return false;
     }
     
     private void initializeStreams() throws IOException {
-        if (isHost) {
-            // ✅ CORREÇÃO: Verificar se clientSocket não é null
-            if (clientSocket != null) {
-                output = new ObjectOutputStream(clientSocket.getOutputStream());
-                input = new ObjectInputStream(clientSocket.getInputStream());
-            }
-        } else {
-            // ✅ CORREÇÃO: Verificar se clientSocket não é null
-            if (clientSocket != null) {
-                output = new ObjectOutputStream(clientSocket.getOutputStream());
-                input = new ObjectInputStream(clientSocket.getInputStream());
-            }
+        if (socket != null && socket.isConnected()) {
+            output = new ObjectOutputStream(socket.getOutputStream());
+            input = new ObjectInputStream(socket.getInputStream());
+            System.out.println("Streams inicializados com sucesso");
         }
     }
     
@@ -69,19 +74,22 @@ public class NetworkManager {
             if (output != null) {
                 output.writeObject(obj);
                 output.flush();
+                System.out.println("Objeto enviado: " + obj.getClass().getSimpleName());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao enviar objeto: " + e.getMessage());
         }
     }
     
     public Object receiveObject() {
         try {
             if (input != null) {
-                return input.readObject();
+                Object obj = input.readObject();
+                System.out.println("Objeto recebido: " + (obj != null ? obj.getClass().getSimpleName() : "null"));
+                return obj;
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao receber objeto: " + e.getMessage());
         }
         return null;
     }
@@ -90,8 +98,9 @@ public class NetworkManager {
         try {
             if (input != null) input.close();
             if (output != null) output.close();
-            if (clientSocket != null) clientSocket.close();
+            if (socket != null) socket.close();
             if (serverSocket != null) serverSocket.close();
+            System.out.println("Conexão fechada");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,6 +119,10 @@ public class NetworkManager {
     }
     
     public boolean isConnected() {
-        return clientSocket != null && !clientSocket.isClosed();
+        return socket != null && socket.isConnected() && !socket.isClosed();
+    }
+    
+    public int getCurrentPort() {
+        return currentPort;
     }
 }
