@@ -3,6 +3,7 @@ package com.classes.network;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NetworkManager {
 
@@ -12,81 +13,108 @@ public class NetworkManager {
     private ObjectInputStream in;
 
     private final BlockingQueue<Object> receivedQueue = new LinkedBlockingQueue<>();
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     private Thread listenThread;
-    private boolean running = false;
+    private Thread heartbeatThread;
 
-    // Porta atual do host ou client
     private int currentPort = 0;
-
-    // Faixa de portas permitidas
     private final int PORT_START = 5000;
     private final int PORT_END = 5010;
-
-    // Timeout de segurança
     private final int SOCKET_TIMEOUT = 8000;
+    private final int HEARTBEAT_INTERVAL = 3000;
 
     public int getCurrentPort() {
         return currentPort;
+    }
+
+    public boolean isConnected() {
+        return running.get() && socket != null && socket.isConnected() && !socket.isClosed();
     }
 
     // ============================================================
     //                  INICIAR COMO HOST
     // ============================================================
     public boolean startAsHost() {
-        if (running) stop();
+        if (running.get()) stop();
 
         for (int port = PORT_START; port <= PORT_END; port++) {
             try {
                 serverSocket = new ServerSocket(port);
+                serverSocket.setSoTimeout(10000); // Timeout para accept
                 currentPort = port;
 
                 System.out.println("[HOST] Aguardando conexão na porta " + port + "...");
-                socket = serverSocket.accept();
-                socket.setSoTimeout(SOCKET_TIMEOUT);
+                
+                // Thread para aceitar conexão sem bloquear a UI
+                CompletableFuture<Socket> socketFuture = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return serverSocket.accept();
+                    } catch (IOException e) {
+                        return null;
+                    }
+                });
 
-                out = new ObjectOutputStream(socket.getOutputStream());
-                in = new ObjectInputStream(socket.getInputStream());
+                socket = socketFuture.get(10, TimeUnit.SECONDS); // Timeout de 10 segundos
+                
+                if (socket == null) {
+                    serverSocket.close();
+                    continue;
+                }
 
+                setupSocket();
                 startListenerThread();
-                running = true;
+                startHeartbeat();
+                running.set(true);
                 return true;
 
-            } catch (IOException e) {
-                // Porta ocupada, tenta a próxima
+            } catch (Exception e) {
+                System.err.println("[HOST] Erro na porta " + port + ": " + e.getMessage());
+                closeSocketAndServer();
             }
         }
-
-        return false; // todas as portas ocupadas
+        return false;
     }
 
     // ============================================================
     //                  INICIAR COMO CLIENTE
     // ============================================================
     public boolean startAsClient(String ip) {
-        if (running) stop();
+        if (running.get()) stop();
 
         for (int port = PORT_START; port <= PORT_END; port++) {
             try {
                 socket = new Socket();
                 socket.connect(new InetSocketAddress(ip, port), SOCKET_TIMEOUT);
-                socket.setSoTimeout(SOCKET_TIMEOUT);
-
-                out = new ObjectOutputStream(socket.getOutputStream());
-                in = new ObjectInputStream(socket.getInputStream());
-
+                
+                setupSocket();
                 currentPort = port;
                 startListenerThread();
-                running = true;
-
+                startHeartbeat();
+                running.set(true);
                 return true;
 
             } catch (IOException e) {
-                // tenta a próxima porta
+                System.err.println("[CLIENT] Porta " + port + " falhou: " + e.getMessage());
+                closeSocket();
             }
         }
-
         return false;
+    }
+
+    // ============================================================
+    //                  CONFIGURAÇÃO DO SOCKET
+    // ============================================================
+    private void setupSocket() throws IOException {
+        socket.setSoTimeout(SOCKET_TIMEOUT);
+        socket.setTcpNoDelay(true); // Melhor performance para pequenos pacotes
+        
+        // IMPORTANTE: Criar OutputStream antes do InputStream para evitar deadlock
+        out = new ObjectOutputStream(socket.getOutputStream());
+        out.flush(); // Garantir que header seja enviado
+        in = new ObjectInputStream(socket.getInputStream());
+        
+        System.out.println("[NETWORK] Conexão estabelecida com sucesso");
     }
 
     // ============================================================
@@ -94,17 +122,38 @@ public class NetworkManager {
     // ============================================================
     private void startListenerThread() {
         listenThread = new Thread(() -> {
-            try {
-                while (!Thread.interrupted() && socket != null && !socket.isClosed()) {
-                    try {
-                        Object obj = in.readObject();
-                        receivedQueue.offer(obj); // coloca na fila
-                    } catch (SocketTimeoutException timeout) {
-                        // timeout normal → continua
+            while (running.get() && !Thread.currentThread().isInterrupted()) {
+                try {
+                    Object obj = in.readObject();
+                    if ("HEARTBEAT".equals(obj)) {
+                        // Ignorar heartbeats, apenas manter conexão
+                        continue;
                     }
+                    receivedQueue.offer(obj);
+                    System.out.println("[NETWORK] Objeto recebido: " + obj.getClass().getSimpleName());
+                } catch (SocketTimeoutException e) {
+                    // Timeout normal, continuar ouvindo
+                    continue;
+                } catch (EOFException e) {
+                    System.err.println("[LISTENER] Conexão fechada pelo peer");
+                    break;
+                } catch (IOException e) {
+                    if (running.get()) {
+                        System.err.println("[LISTENER] Erro de IO: " + e.getMessage());
+                    }
+                    break;
+                } catch (ClassNotFoundException e) {
+                    System.err.println("[LISTENER] Classe não encontrada: " + e.getMessage());
+                } catch (Exception e) {
+                    System.err.println("[LISTENER] Erro inesperado: " + e.getMessage());
+                    break;
                 }
-            } catch (Exception e) {
-                System.err.println("[ERRO LISTENER] " + e.getMessage());
+            }
+            
+            // Conexão fechada
+            if (running.get()) {
+                System.err.println("[LISTENER] Conexão perdida");
+                stop();
             }
         });
 
@@ -113,19 +162,49 @@ public class NetworkManager {
     }
 
     // ============================================================
+    //                  HEARTBEAT PARA MANTER CONEXÃO
+    // ============================================================
+    private void startHeartbeat() {
+        heartbeatThread = new Thread(() -> {
+            while (running.get() && !Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(HEARTBEAT_INTERVAL);
+                    if (isConnected()) {
+                        sendObject("HEARTBEAT");
+                    }
+                } catch (Exception e) {
+                    System.err.println("[HEARTBEAT] Erro: " + e.getMessage());
+                    break;
+                }
+            }
+        });
+        
+        heartbeatThread.setDaemon(true);
+        heartbeatThread.start();
+    }
+
+    // ============================================================
     //                  RECEBER OBJETO (BLOQUEANTE)
     // ============================================================
-    public Object receiveObject() throws Exception {
+    public Object receiveObject() throws InterruptedException {
         return receivedQueue.take();
+    }
+
+    public Object receiveObjectWithTimeout(long timeout, TimeUnit unit) throws InterruptedException {
+        return receivedQueue.poll(timeout, unit);
     }
 
     // ============================================================
     //                  ENVIAR OBJETO
     // ============================================================
-    public synchronized void sendObject(Object obj) throws Exception {
-        if (out != null) {
+    public synchronized void sendObject(Object obj) throws IOException {
+        if (out != null && isConnected()) {
             out.writeObject(obj);
             out.flush();
+            out.reset(); // Important: reset stream to avoid caching issues
+            System.out.println("[NETWORK] Objeto enviado: " + obj.getClass().getSimpleName());
+        } else {
+            throw new IOException("Conexão não disponível para envio");
         }
     }
 
@@ -133,12 +212,50 @@ public class NetworkManager {
     //                  FECHAR CONEXÃO
     // ============================================================
     public void stop() {
-        running = false;
-        try { if (listenThread != null) listenThread.interrupt(); } catch (Exception ignored) {}
-        try { if (in != null) in.close(); } catch (Exception ignored) {}
-        try { if (out != null) out.close(); } catch (Exception ignored) {}
-        try { if (socket != null) socket.close(); } catch (Exception ignored) {}
-        try { if (serverSocket != null) serverSocket.close(); } catch (Exception ignored) {}
+        running.set(false);
+        
+        if (listenThread != null) {
+            listenThread.interrupt();
+        }
+        if (heartbeatThread != null) {
+            heartbeatThread.interrupt();
+        }
+        
+        closeSocketAndServer();
+        receivedQueue.clear();
+        
+        System.out.println("[NETWORK] Conexão fechada");
+    }
+
+    private void closeSocketAndServer() {
+        closeSocket();
+        closeServerSocket();
+    }
+
+    private void closeSocket() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            System.err.println("[NETWORK] Erro ao fechar socket: " + e.getMessage());
+        } finally {
+            socket = null;
+            in = null;
+            out = null;
+        }
+    }
+
+    private void closeServerSocket() {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            System.err.println("[NETWORK] Erro ao fechar server socket: " + e.getMessage());
+        } finally {
+            serverSocket = null;
+        }
     }
     
     public void sendObjectSafe(Object obj) {
@@ -146,6 +263,7 @@ public class NetworkManager {
             sendObject(obj);
         } catch (Exception e) {
             System.err.println("[ERRO AO ENVIAR] " + e.getMessage());
+            stop();
         }
     }
 }

@@ -6,6 +6,7 @@ import com.classes.network.NetworkManager;
 import javax.swing.*;
 import java.awt.*;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 
@@ -112,32 +113,42 @@ public class TelaMultiplayerHost extends JDialog {
 	}
 
 	private void iniciarHost() {
-		// Mostrar que está iniciando
-		lblStatus.setText("Iniciando servidor...");
-		lblStatus.setForeground(Color.BLUE);
+	    lblStatus.setText("Iniciando servidor...");
+	    lblStatus.setForeground(Color.BLUE);
+	    btnVoltar.setEnabled(false);
 
-		// Executar em thread separada para não travar a interface
-		new Thread(() -> {
-			if (networkManager.startAsHost()) {
-				SwingUtilities.invokeLater(() -> {
-					lblIP.setText(getLocalIP() + " (Porta: " + networkManager.getCurrentPort() + ")");
-					lblStatus.setText("Jogador 2 conectado! Aguardando seleção...");
-					lblStatus.setForeground(Color.GREEN);
-					enviarListaPersonagens();
-					aguardarSelecaoConvidado();
-				});
-			} else {
-				SwingUtilities.invokeLater(() -> {
-					lblStatus.setText("Erro: Todas as portas estão ocupadas!");
-					lblStatus.setForeground(Color.RED);
-					JOptionPane.showMessageDialog(this,
-							"Não foi possível iniciar o servidor.\nTodas as portas estão ocupadas.\nFeche outros programas e tente novamente.",
-							"Erro ao Iniciar Servidor", JOptionPane.ERROR_MESSAGE);
-				});
-			}
-		}).start();
+	    new Thread(() -> {
+	        try {
+	            if (networkManager.startAsHost()) {
+	                SwingUtilities.invokeLater(() -> {
+	                    String ip = getLocalIP();
+	                    lblIP.setText(ip + " (Porta: " + networkManager.getCurrentPort() + ")");
+	                    lblStatus.setText("Jogador 2 conectado! Aguardando seleção...");
+	                    lblStatus.setForeground(Color.GREEN);
+	                    enviarListaPersonagens();
+	                    aguardarSelecaoConvidado();
+	                });
+	            } else {
+	                SwingUtilities.invokeLater(() -> {
+	                    lblStatus.setText("Erro: Não foi possível iniciar o servidor");
+	                    lblStatus.setForeground(Color.RED);
+	                    btnVoltar.setEnabled(true);
+	                    JOptionPane.showMessageDialog(this,
+	                        "Não foi possível iniciar o servidor.\n" +
+	                        "Verifique se as portas 5000-5010 estão liberadas no firewall.",
+	                        "Erro ao Iniciar Servidor", 
+	                        JOptionPane.ERROR_MESSAGE);
+	                });
+	            }
+	        } catch (Exception e) {
+	            SwingUtilities.invokeLater(() -> {
+	                lblStatus.setText("Erro: " + e.getMessage());
+	                lblStatus.setForeground(Color.RED);
+	                btnVoltar.setEnabled(true);
+	            });
+	        }
+	    }).start();
 	}
-
 	private void enviarListaPersonagens() {
 		try {
 			networkManager.sendObject(jogadores);
@@ -226,11 +237,18 @@ public class TelaMultiplayerHost extends JDialog {
 	}
 
 	private String getLocalIP() {
-		try {
-			return InetAddress.getLocalHost().getHostAddress();
-		} catch (Exception e) {
-			return "127.0.0.1";
-		}
+	    try {
+	        try (Socket socket = new Socket()) {
+	            socket.connect(new InetSocketAddress("google.com", 80), 1000);
+	            return socket.getLocalAddress().getHostAddress();
+	        }
+	    } catch (Exception e) {
+	        try {
+	            return InetAddress.getLocalHost().getHostAddress();
+	        } catch (Exception ex) {
+	            return "127.0.0.1";
+	        }
+	    }
 	}
 
 	private String determinarClasse(Jogador jogador) {

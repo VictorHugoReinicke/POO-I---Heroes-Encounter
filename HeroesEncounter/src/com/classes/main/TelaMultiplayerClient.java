@@ -124,24 +124,41 @@ public class TelaMultiplayerClient extends JDialog {
 
         btnConectar.setEnabled(false);
         txtIP.setEnabled(false);
-        lblStatus.setText("Conectando...");
+        lblStatus.setText("Conectando ao " + ip + "...");
         lblStatus.setForeground(Color.BLUE);
 
         new Thread(() -> {
-        	boolean conectado = networkManager.startAsClient(ip);
+            try {
+                boolean conectado = networkManager.startAsClient(ip);
 
-            SwingUtilities.invokeLater(() -> {
-                if (conectado) {
-                    lblStatus.setText("Conectado! Aguardando personagens...");
-                    lblStatus.setForeground(Color.GREEN);
-                    receberPersonagens();
-                } else {
-                    lblStatus.setText("Falha na conexão!");
+                SwingUtilities.invokeLater(() -> {
+                    if (conectado) {
+                        lblStatus.setText("Conectado! Aguardando personagens...");
+                        lblStatus.setForeground(Color.GREEN);
+                        receberPersonagens();
+                    } else {
+                        lblStatus.setText("Falha: Verifique IP e firewall");
+                        lblStatus.setForeground(Color.RED);
+                        btnConectar.setEnabled(true);
+                        txtIP.setEnabled(true);
+                        JOptionPane.showMessageDialog(this,
+                            "Não foi possível conectar ao host.\n" +
+                            "Verifique:\n" +
+                            "• IP está correto\n" +
+                            "• Host está executando\n" +
+                            "• Firewall permite conexões",
+                            "Erro de Conexão",
+                            JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() -> {
+                    lblStatus.setText("Erro: " + e.getMessage());
                     lblStatus.setForeground(Color.RED);
                     btnConectar.setEnabled(true);
                     txtIP.setEnabled(true);
-                }
-            });
+                });
+            }
         }).start();
     }
 
