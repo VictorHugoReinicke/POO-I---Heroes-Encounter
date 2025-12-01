@@ -25,6 +25,11 @@ public class Mago extends Jogador {
         this.setDanoMagico(25);
     }
 
+    public Mago(String nome) {
+        this();
+        this.setNome(nome);
+    }
+    
     public int getDanoMagico() {
         return danoMagico;
     }

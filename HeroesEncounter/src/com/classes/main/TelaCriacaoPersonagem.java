@@ -3,8 +3,6 @@ package com.classes.main;
 import com.classes.DTO.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class TelaCriacaoPersonagem extends JFrame {
     private TelaSelecao telaPai; // REFERÊNCIA PARA A TELA PAI

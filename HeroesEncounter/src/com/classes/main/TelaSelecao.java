@@ -6,6 +6,7 @@ import java.awt.*;
 public class TelaSelecao extends JFrame {
     private JButton btnNovoPersonagem;
     private JButton btnCarregarPersonagem;
+    private JButton btnMultiplayer;
     private JButton btnSair;
 
     public TelaSelecao() {
@@ -40,11 +41,16 @@ public class TelaSelecao extends JFrame {
         btnCarregarPersonagem = criarBotaoGrande("📂 CARREGAR PERSONAGEM", new Color(60, 180, 120));
         btnCarregarPersonagem.addActionListener(e -> abrirListaPersonagens());
 
+        btnMultiplayer = criarBotaoGrande("🎮 MULTIPLAYER", new Color(150, 50, 200));
+        btnMultiplayer.addActionListener(e -> abrirMultiplayer());
+
+        
         // Botão Sair
         btnSair = criarBotaoGrande("🚪 SAIR", new Color(200, 60, 60));
         btnSair.addActionListener(e -> System.exit(0));
 
         botoesPanel.add(btnNovoPersonagem);
+        botoesPanel.add(btnMultiplayer);
         botoesPanel.add(btnCarregarPersonagem);
         botoesPanel.add(btnSair);
 
@@ -112,4 +118,11 @@ public class TelaSelecao extends JFrame {
             new TelaSelecao().setVisible(true);
         });
     }
+    
+    private void abrirMultiplayer() {
+        TelaMultiplayerPrincipal telaMultiplayer = new TelaMultiplayerPrincipal(this);
+        telaMultiplayer.setVisible(true);
+        this.setVisible(false);
+    }
+    
 }

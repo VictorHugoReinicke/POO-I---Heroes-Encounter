@@ -16,6 +16,7 @@ public class TelaListaPersonagens extends JDialog {
 	private JTextArea txtDetalhes;
 	private List<Jogador> jogadores;
 	private JogadorBO jogadorBO;
+	private boolean modoMultiplayer = false;
 
 	public TelaListaPersonagens(TelaSelecao pai) {
 		super(pai, "Selecionar Personagem Existente", true);
@@ -25,6 +26,13 @@ public class TelaListaPersonagens extends JDialog {
 		carregarPersonagens();
 	}
 
+	 public void setModoMultiplayer(boolean modoMultiplayer) {
+	        this.modoMultiplayer = modoMultiplayer;
+	        if (modoMultiplayer) {
+	            setTitle("Selecionar Personagem para Multijogador");
+	        }
+	    }
+	
 	protected void onPersonagemSelecionado(Jogador jogador) {}
 
 	private void initializeTela() {

@@ -21,6 +21,11 @@ public class Guerreiro extends Jogador {
 		this.setOuro(100);
 	}
 
+	public Guerreiro(String nome) {
+        this(); 
+        this.setNome(nome);
+    }
+	
 	public void inicializarKit(ItemBO itemBO, HabilidadesBO habBO) {
 		ItemArma machado = (ItemArma) itemBO.procurarPorCodigo(1);
 		this.setArmaEquipada(machado);

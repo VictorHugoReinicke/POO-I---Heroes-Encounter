@@ -21,6 +21,11 @@ public class Paladino extends Jogador {
 		this.setOuro(100);
 	}
 
+	public Paladino(String nome) {
+        this();
+        this.setNome(nome);
+    }
+	
 	public void inicializarKit(ItemBO itemBO, HabilidadesBO habBO) {
 	    // Paladino deve usar Espada Leve (ID 3), não Cajado (ID 2)
 	    ItemArma espadaLeve = (ItemArma) itemBO.procurarPorCodigo(1);

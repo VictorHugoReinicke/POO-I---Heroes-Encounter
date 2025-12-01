@@ -1,322 +1,503 @@
 package com.classes.main;
 
 import com.classes.networking.*;
-import com.classes.BO.*;
 import com.classes.DTO.*;
+import com.classes.BO.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Random;
 
-public class TelaAventuraMultiplayer extends JDialog {
+public class TelaAventuraMultiplayer extends JFrame {
     private Jogador jogadorLocal;
     private Jogador jogadorRemoto;
     private NetworkManager networkManager;
-    private TelaAventura telaAventura;
     private SessaoMultiplayer sessao;
+    private int batalhasVencidas;
+    private boolean jornadaAtiva;
+    private InimigoBO inimigoBO;
+    private Random random;
 
     // Componentes da interface
     private JLabel lblStatus;
+    private JLabel lblProgresso;
     private JLabel lblJogadorLocal;
     private JLabel lblJogadorRemoto;
-    private JTextArea txtLogMultiplayer;
-    private JButton btnIniciarHost;
-    private JButton btnConectar;
-    private JButton btnIniciarAventura;
-    private JTextField txtIP;
+    private JTextArea txtLog;
+    private JButton btnIniciarJornada;
+    private JButton btnProximaBatalha;
+    private JButton btnStatus;
+    private JButton btnVoltarMenu;
 
-    public TelaAventuraMultiplayer(TelaAventura pai, Jogador jogador) {
-        super(pai, "Modo Multijogador - LAN", true);
-        this.telaAventura = pai;
+    // ✅ CONSTRUTOR PARA USO DA TELA AVENTURA ORIGINAL
+    public TelaAventuraMultiplayer(Jogador jogador) {
+        this(jogador, new NetworkManager(), SessaoMultiplayer.getInstancia());
+    }
+
+    // ✅ CONSTRUTOR PARA USO DA TELA MULTIPLAYER PRINCIPAL
+    public TelaAventuraMultiplayer(Jogador jogador, NetworkManager networkManager, SessaoMultiplayer sessao) {
         this.jogadorLocal = jogador;
-        this.networkManager = new NetworkManager();
-        this.sessao = SessaoMultiplayer.getInstancia();
+        this.networkManager = networkManager;
+        this.sessao = sessao;
+        this.batalhasVencidas = 0;
+        this.jornadaAtiva = false;
+        this.inimigoBO = new InimigoBO();
+        this.random = new Random();
+        
+        // ✅ TENTA OBTER JOGADOR REMOTO DA SESSÃO
+        this.jogadorRemoto = obterJogadorRemoto();
+        
         initializeTela();
+        iniciarProcessamentoMensagens();
+        
+        // ✅ SE VEIO DA TELA AVENTURA ORIGINAL, INICIA CONEXÃO AUTOMÁTICA
+        if (this.networkManager.isConnected()) {
+            adicionarLog("🔗 Conectado via sessão existente");
+        } else {
+            adicionarLog("🎮 Modo multiplayer standalone");
+        }
+    }
+
+    private Jogador obterJogadorRemoto() {
+        List<Jogador> todosJogadores = sessao.getTodosJogadores();
+        for (Jogador j : todosJogadores) {
+            if (j.getId() != jogadorLocal.getId()) {
+                return j;
+            }
+        }
+        return null;
     }
 
     private void initializeTela() {
+        setTitle("Aventura Multiplayer - " + jogadorLocal.getNome());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
-        setSize(700, 500);
-        setLocationRelativeTo(getParent());
+        setResizable(false);
 
         // Painel de título
         JPanel tituloPanel = new JPanel();
         tituloPanel.setBackground(new Color(30, 30, 70));
-        JLabel titulo = new JLabel("🎮 MODO MULTIJOGADOR - LAN", JLabel.CENTER);
+        JLabel titulo = new JLabel("AVENTURA MULTIPLAYER - " + jogadorLocal.getNome().toUpperCase(), JLabel.CENTER);
         titulo.setFont(new Font("Arial", Font.BOLD, 18));
         titulo.setForeground(Color.WHITE);
         tituloPanel.add(titulo);
 
-        // Painel de status
-        JPanel statusPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        statusPanel.setBorder(BorderFactory.createTitledBorder("Status da Conexão"));
+        // Painel de status multiplayer
+        JPanel statusPanel = new JPanel(new GridLayout(4, 1));
+        statusPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        statusPanel.setBackground(Color.WHITE);
 
-        lblStatus = new JLabel("🔴 Desconectado", JLabel.CENTER);
+        lblStatus = new JLabel("Status: " + (networkManager.isConnected() ? 
+            (networkManager.isHost() ? "🏠 Host" : "🔗 Client") : "🔴 Desconectado"));
         lblStatus.setFont(new Font("Arial", Font.BOLD, 14));
 
-        lblJogadorLocal = new JLabel("Jogador Local: " + jogadorLocal.getNome(), JLabel.CENTER);
-        lblJogadorRemoto = new JLabel("Jogador Remoto: Aguardando...", JLabel.CENTER);
+        lblJogadorLocal = new JLabel("🎮 Você: " + jogadorLocal.getNome() + " | HP: " + jogadorLocal.getHp() + "/" + jogadorLocal.getHpMax());
+        lblJogadorLocal.setFont(new Font("Arial", Font.BOLD, 12));
 
+        if (jogadorRemoto != null) {
+            lblJogadorRemoto = new JLabel("👥 Parceiro: " + jogadorRemoto.getNome() + " | HP: " + jogadorRemoto.getHp() + "/" + jogadorRemoto.getHpMax());
+        } else {
+            lblJogadorRemoto = new JLabel("👥 Parceiro: Aguardando conexão...");
+        }
+        lblJogadorRemoto.setFont(new Font("Arial", Font.BOLD, 12));
+        lblJogadorRemoto.setForeground(Color.BLUE);
+
+        lblProgresso = new JLabel("Progresso: Jornada não iniciada");
+        lblProgresso.setFont(new Font("Arial", Font.BOLD, 12));
+
+        statusPanel.add(lblStatus);
         statusPanel.add(lblJogadorLocal);
         statusPanel.add(lblJogadorRemoto);
-        statusPanel.add(lblStatus);
-
-        // Painel de conexão
-        JPanel conexaoPanel = new JPanel(new GridLayout(2, 1, 10, 10));
-        conexaoPanel.setBorder(BorderFactory.createTitledBorder("Conexão"));
-
-        // Painel do Host
-        JPanel hostPanel = new JPanel(new FlowLayout());
-        hostPanel.setBorder(BorderFactory.createTitledBorder("Ser o Host"));
-        btnIniciarHost = criarBotao("🏠 INICIAR COMO HOST", new Color(0, 100, 200));
-        btnIniciarHost.addActionListener(e -> iniciarComoHost());
-        hostPanel.add(btnIniciarHost);
-
-        // Painel do Cliente
-        JPanel clientPanel = new JPanel(new FlowLayout());
-        clientPanel.setBorder(BorderFactory.createTitledBorder("Conectar a um Host"));
-        
-        clientPanel.add(new JLabel("IP do Host:"));
-        txtIP = new JTextField(12);
-        txtIP.setText("192.168.1.");
-        clientPanel.add(txtIP);
-        
-        btnConectar = criarBotao("🔗 CONECTAR", new Color(0, 150, 0));
-        btnConectar.addActionListener(e -> conectarComoCliente());
-        clientPanel.add(btnConectar);
-
-        conexaoPanel.add(hostPanel);
-        conexaoPanel.add(clientPanel);
+        statusPanel.add(lblProgresso);
 
         // Painel de log
         JPanel logPanel = new JPanel(new BorderLayout());
-        logPanel.setBorder(BorderFactory.createTitledBorder("Log do Multijogador"));
+        logPanel.setBorder(BorderFactory.createTitledBorder("Log da Aventura Cooperativa"));
 
-        txtLogMultiplayer = new JTextArea(12, 50);
-        txtLogMultiplayer.setFont(new Font("Consolas", Font.PLAIN, 12));
-        txtLogMultiplayer.setEditable(false);
-        JScrollPane scrollLog = new JScrollPane(txtLogMultiplayer);
+        txtLog = new JTextArea(15, 50);
+        txtLog.setFont(new Font("Consolas", Font.PLAIN, 12));
+        txtLog.setEditable(false);
+        txtLog.setBackground(Color.BLACK);
+        txtLog.setForeground(Color.WHITE);
+
+        JScrollPane scrollLog = new JScrollPane(txtLog);
         logPanel.add(scrollLog, BorderLayout.CENTER);
 
-        // Painel de controles
-        JPanel controlesPanel = new JPanel(new FlowLayout());
-        btnIniciarAventura = criarBotao("🚀 INICIAR AVENTURA", new Color(200, 100, 0));
-        btnIniciarAventura.setEnabled(false);
-        btnIniciarAventura.addActionListener(e -> iniciarAventuraCooperativa());
+        // Painel de ações
+        JPanel acoesPanel = new JPanel(new GridLayout(1, 4, 5, 5));
+        acoesPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        acoesPanel.setBackground(new Color(240, 240, 240));
 
-        JButton btnFechar = criarBotao("❌ FECHAR", new Color(150, 0, 0));
-        btnFechar.addActionListener(e -> dispose());
+        btnIniciarJornada = criarBotaoAventura("⚔️ INICIAR JORNADA", new Color(220, 60, 60));
+        btnProximaBatalha = criarBotaoAventura("🎯 PRÓXIMA BATALHA", new Color(60, 120, 220));
+        btnStatus = criarBotaoAventura("📊 VER STATUS", new Color(60, 180, 120));
+        btnVoltarMenu = criarBotaoAventura("🏠 VOLTAR", new Color(100, 100, 100));
 
-        controlesPanel.add(btnIniciarAventura);
-        controlesPanel.add(btnFechar);
+        btnIniciarJornada.addActionListener(e -> iniciarJornadaMultiplayer());
+        btnProximaBatalha.addActionListener(e -> proximaBatalhaMultiplayer());
+        btnStatus.addActionListener(e -> mostrarStatusMultiplayer());
+        btnVoltarMenu.addActionListener(e -> voltar());
 
-        // Layout principal
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.add(statusPanel, BorderLayout.NORTH);
-        mainPanel.add(conexaoPanel, BorderLayout.CENTER);
+        acoesPanel.add(btnIniciarJornada);
+        acoesPanel.add(btnProximaBatalha);
+        acoesPanel.add(btnStatus);
+        acoesPanel.add(btnVoltarMenu);
+
+        // Inicialmente desabilitar próximo batalha
+        btnProximaBatalha.setEnabled(false);
 
         add(tituloPanel, BorderLayout.NORTH);
-        add(mainPanel, BorderLayout.CENTER);
+        add(statusPanel, BorderLayout.CENTER);
         add(logPanel, BorderLayout.EAST);
-        add(controlesPanel, BorderLayout.SOUTH);
+        add(acoesPanel, BorderLayout.SOUTH);
 
-        // Thread para processar mensagens de rede
-        new Thread(this::processarMensagensRede).start();
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+
+        // Mensagem de boas-vindas
+        adicionarLog("🎮 BEM-VINDO AO MODO MULTIPLAYER!");
+        adicionarLog("🤝 " + (networkManager.isConnected() ? 
+            "Conectado como " + (networkManager.isHost() ? "HOST" : "CLIENT") : 
+            "Modo Singleplayer Multiplayer"));
+        adicionarLog("🎮 Seu personagem: " + jogadorLocal.getNome());
+        
+        if (jogadorRemoto != null) {
+            adicionarLog("👥 Parceiro: " + jogadorRemoto.getNome());
+            adicionarLog("✅ Pronto para aventura cooperativa!");
+        } else if (networkManager.isConnected()) {
+            adicionarLog("⏳ Aguardando parceiro conectar...");
+        } else {
+            adicionarLog("💡 Dica: Use o menu principal para conectar com outro jogador");
+        }
+        
+        adicionarLog("");
+        adicionarLog("Clique em 'INICIAR JORNADA' para começar!");
     }
 
-    private JButton criarBotao(String texto, Color cor) {
+    private JButton criarBotaoAventura(String texto, Color cor) {
         JButton botao = new JButton(texto);
         botao.setBackground(cor);
         botao.setForeground(Color.WHITE);
         botao.setFont(new Font("Arial", Font.BOLD, 12));
         botao.setFocusPainted(false);
-        botao.setPreferredSize(new Dimension(180, 40));
-        
+        botao.setBorder(BorderFactory.createRaisedBevelBorder());
+        botao.setPreferredSize(new Dimension(180, 50));
+
         botao.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 botao.setBackground(cor.brighter());
                 botao.setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
+
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 botao.setBackground(cor);
                 botao.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
-        
+
         return botao;
     }
 
-    private void iniciarComoHost() {
-        if (networkManager.startAsHost()) {
-            sessao.adicionarJogador(jogadorLocal);
-            
-            lblStatus.setText("🟡 Aguardando jogador 2...");
-            btnIniciarHost.setEnabled(false);
-            btnConectar.setEnabled(false);
-            adicionarLog("✅ Você é o HOST (Jogador 1)");
-            adicionarLog("⏳ Aguardando jogador 2 conectar...");
-            adicionarLog("💡 Compartilhe seu IP com o outro jogador!");
-        } else {
-            adicionarLog("❌ Erro: Não foi possível iniciar como host");
-            adicionarLog("💡 Verifique se o firewall está bloqueando a conexão");
+    private void iniciarJornadaMultiplayer() {
+        if (!jornadaAtiva) {
+            jornadaAtiva = true;
+            batalhasVencidas = 0;
+
+            adicionarLog("==========================================");
+            adicionarLog("⚔️ JORNADA COOPERATIVA INICIADA! ⚔️");
+            adicionarLog("==========================================");
+            adicionarLog("Dupla: " + jogadorLocal.getNome() + " & " + 
+                        (jogadorRemoto != null ? jogadorRemoto.getNome() : "Aguardando..."));
+            adicionarLog("Missão: Vencer 3 batalhas épicas juntos!");
+            adicionarLog("==========================================");
+
+            lblStatus.setText("Status: Jornada Cooperativa em Andamento");
+            lblProgresso.setText("Progresso: " + batalhasVencidas + "/3 batalhas vencidas");
+
+            btnIniciarJornada.setEnabled(false);
+            btnProximaBatalha.setEnabled(true);
+
+            // ✅ SINCRONIZAR INÍCIO DE JORNADA COM OUTRO JOGADOR
+            if (networkManager.isConnected()) {
+                GameMessage jornadaMsg = new GameMessage(
+                    GameMessage.MessageType.GAME_SYNC,
+                    "JORNADA_INICIADA",
+                    jogadorLocal.getId()
+                );
+                networkManager.sendMessage(jornadaMsg);
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "⚔️ JORNADA COOPERATIVA INICIADA! ⚔️\n\n" +
+                    "Dupla: " + jogadorLocal.getNome() + " & " + 
+                    (jogadorRemoto != null ? jogadorRemoto.getNome() : "Parceiro") + "\n\n" +
+                    "Trabalhem juntos para vencer 3 batalhas!",
+                    "Jornada Cooperativa", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    private void conectarComoCliente() {
-        String hostIP = txtIP.getText().trim();
-        
-        if (hostIP.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "Digite o IP do computador HOST!\n\n" +
-                "Exemplos:\n" +
-                "• 192.168.1.100\n" + 
-                "• 192.168.0.150", 
-                "IP Necessário", JOptionPane.WARNING_MESSAGE);
+    private void proximaBatalhaMultiplayer() {
+        if (!jornadaAtiva) {
+            JOptionPane.showMessageDialog(this, "Inicie a jornada primeiro!", "Jornada Não Iniciada",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        adicionarLog("🔗 Tentando conectar ao HOST: " + hostIP);
-        
-        if (networkManager.connectAsClient(hostIP)) {
-            sessao.adicionarJogador(jogadorLocal);
-            
-            lblStatus.setText("🟢 Conectado como Cliente");
-            btnIniciarHost.setEnabled(false);
-            btnConectar.setEnabled(false);
-            adicionarLog("✅ Conectado ao HOST: " + hostIP);
 
-            // Enviar mensagem de join
-            GameMessage joinMsg = new GameMessage(
-                GameMessage.MessageType.PLAYER_JOIN, 
+        try {
+            Inimigo inimigo = obterInimigoAleatorio(batalhasVencidas == 2);
+
+            adicionarLog("");
+            adicionarLog("🎯 INICIANDO BATALHA COOPERATIVA " + (batalhasVencidas + 1));
+            adicionarLog("👹 Inimigo: " + inimigo.getNome());
+            adicionarLog("❤️ HP: " + inimigo.getHp() + " | ⚔️ Ataque: " + inimigo.getAtaque());
+
+            // ✅ INICIAR COMBATE MULTIPLAYER
+            TelaCombateMultiplayer telaCombate = new TelaCombateMultiplayer(
+                this, // ✅ Agora é JFrame
                 jogadorLocal, 
+                jogadorRemoto, 
+                inimigo, 
+                networkManager
+            );
+            telaCombate.setVisible(true);
+
+        } catch (Exception e) {
+            adicionarLog("❌ Erro ao iniciar batalha: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao iniciar batalha: " + e.getMessage(), "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private Inimigo obterInimigoAleatorio(boolean isChefe) {
+        try {
+            // ✅ APENAS HOST USA O BANCO - CLIENT RECEBE VIA REDE
+            if (networkManager.isHost()) {
+                List<Inimigo> todosInimigos = inimigoBO.pesquisarTodos();
+
+                if (todosInimigos == null || todosInimigos.isEmpty()) {
+                    throw new Exception("Nenhum inimigo encontrado no banco de dados");
+                }
+
+                List<Inimigo> inimigosFiltrados = new java.util.ArrayList<>();
+                for (Inimigo inimigo : todosInimigos) {
+                    String nomeClasse = inimigo.getClass().getSimpleName();
+                    if (isChefe && nomeClasse.equalsIgnoreCase("Chefe")) {
+                        inimigosFiltrados.add(inimigo);
+                    } else if (!isChefe && !nomeClasse.equalsIgnoreCase("Chefe")) {
+                        inimigosFiltrados.add(inimigo);
+                    }
+                }
+
+                if (inimigosFiltrados.isEmpty()) {
+                    inimigosFiltrados = todosInimigos;
+                }
+
+                int indexAleatorio = random.nextInt(inimigosFiltrados.size());
+                Inimigo inimigoSelecionado = inimigosFiltrados.get(indexAleatorio);
+                inimigoSelecionado.setHp(inimigoSelecionado.getHpMax());
+
+                return inimigoSelecionado;
+
+            } else {
+                // ✅ CLIENT: USA INIMIGO BÁSICO (SERÁ SINCRONIZADO PELO HOST)
+                adicionarLog("⏳ Aguardando host selecionar inimigo...");
+                return InimigoFactory.criarInimigo(isChefe ? "Chefe" : "Besta");
+            }
+
+        } catch (Exception e) {
+            adicionarLog("❌ Erro ao carregar inimigo: " + e.getMessage());
+            return InimigoFactory.criarInimigo(isChefe ? "Chefe" : "Besta");
+        }
+    }
+
+    public void batalhaVencida() {
+        batalhasVencidas++;
+        adicionarLog("🎉 Vitória Cooperativa! Batalhas vencidas: " + batalhasVencidas + "/3");
+        lblProgresso.setText("Progresso: " + batalhasVencidas + "/3 batalhas vencidas");
+
+        // ✅ SINCRONIZAR VITÓRIA
+        if (networkManager.isConnected()) {
+            GameMessage vitoriaMsg = new GameMessage(
+                GameMessage.MessageType.GAME_SYNC,
+                "VITORIA_" + batalhasVencidas,
                 jogadorLocal.getId()
             );
-            networkManager.sendMessage(joinMsg);
+            networkManager.sendMessage(vitoriaMsg);
+        }
+
+        if (batalhasVencidas >= 3) {
+            jornadaCompleta();
         } else {
-            adicionarLog("❌ Falha ao conectar ao HOST: " + hostIP);
-            adicionarLog("💡 Verifique:");
-            adicionarLog("   • O IP está correto?");
-            adicionarLog("   • O HOST já iniciou o servidor?");
-            adicionarLog("   • Firewall está bloqueando?");
+            // Restaurar recursos entre batalhas
+            jogadorLocal.setHp(Math.min(jogadorLocal.getHpMax(), jogadorLocal.getHp() + 20));
+            if (jogadorLocal.getManaMax() > 0) {
+                jogadorLocal.setMana(jogadorLocal.getManaMax());
+            }
+            adicionarLog("💖 HP restaurado em 20 pontos!");
         }
     }
 
-    private void iniciarAventuraCooperativa() {
+    public void batalhaPerdida() {
+        jornadaAtiva = false;
+        adicionarLog("💀 Derrota! A jornada cooperativa termina aqui...");
+        lblStatus.setText("Status: Derrotado");
+        lblProgresso.setText("Progresso: Jornada Falhou");
+
+        btnProximaBatalha.setEnabled(false);
+
+        // ✅ SINCRONIZAR DERROTA
         if (networkManager.isConnected()) {
-            adicionarLog("🚀 Iniciando aventura cooperativa...");
+            GameMessage derrotaMsg = new GameMessage(
+                GameMessage.MessageType.GAME_SYNC,
+                "DERROTA",
+                jogadorLocal.getId()
+            );
+            networkManager.sendMessage(derrotaMsg);
+        }
+    }
+
+    private void jornadaCompleta() {
+        jornadaAtiva = false;
+
+        adicionarLog("");
+        adicionarLog("==========================================");
+        adicionarLog("🏆 JORNADA COOPERATIVA COMPLETA! 🏆");
+        adicionarLog("==========================================");
+        adicionarLog("Parabéns, " + jogadorLocal.getNome() + "!");
+        adicionarLog("Vocês venceram todas as 3 batalhas juntos!");
+        adicionarLog("Uma dupla lendária foi formada!");
+        adicionarLog("==========================================");
+
+        lblStatus.setText("Status: Jornada Cooperativa Completa!");
+        lblProgresso.setText("Progresso: MISSÃO CUMPRIDA! 🏆");
+
+        btnProximaBatalha.setEnabled(false);
+        
+        JOptionPane.showMessageDialog(this,
+            "🏆 JORNADA COOPERATIVA COMPLETA!\n\n" +
+            "Parabéns! Vocês venceram todas as 3 batalhas!\n" +
+            "Uma dupla lendária foi formada!",
+            "Jornada Vitoriosa", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void mostrarStatusMultiplayer() {
+        StringBuilder status = new StringBuilder();
+        status.append("=== STATUS DA DUPLA ===\n\n");
+        
+        status.append("🎮 SEU PERSONAGEM:\n");
+        status.append("Nome: ").append(jogadorLocal.getNome()).append("\n");
+        status.append("Classe: ").append(determinarClasse(jogadorLocal)).append("\n");
+        status.append("HP: ").append(jogadorLocal.getHp()).append("/").append(jogadorLocal.getHpMax()).append("\n");
+        status.append("Mana: ").append(jogadorLocal.getMana()).append("/").append(jogadorLocal.getManaMax()).append("\n");
+        status.append("Ataque: ").append(jogadorLocal.getAtaque()).append("\n");
+        status.append("Ouro: ").append(jogadorLocal.getOuro()).append("\n\n");
+        
+        if (jogadorRemoto != null) {
+            status.append("👥 PARCEIRO:\n");
+            status.append("Nome: ").append(jogadorRemoto.getNome()).append("\n");
+            status.append("Classe: ").append(determinarClasse(jogadorRemoto)).append("\n");
+            status.append("HP: ").append(jogadorRemoto.getHp()).append("/").append(jogadorRemoto.getHpMax()).append("\n");
+        }
+        
+        status.append("\nProgresso: ").append(batalhasVencidas).append("/3 batalhas\n");
+        status.append("Conexão: ").append(networkManager.isConnected() ? 
+            (networkManager.isHost() ? "Host" : "Client") : "Desconectado");
+
+        JOptionPane.showMessageDialog(this, status.toString(), "Status da Dupla", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void voltar() {
+        int resposta = JOptionPane.showConfirmDialog(this,
+                "Deseja voltar?\n" + "Sua sessão multiplayer será encerrada.",
+                "Voltar", JOptionPane.YES_NO_OPTION);
+
+        if (resposta == JOptionPane.YES_OPTION) {
+            if (networkManager != null) {
+                networkManager.disconnect();
+            }
+            dispose();
             
-            if (sessao.getQuantidadeJogadores() >= 2) {
-                sessao.iniciarSessao();
-                adicionarLog("🤝 " + jogadorLocal.getNome() + " e " + jogadorRemoto.getNome() + " unem forças!");
-                
-                JOptionPane.showMessageDialog(this,
-                    "🚀 AVENTURA COOPERATIVA INICIADA!\n\n" +
-                    "Jogador 1: " + jogadorLocal.getNome() + "\n" +
-                    "Jogador 2: " + jogadorRemoto.getNome() + "\n\n" +
-                    "Agora vocês enfrentarão os desafios juntos!",
-                    "Aventura Cooperativa", JOptionPane.INFORMATION_MESSAGE);
-
-                dispose();
-                telaAventura.adicionarLog("🎮 Modo cooperativo ativo com " + jogadorRemoto.getNome());
-            } else {
-                adicionarLog("❌ Ainda não há jogadores suficientes conectados");
-            }
-        } else {
-            adicionarLog("❌ Não há conexão ativa");
+            // ✅ VOLTA PARA A TELA DE SELEÇÃO
+            new TelaSelecao().setVisible(true);
         }
-    }
-
-    private void processarMensagensRede() {
-        while (true) {
-            try {
-                if (networkManager.hasMessages()) {
-                    GameMessage message = networkManager.getNextMessage();
-                    processarMensagem(message);
-                }
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
-    }
-
-    private void processarMensagem(GameMessage message) {
-        SwingUtilities.invokeLater(() -> {
-            switch (message.getType()) {
-                case PLAYER_JOIN:
-                    jogadorRemoto = (Jogador) message.getData();
-                    sessao.adicionarJogador(jogadorRemoto);
-                    
-                    lblJogadorRemoto.setText("Jogador Remoto: " + jogadorRemoto.getNome());
-                    lblStatus.setText("🟢 Conectado - Pronto!");
-                    btnIniciarAventura.setEnabled(true);
-                    adicionarLog("👋 " + jogadorRemoto.getNome() + " entrou na aventura!");
-                    adicionarLog("✅ Conexão estabelecida com sucesso!");
-                    
-                    if (networkManager.isHost() && sessao.getQuantidadeJogadores() >= 2) {
-                        adicionarLog("🚀 Dois jogadores conectados - Sessão pronta!");
-                    }
-                    break;
-
-                case PLAYER_ACTION:
-                    adicionarLog("🎯 Ação recebida de " + message.getPlayerId());
-                    break;
-
-                case CHAT_MESSAGE:
-                    String chatMsg = (String) message.getData();
-                    adicionarLog("💬 " + chatMsg);
-                    break;
-                    
-                case PLAYER_SYNC: // ✅ AGORA ESTÁ DEFINIDO
-                    Jogador jogadorAtualizado = (Jogador) message.getData();
-                    sessao.adicionarJogador(jogadorAtualizado);
-                    adicionarLog("📊 Dados sincronizados: " + jogadorAtualizado.getNome());
-                    break;
-                    
-                case INVENTORY_SYNC: // ✅ AGORA ESTÁ DEFINIDO
-                    adicionarLog("🎒 Inventário sincronizado");
-                    break;
-                    
-                case PLAYER_READY: // ✅ AGORA ESTÁ DEFINIDO
-                    adicionarLog("✅ Jogador " + message.getPlayerId() + " está pronto");
-                    break;
-
-                default:
-                    adicionarLog("📨 Mensagem: " + message.getType());
-            }
-        });
     }
 
     private void adicionarLog(String mensagem) {
-        txtLogMultiplayer.append(mensagem + "\n");
-        txtLogMultiplayer.setCaretPosition(txtLogMultiplayer.getDocument().getLength());
+        txtLog.append(mensagem + "\n");
+        txtLog.setCaretPosition(txtLog.getDocument().getLength());
     }
 
-    public void iniciarCombateMultiplayer(Inimigo inimigo) {
-        TelaCombateMultiplayer telaCombate = new TelaCombateMultiplayer(
-            telaAventura, jogadorLocal, jogadorRemoto, inimigo, networkManager
-        );
-
-        telaCombate.setVisible(true);
-
+    private void iniciarProcessamentoMensagens() {
         new Thread(() -> {
-            while (telaCombate.isVisible() && networkManager.isConnected()) {
+            while (networkManager != null && networkManager.isConnected()) {
                 try {
                     if (networkManager.hasMessages()) {
                         GameMessage message = networkManager.getNextMessage();
-                        if (message.getType() == GameMessage.MessageType.COMBAT_ACTION ||
-                            message.getType() == GameMessage.MessageType.COMBAT_END ||
-                            message.getType() == GameMessage.MessageType.PLAYER_STATS) {
-                            
+                        if (message != null) {
                             SwingUtilities.invokeLater(() -> {
-                                telaCombate.processarMensagemCombate(message);
+                                processarMensagem(message);
                             });
                         }
                     }
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     break;
+                } catch (Exception e) {
+                    System.err.println("Erro no processamento de mensagens: " + e.getMessage());
                 }
             }
         }).start();
+    }
+
+    private void processarMensagem(GameMessage message) {
+        if (message == null) return;
+        
+        switch (message.getType()) {
+            case PLAYER_SYNC:
+                if (message.getData() instanceof Jogador) {
+                    Jogador novoJogador = (Jogador) message.getData();
+                    if (novoJogador.getId() != jogadorLocal.getId()) {
+                        jogadorRemoto = novoJogador;
+                        sessao.adicionarJogador(jogadorRemoto);
+                        lblJogadorRemoto.setText("👥 Parceiro: " + jogadorRemoto.getNome() + 
+                                                " | HP: " + jogadorRemoto.getHp() + "/" + jogadorRemoto.getHpMax());
+                        adicionarLog("✅ Parceiro conectado: " + jogadorRemoto.getNome());
+                        
+                        // Se jornada já estava ativa, atualizar status
+                        if (jornadaAtiva) {
+                            adicionarLog("🤝 " + jogadorRemoto.getNome() + " juntou-se à jornada!");
+                        }
+                    }
+                }
+                break;
+                
+            case GAME_SYNC:
+                String dados = (String) message.getData();
+                adicionarLog("📊 Sincronização: " + dados);
+                
+                if (dados.startsWith("JORNADA_INICIADA")) {
+                    if (!jornadaAtiva) {
+                        jornadaAtiva = true;
+                        btnIniciarJornada.setEnabled(false);
+                        btnProximaBatalha.setEnabled(true);
+                        adicionarLog("✅ Jornada iniciada pelo host!");
+                    }
+                } else if (dados.startsWith("VITORIA_")) {
+                    batalhasVencidas = Integer.parseInt(dados.split("_")[1]);
+                    lblProgresso.setText("Progresso: " + batalhasVencidas + "/3 batalhas vencidas");
+                    adicionarLog("🎉 Parceiro registrou vitória!");
+                }
+                break;
+                
+            default:
+                adicionarLog("📨 Mensagem: " + message.getType());
+        }
+    }
+
+    private String determinarClasse(Jogador jogador) {
+        if (jogador instanceof Guerreiro) return "Guerreiro";
+        if (jogador instanceof Mago) return "Mago";
+        if (jogador instanceof Paladino) return "Paladino";
+        return "Desconhecida";
     }
 }

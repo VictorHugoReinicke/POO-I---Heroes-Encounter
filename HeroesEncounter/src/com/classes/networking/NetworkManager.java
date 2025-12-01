@@ -1,11 +1,11 @@
 package com.classes.networking;
 
+import com.classes.DTO.*;
 import java.io.*;
 import java.net.*;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import com.classes.DTO.*;
 
 public class NetworkManager {
     private static final int PORT = 12345;
@@ -17,6 +17,7 @@ public class NetworkManager {
     private BlockingQueue<GameMessage> messageQueue;
     private boolean isHost = false;
     private boolean connected = false;
+    private Thread receiveThread;
     
     public NetworkManager() {
         this.messageQueue = new LinkedBlockingQueue<>();
@@ -28,6 +29,7 @@ public class NetworkManager {
     public boolean startAsHost() {
         try {
             serverSocket = new ServerSocket(PORT);
+            serverSocket.setReuseAddress(true);
             isHost = true;
             System.out.println("🎮 Servidor iniciado na porta " + PORT);
             
@@ -45,13 +47,16 @@ public class NetworkManager {
      */
     public boolean connectAsClient(String hostAddress) {
         try {
-            clientSocket = new Socket(hostAddress, PORT);
+            clientSocket = new Socket();
+            clientSocket.connect(new InetSocketAddress(hostAddress, PORT), 5000);
             outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             inputStream = new ObjectInputStream(clientSocket.getInputStream());
             connected = true;
             
+            System.out.println("✅ Conectado ao host: " + hostAddress);
+            
             // Iniciar thread para receber mensagens
-            new Thread(this::receiveMessages).start();
+            startReceivingThread();
             return true;
         } catch (IOException e) {
             System.err.println("❌ Erro ao conectar: " + e.getMessage());
@@ -68,21 +73,36 @@ public class NetworkManager {
             connected = true;
             
             System.out.println("✅ Jogador 2 conectado!");
-            new Thread(this::receiveMessages).start();
+            startReceivingThread();
+            
         } catch (IOException e) {
             System.err.println("❌ Erro ao aceitar conexão: " + e.getMessage());
         }
     }
     
+    private void startReceivingThread() {
+        receiveThread = new Thread(this::receiveMessages);
+        receiveThread.setDaemon(true);
+        receiveThread.start();
+    }
+    
     private void receiveMessages() {
         try {
-            while (connected) {
-                GameMessage message = (GameMessage) inputStream.readObject();
-                messageQueue.put(message);
-                System.out.println("📨 Mensagem recebida: " + message.getType());
+            while (connected && !Thread.currentThread().isInterrupted()) {
+                Object obj = inputStream.readObject();
+                if (obj instanceof GameMessage) {
+                    GameMessage message = (GameMessage) obj;
+                    messageQueue.put(message);
+                    System.out.println("📨 Mensagem recebida: " + message.getType());
+                }
             }
+        } catch (EOFException e) {
+            System.out.println("🔌 Conexão fechada pelo outro jogador");
         } catch (Exception e) {
-            System.err.println("❌ Conexão perdida: " + e.getMessage());
+            if (connected) {
+                System.err.println("❌ Erro ao receber mensagem: " + e.getMessage());
+            }
+        } finally {
             connected = false;
         }
     }
@@ -95,12 +115,17 @@ public class NetworkManager {
             try {
                 outputStream.writeObject(message);
                 outputStream.flush();
+                System.out.println("📤 Mensagem enviada: " + message.getType());
             } catch (IOException e) {
                 System.err.println("❌ Erro ao enviar mensagem: " + e.getMessage());
+                connected = false;
             }
         }
     }
     
+    /**
+     * Sincroniza jogador após conexão
+     */
     public void sincronizarJogador(Jogador jogador) {
         GameMessage syncMsg = new GameMessage(
             GameMessage.MessageType.PLAYER_SYNC,
@@ -110,20 +135,33 @@ public class NetworkManager {
         sendMessage(syncMsg);
     }
     
-    public void sincronizarInventario(int jogadorId, List<JogadorItem> inventario) {
-        GameMessage invMsg = new GameMessage(
-            GameMessage.MessageType.INVENTORY_SYNC,
-            inventario,
-            jogadorId
+    /**
+     * ✅ SINCRONIZA PERSONAGEM DO HOST PARA O CLIENT
+     */
+    public void sincronizarPersonagemHost(Jogador jogadorHost) {
+        Jogador jogadorSincronizado = clonarJogador(jogadorHost);
+        
+        GameMessage syncMsg = new GameMessage(
+            GameMessage.MessageType.PLAYER_SYNC,
+            jogadorSincronizado,
+            jogadorHost.getId()
         );
-        sendMessage(invMsg);
+        sendMessage(syncMsg);
     }
     
     /**
-     * Pega próxima mensagem da fila (bloqueante)
+     * ✅ CLONE SEGURO DO JOGADOR PARA EVITAR PROBLEMAS DE REFERÊNCIA
      */
-    public GameMessage getNextMessage() throws InterruptedException {
-        return messageQueue.take();
+    private Jogador clonarJogador(Jogador original) {
+        return Multiplayer.criarJogadorParaMultiplayer(original);
+    }
+    
+   
+    /**
+     * Pega próxima mensagem da fila (não bloqueante)
+     */
+    public GameMessage getNextMessage() {
+        return messageQueue.poll();
     }
     
     /**
@@ -144,6 +182,9 @@ public class NetworkManager {
     public void disconnect() {
         connected = false;
         try {
+            if (receiveThread != null) {
+                receiveThread.interrupt();
+            }
             if (clientSocket != null) clientSocket.close();
             if (serverSocket != null) serverSocket.close();
         } catch (IOException e) {
