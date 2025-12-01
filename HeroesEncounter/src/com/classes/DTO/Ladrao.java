@@ -15,6 +15,6 @@ public class Ladrao extends Inimigo {
         this.setAtaque(12);
         this.setDefesa(5);
         this.setRecompensaOuro(35);
-        this.setTipoIA(TipoIA.AGRESSIVO); 
+        this.setTipoIA(TipoIA.ESTRATEGICA); 
     }
 }

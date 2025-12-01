@@ -1,6 +1,7 @@
 package com.classes.DTO;
 
 import com.classes.Enums.TipoIA;
+import com.classes.main.*;
 
 public abstract class Inimigo extends SerVivo {
 
@@ -11,6 +12,7 @@ public abstract class Inimigo extends SerVivo {
 
 	public Inimigo() {
 		super();
+		this.tipoIA = TipoIA.BALANCEADO;
 	}
 
 	public int getAtaque() {
@@ -45,7 +47,15 @@ public abstract class Inimigo extends SerVivo {
 		this.tipoIA = tipoIA;
 	}
 
-	public void decidirAcao(Jogador jogador) {
+	public String decidirAcao(Jogador jogador) {
+		// Delega a decisão para a classe InimigoAI
+		return InimigoIA.decidirAcao(this, jogador);
+	}
+
+	public String getDescricaoCompleta() {
+		return String.format("%s\n❤️ HP: %d/%d\n⚔️ Ataque: %d\n🛡️ Defesa: %d\n💰 Recompensa: %d\n%s", getNome(),
+				getHp(), getHpMax(), getAtaque(), getDefesa(), getRecompensaOuro(),
+				InimigoIA.getDescricaoIA(getTipoIA()));
 	}
 
 }

@@ -10,8 +10,6 @@ import java.awt.*;
 public class TelaSelecao extends JFrame {
 	private JButton btnNovoPersonagem;
 	private JButton btnCarregarPersonagem;
-	private JButton btnMultiplayerHost;
-	private JButton btnMultiplayerClient;
 	private JButton btnSair;
 
 	public TelaSelecao() {
@@ -46,16 +44,6 @@ public class TelaSelecao extends JFrame {
 		btnCarregarPersonagem = criarBotaoGrande("📂 CARREGAR PERSONAGEM", new Color(60, 180, 120));
 		btnCarregarPersonagem.addActionListener(e -> abrirListaPersonagens());
 
-		// Botões multiplayer
-		btnMultiplayerHost = criarBotaoGrande("🎮 HOST MULTIPLAYER", new Color(100, 80, 200));
-		btnMultiplayerClient = criarBotaoGrande("🔗 CONECTAR MULTIPLAYER", new Color(150, 100, 220));
-
-		btnMultiplayerHost.addActionListener(e -> abrirMultiplayerHost());
-		btnMultiplayerClient.addActionListener(e -> abrirMultiplayerClient());
-
-		// Adicione ao painel (ajuste o layout conforme necessário)
-		botoesPanel.add(btnMultiplayerHost);
-		botoesPanel.add(btnMultiplayerClient);
 
 		// Botão Sair
 		btnSair = criarBotaoGrande("🚪 SAIR", new Color(200, 60, 60));
@@ -131,33 +119,6 @@ public class TelaSelecao extends JFrame {
 		});
 	}
 
-	private void abrirMultiplayerHost() {
-		// Verificar se há pelo menos 2 personagens
-		if (!verificarMinimoPersonagens(2)) {
-			JOptionPane.showMessageDialog(this, "É necessário ter pelo menos 2 personagens criados para ser o Host!",
-					"Personagens Insuficientes", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
 
-		TelaMultiplayerHost telaHost = new TelaMultiplayerHost(this);
-		telaHost.setVisible(true);
-		this.setVisible(false);
-	}
-
-	private void abrirMultiplayerClient() {
-		TelaMultiplayerClient telaClient = new TelaMultiplayerClient(this);
-		telaClient.setVisible(true);
-		this.setVisible(false);
-	}
-
-	private boolean verificarMinimoPersonagens(int minimo) {
-		try {
-			JogadorBO jogadorBO = new JogadorBO();
-			List<Jogador> jogadores = jogadorBO.pesquisarTodos();
-			return jogadores != null && jogadores.size() >= minimo;
-		} catch (Exception e) {
-			return false;
-		}
-	}
 
 }
