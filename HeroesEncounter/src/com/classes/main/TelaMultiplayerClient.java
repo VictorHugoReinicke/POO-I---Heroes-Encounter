@@ -11,7 +11,7 @@ public class TelaMultiplayerClient extends JDialog {
     private NetworkManager networkManager;
     private List<Jogador> jogadoresDisponiveis;
     private Jogador jogadorSelecionado;
-    
+
     private JTextField txtIP;
     private JLabel lblStatus;
     private JList<String> listaPersonagens;
@@ -19,7 +19,11 @@ public class TelaMultiplayerClient extends JDialog {
     private JButton btnConectar;
     private JButton btnSelecionar;
     private JButton btnVoltar;
-    private JPanel listaPanel;
+
+    private JPanel painelCentral;      // Painel com CardLayout
+    private JPanel statusPanel;        // Card 1
+    private JPanel listaPanel;         // Card 2
+    private CardLayout cardLayout;
 
     public TelaMultiplayerClient(TelaSelecao pai) {
         super(pai, "Conectar Multiplayer", true);
@@ -29,7 +33,7 @@ public class TelaMultiplayerClient extends JDialog {
     }
 
     private void initializeTela() {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout());
         setSize(600, 500);
         setLocationRelativeTo(getParent());
         setResizable(false);
@@ -41,64 +45,73 @@ public class TelaMultiplayerClient extends JDialog {
         titulo.setFont(new Font("Arial", Font.BOLD, 18));
         titulo.setForeground(Color.WHITE);
         tituloPanel.add(titulo);
+        add(tituloPanel, BorderLayout.NORTH);
 
-        // Painel de conexão
-        JPanel conexaoPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        // Painel de conexão (fica no STATUS)
+        JPanel conexaoPanel = new JPanel(new GridLayout(2, 1));
         conexaoPanel.setBorder(BorderFactory.createTitledBorder("Conexão com Host"));
         conexaoPanel.setBackground(Color.WHITE);
-        
+
         JPanel ipPanel = new JPanel(new FlowLayout());
         ipPanel.setBackground(Color.WHITE);
         ipPanel.add(new JLabel("IP do Host:"));
+
         txtIP = new JTextField(15);
-        txtIP.setText("127.0.0.1"); // Default para teste local
+        txtIP.setText("127.0.0.1");
         ipPanel.add(txtIP);
-        
+
         btnConectar = criarBotao("🔗 CONECTAR", new Color(60, 120, 220));
         btnConectar.addActionListener(e -> conectar());
         ipPanel.add(btnConectar);
-        
-        // Status
+
         lblStatus = new JLabel("Digite o IP do host e clique em CONECTAR");
         lblStatus.setFont(new Font("Arial", Font.BOLD, 12));
         lblStatus.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        JPanel statusPanel = new JPanel(new FlowLayout());
-        statusPanel.setBackground(Color.WHITE);
-        statusPanel.add(lblStatus);
+
+        JPanel statusMsgPanel = new JPanel(new FlowLayout());
+        statusMsgPanel.setBackground(Color.WHITE);
+        statusMsgPanel.add(lblStatus);
 
         conexaoPanel.add(ipPanel);
-        conexaoPanel.add(statusPanel);
+        conexaoPanel.add(statusMsgPanel);
 
-        // Lista de personagens (inicialmente invisível)
+        // CARDLAYOUT CENTRAL
+        cardLayout = new CardLayout();
+        painelCentral = new JPanel(cardLayout);
+
+        // CARD: STATUS
+        statusPanel = new JPanel(new BorderLayout());
+        statusPanel.add(conexaoPanel, BorderLayout.CENTER);
+
+        // CARD: LISTA DE PERSONAGENS
         listaPanel = new JPanel(new BorderLayout());
         listaPanel.setBorder(BorderFactory.createTitledBorder("Selecione seu Personagem"));
         listaPanel.setBackground(Color.WHITE);
-        
+
         listModel = new DefaultListModel<>();
         listaPersonagens = new JList<>(listModel);
-        listaPersonagens.setFont(new Font("Arial", Font.PLAIN, 12));
         JScrollPane scrollLista = new JScrollPane(listaPersonagens);
         listaPanel.add(scrollLista, BorderLayout.CENTER);
-        listaPanel.setVisible(false);
 
-        // Botões
+        painelCentral.add(statusPanel, "STATUS");
+        painelCentral.add(listaPanel, "LISTA");
+
+        add(painelCentral, BorderLayout.CENTER);
+
+        // Botões inferiores
         JPanel botoesPanel = new JPanel(new FlowLayout());
         botoesPanel.setBackground(new Color(240, 240, 240));
-        
+
         btnSelecionar = criarBotao("✅ SELECIONAR PERSONAGEM", new Color(50, 150, 50));
         btnVoltar = criarBotao("↩️ VOLTAR", new Color(200, 50, 50));
-        
+
         btnSelecionar.setEnabled(false);
         btnSelecionar.addActionListener(e -> selecionarPersonagem());
         btnVoltar.addActionListener(e -> voltar());
-        
+
         botoesPanel.add(btnSelecionar);
         botoesPanel.add(btnVoltar);
 
-        add(tituloPanel, BorderLayout.NORTH);
-        add(conexaoPanel, BorderLayout.CENTER);
-        add(listaPanel, BorderLayout.CENTER);
         add(botoesPanel, BorderLayout.SOUTH);
     }
 
@@ -111,33 +124,22 @@ public class TelaMultiplayerClient extends JDialog {
 
         btnConectar.setEnabled(false);
         txtIP.setEnabled(false);
-        lblStatus.setText("Conectando... Tentando portas 12345-12349");
+        lblStatus.setText("Conectando...");
         lblStatus.setForeground(Color.BLUE);
 
-        // Executar em thread separada para não travar a interface
         new Thread(() -> {
             boolean conectado = networkManager.connectAsClient(ip);
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (conectado) {
                     lblStatus.setText("Conectado! Aguardando personagens...");
                     lblStatus.setForeground(Color.GREEN);
                     receberPersonagens();
                 } else {
-                    lblStatus.setText("Falha na conexão em todas as portas!");
+                    lblStatus.setText("Falha na conexão!");
                     lblStatus.setForeground(Color.RED);
                     btnConectar.setEnabled(true);
                     txtIP.setEnabled(true);
-                    
-                    JOptionPane.showMessageDialog(this, 
-                        "❌ Não foi possível conectar ao host!\n\n" +
-                        "Verifique:\n" +
-                        "• O IP está correto? (" + ip + ")\n" +
-                        "• O host está executando?\n" +
-                        "• Firewall está bloqueando a conexão?\n" +
-                        "• Ambos estão na mesma rede?", 
-                        "Falha na Conexão", 
-                        JOptionPane.ERROR_MESSAGE);
                 }
             });
         }).start();
@@ -146,29 +148,22 @@ public class TelaMultiplayerClient extends JDialog {
     private void receberPersonagens() {
         new Thread(() -> {
             try {
-                System.out.println("Aguardando lista de personagens...");
                 Object obj = networkManager.receiveObject();
-                
+
                 SwingUtilities.invokeLater(() -> {
                     if (obj instanceof List) {
                         jogadoresDisponiveis = (List<Jogador>) obj;
-                        System.out.println("Recebida lista com " + jogadoresDisponiveis.size() + " personagens");
                         exibirPersonagens();
                     } else {
-                        lblStatus.setText("Erro: Dados recebidos são inválidos!");
+                        lblStatus.setText("Erro ao receber personagens!");
                         lblStatus.setForeground(Color.RED);
-                        btnConectar.setEnabled(true);
-                        txtIP.setEnabled(true);
                     }
                 });
-                
+
             } catch (Exception e) {
-                System.err.println("Erro ao receber personagens: " + e.getMessage());
                 SwingUtilities.invokeLater(() -> {
-                    lblStatus.setText("Erro na comunicação: " + e.getMessage());
+                    lblStatus.setText("Erro: " + e.getMessage());
                     lblStatus.setForeground(Color.RED);
-                    btnConectar.setEnabled(true);
-                    txtIP.setEnabled(true);
                 });
             }
         }).start();
@@ -176,32 +171,21 @@ public class TelaMultiplayerClient extends JDialog {
 
     private void exibirPersonagens() {
         listModel.clear();
-        
-        if (jogadoresDisponiveis == null || jogadoresDisponiveis.isEmpty()) {
-            listModel.addElement("❌ Nenhum personagem disponível");
-            return;
-        }
-        
+
         for (Jogador jogador : jogadoresDisponiveis) {
-            String info = jogador.getNome() + " - " + determinarClasse(jogador);
-            listModel.addElement(info);
+            listModel.addElement(jogador.getNome() + " - " + determinarClasse(jogador));
         }
-        
-        // Mostrar painel de lista
-        listaPanel.setVisible(true);
-        lblStatus.setText("Selecione seu personagem:");
+
         btnSelecionar.setEnabled(true);
-        
-        // Ajustar tamanho da janela
-        pack();
-        setLocationRelativeTo(getParent());
-        
+
+        // MOSTRA LISTA
+        cardLayout.show(painelCentral, "LISTA");
+
         listaPersonagens.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int index = listaPersonagens.getSelectedIndex();
-                if (index >= 0 && index < jogadoresDisponiveis.size()) {
+                if (index >= 0) {
                     jogadorSelecionado = jogadoresDisponiveis.get(index);
-                    System.out.println("Personagem selecionado: " + jogadorSelecionado.getNome());
                 }
             }
         });
@@ -213,44 +197,33 @@ public class TelaMultiplayerClient extends JDialog {
             return;
         }
 
-        // Enviar seleção para o host
         int index = jogadoresDisponiveis.indexOf(jogadorSelecionado);
         networkManager.sendObject(index);
-        
-        lblStatus.setText("Personagem selecionado! Aguardando host iniciar o jogo...");
+
+        lblStatus.setText("Aguardando host iniciar...");
         btnSelecionar.setEnabled(false);
-        listaPersonagens.setEnabled(false);
-        
-        // Aguardar início do jogo
+
         new Thread(this::aguardarInicio).start();
     }
 
     private void aguardarInicio() {
         try {
-            System.out.println("Aguardando sinal de início do host...");
             Object obj = networkManager.receiveObject();
-            
+
             SwingUtilities.invokeLater(() -> {
                 if ("INICIAR".equals(obj)) {
-                    System.out.println("Recebido sinal para iniciar jogo!");
-                    
-                    // Iniciar aventura como cliente
-                    TelaAventuraMultiplayer telaAventura = new TelaAventuraMultiplayer(
-                        jogadorSelecionado, null, networkManager, false);
-                    telaAventura.setVisible(true);
+                    TelaAventuraMultiplayer tela = new TelaAventuraMultiplayer(
+                            jogadorSelecionado, null, networkManager, false
+                    );
+                    tela.setVisible(true);
                     dispose();
                     telaPai.setVisible(false);
-                    
-                } else {
-                    lblStatus.setText("Erro: Sinal de início inválido!");
-                    lblStatus.setForeground(Color.RED);
                 }
             });
-            
+
         } catch (Exception e) {
-            System.err.println("Erro ao aguardar início: " + e.getMessage());
             SwingUtilities.invokeLater(() -> {
-                lblStatus.setText("Erro na comunicação: " + e.getMessage());
+                lblStatus.setText("Erro ao iniciar: " + e.getMessage());
                 lblStatus.setForeground(Color.RED);
             });
         }
@@ -263,13 +236,9 @@ public class TelaMultiplayerClient extends JDialog {
     }
 
     private String determinarClasse(Jogador jogador) {
-        if (jogador instanceof Guerreiro) {
-            return "Guerreiro";
-        } else if (jogador instanceof Mago) {
-            return "Mago";
-        } else if (jogador instanceof Paladino) {
-            return "Paladino";
-        }
+        if (jogador instanceof Guerreiro) return "Guerreiro";
+        if (jogador instanceof Mago) return "Mago";
+        if (jogador instanceof Paladino) return "Paladino";
         return "Desconhecida";
     }
 
@@ -279,21 +248,7 @@ public class TelaMultiplayerClient extends JDialog {
         botao.setForeground(Color.WHITE);
         botao.setFont(new Font("Arial", Font.BOLD, 12));
         botao.setFocusPainted(false);
-        botao.setBorder(BorderFactory.createRaisedBevelBorder());
         botao.setPreferredSize(new Dimension(200, 40));
-        
-        // Efeito hover
-        botao.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                botao.setBackground(cor.brighter());
-                botao.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                botao.setBackground(cor);
-                botao.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
-        
         return botao;
     }
 }
