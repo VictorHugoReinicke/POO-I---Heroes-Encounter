@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 public class GerenciadorHabilidades {
+    //valeu por ter adicionado o meu código, o intelij da muito problema pra dar commit
 	 private static final Random random = new Random();
 	    private static JogadorStatusBO jogadorStatusBO = new JogadorStatusBO();
 	    private static InimigoStatusBO inimigoStatusBO = new InimigoStatusBO();

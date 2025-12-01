@@ -7,7 +7,7 @@ import com.classes.BO.HabilidadesBO;
 import com.classes.BO.ItemBO;
 
 public class Guerreiro extends Jogador {
-
+    //top, ainda bem que tu adicionou a parte do consumível que eu tinha esquecido
 	private static final int ID_CLASSE_GUERREIRO = 1;
 	private static final List<String> TIPOS_PERMITIDOS = Arrays.asList("Espada Pesada", "Machado");
 
