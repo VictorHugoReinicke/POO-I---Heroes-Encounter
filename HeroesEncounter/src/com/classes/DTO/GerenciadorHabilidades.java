@@ -15,17 +15,14 @@ public class GerenciadorHabilidades {
 	        ResultadoHabilidade resultado = new ResultadoHabilidade();
 	        resultado.setHabilidadeUsada(habilidade.getNome());
 	        
-	        // Verificar mana
 	        if (jogador.getMana() < habilidade.getCustoMana()) {
 	            resultado.setSucesso(false);
 	            resultado.setMensagem("Mana insuficiente!");
 	            return resultado;
 	        }
 	        
-	        // Aplicar custo de mana
 	        jogador.setMana(jogador.getMana() - habilidade.getCustoMana());
 	        
-	        // Processar baseado no tipo
 	        switch (habilidade.getTipo()) {
 	            case "OFENSIVA":
 	                processarOfensiva(jogador, inimigo, habilidade, resultado);
@@ -38,7 +35,6 @@ public class GerenciadorHabilidades {
 	                break;
 	        }
 	        
-	        // Aplicar status se houver
 	        if (habilidade.getIdStatus() > 0) {
 	            aplicarStatus(habilidade, jogador, inimigo, resultado);
 	        }
@@ -50,7 +46,6 @@ public class GerenciadorHabilidades {
 	    private static void processarOfensiva(Jogador jogador, Inimigo inimigo, Habilidade habilidade, ResultadoHabilidade resultado) {
 	        ResultadoAtaque resultadoAtaque;
 	        
-	        // ✅ USAR CALCULADORA ESPECÍFICA PARA CADA HABILIDADE
 	        switch (habilidade.getNome()) {
 	            case "Golpe Forte":
 	                resultadoAtaque = CalculadoraCombate.calcularGolpeForte(jogador, inimigo);
@@ -66,7 +61,6 @@ public class GerenciadorHabilidades {
 	        
 	        int danoFinal = resultadoAtaque.getDano();
 	        
-	        // Aplicar dano
 	        inimigo.setHp(inimigo.getHp() - danoFinal);
 	        resultado.setDanoCausado(danoFinal);
 	        resultado.setCritico(resultadoAtaque.isCritico());
@@ -78,14 +72,12 @@ public class GerenciadorHabilidades {
 	    private static void processarDefensiva(Jogador jogador, Inimigo inimigo, Habilidade habilidade, ResultadoHabilidade resultado) {
 	        resultado.setMensagem("Defesa ativada!");
 	        
-	        // Habilidades defensivas geralmente aplicam status no jogador
 	        if (habilidade.getIdStatus() > 0) {
 	            resultado.setEfeitoAplicado("Buff defensivo aplicado");
 	        }
 	    }
 	    
 	    private static void processarCura(Jogador jogador, Habilidade habilidade, ResultadoHabilidade resultado) {
-	        // CORREÇÃO: Garantir que a cura seja positiva
 	        double percentualCura = Math.abs(habilidade.getFatorDano()); // Usar valor absoluto
 	        int cura = (int)(jogador.getHpMax() * percentualCura);
 	        
@@ -107,7 +99,6 @@ public class GerenciadorHabilidades {
 	            boolean statusAplicado = false;
 	            String tipoHabilidade = habilidade.getTipo();
 	            
-	            // Habilidades ofensivas aplicam status no inimigo
 	            if ("OFENSIVA".equals(tipoHabilidade)) {
 	                InimigoStatus inimigoStatus = new InimigoStatus(inimigo.getId(), status.getId(), status.getDuracaoTurnos());
 	                statusAplicado = inimigoStatusBO.aplicarStatus(inimigoStatus);
@@ -118,7 +109,6 @@ public class GerenciadorHabilidades {
 	                                        "Aplicou " + status.getNome() + " no inimigo!");
 	                }
 	            }
-	            // Habilidades defensivas aplicam status no jogador
 	            else if ("DEFENSIVA".equals(tipoHabilidade)) {
 	                statusAplicado = jogadorStatusBO.aplicarStatus(jogador.getId(), status.getId());
 	                
@@ -134,12 +124,10 @@ public class GerenciadorHabilidades {
 	        }
 	    }
 	    
-	    // ✅ NOVO: Processar início de turno do inimigo (DOTs)
 	    public static int processarInicioTurnoInimigo(Inimigo inimigo) {
 	        return GerenciadorStatus.processarDOTInimigo(inimigo);
 	    }
 	    
-	    // ✅ ATUALIZADO: Usar GerenciadorStatus para processar fim de turno
 	    public static void processarFimDeTurno(Jogador jogador, Inimigo inimigo) {
 	        GerenciadorStatus.processarFimDeTurno(jogador, inimigo);
 	    }
