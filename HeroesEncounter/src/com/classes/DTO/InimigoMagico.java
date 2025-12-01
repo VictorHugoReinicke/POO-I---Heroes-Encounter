@@ -3,7 +3,7 @@ package com.classes.DTO;
 import com.classes.Enums.TipoIA;
 
 public class InimigoMagico extends Inimigo {
-
+//massa massa, bem isso que eu tava pensando
 	private double resistenciaMagica;
 
 	public InimigoMagico() {
