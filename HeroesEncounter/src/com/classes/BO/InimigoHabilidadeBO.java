@@ -25,7 +25,7 @@ public class InimigoHabilidadeBO {
     public boolean adicionarHabilidade(InimigoHabilidade ligacao) {
 
         // Regra de Negócio 1: Chance de Uso deve ser entre 0 e 100
-        if (ligacao.getChanceUso() < 0 || ligacao.getChanceUso() > 100) {
+        if (ligacao.getChance_uso() < 0 || ligacao.getChance_uso() > 100) {
             System.out.println("⚠️ Falha: A Chance de Uso deve ser entre 0 e 100.");
             return false;
         }
@@ -36,7 +36,7 @@ public class InimigoHabilidadeBO {
             return false;
         }
 
-        System.out.println("✅ Habilidade ID " + ligacao.getIdHabilidade() + " adicionada ao Inimigo ID " + ligacao.getIdInimigo() + " com " + ligacao.getChanceUso() + "% de chance.");
+        System.out.println("✅ Habilidade ID " + ligacao.getIdHabilidade() + " adicionada ao Inimigo ID " + ligacao.getIdInimigo() + " com " + ligacao.getChance_uso() + "% de chance.");
         return inimigoHabilidadeDAO.inserir(ligacao);
     }
     
@@ -46,7 +46,7 @@ public class InimigoHabilidadeBO {
     public boolean alterarChanceUso(InimigoHabilidade ligacao) {
         
         // Regra de Negócio 1: Chance de Uso deve ser entre 0 e 100
-        if (ligacao.getChanceUso() < 0 || ligacao.getChanceUso() > 100) {
+        if (ligacao.getChance_uso() < 0 || ligacao.getChance_uso() > 100) {
             System.out.println("⚠️ Falha: A Chance de Uso deve ser entre 0 e 100.");
             return false;
         }
@@ -85,7 +85,7 @@ public class InimigoHabilidadeBO {
         // 2. Calcula o somatório total das chances de uso
         int totalChances = 0;
         for (InimigoHabilidade ih : habilidadesDoInimigo) {
-            totalChances += ih.getChanceUso();
+            totalChances += ih.getChance_uso();
         }
         
         // Se a soma das chances for zero, ele não usa habilidade especial.
@@ -101,7 +101,7 @@ public class InimigoHabilidadeBO {
         // 4. Determina qual habilidade foi selecionada (Método da Roda da Fortuna)
         int acumuladorDeChances = 0;
         for (InimigoHabilidade ih : habilidadesDoInimigo) {
-            acumuladorDeChances += ih.getChanceUso();
+            acumuladorDeChances += ih.getChance_uso();
             
             if (valorSorteado < acumuladorDeChances) {
                 // A habilidade atual cobre o valor sorteado.

@@ -47,15 +47,21 @@ public abstract class Inimigo extends SerVivo {
 		this.tipoIA = tipoIA;
 	}
 
-	public String decidirAcao(Jogador jogador) {
-		// Delega a decisão para a classe InimigoAI
-		return InimigoIA.decidirAcao(this, jogador);
+	// Método para decidir e executar ação
+	public void decidirAcao(Jogador jogador) {
+		// Usa a IA para decidir a ação
+		String acaoEscolhida = InimigoIA.decidirAcao(this, jogador);
+		
+		// Executa a ação escolhida
+		InimigoIA.executarAcao(this, jogador, acaoEscolhida);
 	}
 
 	public String getDescricaoCompleta() {
-		return String.format("%s\n❤️ HP: %d/%d\n⚔️ Ataque: %d\n🛡️ Defesa: %d\n💰 Recompensa: %d\n%s", getNome(),
-				getHp(), getHpMax(), getAtaque(), getDefesa(), getRecompensaOuro(),
+		return String.format("%s\n❤️ HP: %d/%d\n⚔️ Ataque: %d\n🛡️ Defesa: %d\n💰 Recompensa: %d\n%s", 
+				getNome(),
+				getHp(), getHpMax(), 
+				getAtaque(), getDefesa(), 
+				getRecompensaOuro(),
 				InimigoIA.getDescricaoIA(getTipoIA()));
 	}
-
 }

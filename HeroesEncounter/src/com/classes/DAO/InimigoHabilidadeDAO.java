@@ -31,13 +31,13 @@ public class InimigoHabilidadeDAO {
             Connection conn = Conexao.conectar();
             // A tabela de ligação tem chave composta, então não usamos Statement.RETURN_GENERATED_KEYS
             String sql = "INSERT INTO " + NOMEDATABELA
-                    + " (idInimigo, idHabilidade, chanceUso) VALUES (?, ?, ?)";
+                    + " (idInimigo, idHabilidade, chance_uso) VALUES (?, ?, ?)";
 
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ps.setInt(1, inimigoHabilidade.getIdInimigo());
             ps.setInt(2, inimigoHabilidade.getIdHabilidade());
-            ps.setInt(3, inimigoHabilidade.getChanceUso()); 
+            ps.setInt(3, inimigoHabilidade.getChance_uso()); 
 
             ps.executeUpdate();
             ps.close();
@@ -55,10 +55,10 @@ public class InimigoHabilidadeDAO {
             Connection conn = Conexao.conectar();
             // Só permitimos alterar a chance de uso, pois os IDs definem a ligação
             String sql = "UPDATE " + NOMEDATABELA
-                    + " SET chanceUso = ? WHERE idInimigo = ? AND idHabilidade = ?;";
+                    + " SET chance_uso = ? WHERE idInimigo = ? AND idHabilidade = ?;";
             PreparedStatement ps = conn.prepareStatement(sql);
 
-            ps.setInt(1, inimigoHabilidade.getChanceUso());
+            ps.setInt(1, inimigoHabilidade.getChance_uso());
             ps.setInt(2, inimigoHabilidade.getIdInimigo()); 
             ps.setInt(3, inimigoHabilidade.getIdHabilidade()); 
 
@@ -152,7 +152,7 @@ public class InimigoHabilidadeDAO {
         // 1. Atributos da tabela de ligação
         ih.setIdInimigo(rs.getInt("idInimigo"));
         ih.setIdHabilidade(rs.getInt("idHabilidade"));
-        ih.setChanceUso(rs.getInt("chanceUso"));
+        ih.setChance_uso(rs.getInt("chance_uso"));
         
         // 2. Carrega os objetos relacionados (o "JOIN" feito no código Java)
         

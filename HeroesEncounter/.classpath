@@ -8,6 +8,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="C:/Users/Victor/Documents/POO/POO-I---Heroes-Encounter/HeroesEncounter/src/lib/mysql-connector-j-8.3.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Victor/Documents/POO/POO-I---Heroes-Encounter/HeroesEncounter/src/lib/json-20250517.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Victor/Documents/POO/POO-I---Heroes-Encounter/HeroesEncounter/src/lib/google-genai-1.28.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Victor/Documents/POO/POO-I---Heroes-Encounter/HeroesEncounter/src/lib/google-api-client-2.8.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Victor/Documents/POO/POO-I---Heroes-Encounter/HeroesEncounter/src/lib/google-http-client-2.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Victor/Documents/POO/POO-I---Heroes-Encounter/HeroesEncounter/src/lib/gson-2.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

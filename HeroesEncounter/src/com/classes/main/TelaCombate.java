@@ -92,9 +92,15 @@ public class TelaCombate extends JDialog {
 		JLabel lblInimigoDefesa = new JLabel("🛡️ Defesa: " + inimigo.getDefesa());
 		lblInimigoDefesa.setFont(new Font("Arial", Font.BOLD, 12));
 
+		// Adicionar tipo de IA
+		JLabel lblTipoIA = new JLabel("🧠 IA: " + getDescricaoIA(inimigo.getTipoIA()));
+		lblTipoIA.setFont(new Font("Arial", Font.ITALIC, 10));
+		lblTipoIA.setForeground(Color.DARK_GRAY);
+
 		inimigoPanel.add(lblInimigoHP);
 		inimigoPanel.add(lblInimigoAtaque);
 		inimigoPanel.add(lblInimigoDefesa);
+		inimigoPanel.add(lblTipoIA); // Adicionado aqui
 
 		statusPanel.add(jogadorPanel);
 		statusPanel.add(inimigoPanel);
@@ -139,12 +145,21 @@ public class TelaCombate extends JDialog {
 		add(statusPanel, BorderLayout.CENTER);
 		add(logPanel, BorderLayout.EAST);
 		add(acoesPanel, BorderLayout.SOUTH);
+	}
+
+	// Método auxiliar para descrição da IA
+	private String getDescricaoIA(com.classes.Enums.TipoIA tipo) {
+		if (tipo == null) return "Desconhecida";
 		
-		
-		JLabel lblTipoIA = new JLabel("🧠 IA: " + InimigoIA.getDescricaoIA(inimigo.getTipoIA()));
-        lblTipoIA.setFont(new Font("Arial", Font.ITALIC, 10));
-        lblTipoIA.setForeground(Color.DARK_GRAY);
-        inimigoPanel.add(lblTipoIA);
+		switch (tipo) {
+			case AGRESSIVO: return "⚔️ Agressivo";
+			case DEFENSIVA: return "🛡️ Defensivo";
+			case ESTRATEGICA: return "🎯 Estratégico";
+			case BALANCEADO: return "⚖️ Balanceado";
+			case ALEATORIA: return "🎲 Aleatório";
+			case CHEFE: return "👑 Chefe";
+			default: return "Desconhecida";
+		}
 	}
 
 	private JButton criarBotaoCombate(String texto, Color cor) {
@@ -177,6 +192,7 @@ public class TelaCombate extends JDialog {
 
 		adicionarLog("⚔️ COMBATE INICIADO!");
 		adicionarLog(jogador.getNome() + " vs " + inimigo.getNome());
+		adicionarLog("🤖 IA do inimigo: " + getDescricaoIA(inimigo.getTipoIA()));
 
 		// DEBUG: MOSTRAR STATUS COMPLETO
 		adicionarLog("🎯 STATUS DA BATALHA:");
@@ -396,216 +412,289 @@ public class TelaCombate extends JDialog {
 	}
 
 	protected void turnoInimigo() {
-        if (inimigo.getHp() <= 0) return;
-        
-        // ✅ VERIFICAR ESQUIVA (ILUSÃO)
-        boolean esquivou = GerenciadorStatus.verificarEsquiva(jogador);
-        
-        if (esquivou) {
-            adicionarLog("🎭 **ILUSÃO ATIVA!** " + jogador.getNome() + " se esquivou completamente do ataque!");
-            habilitarBotoes();
-            return;
-        }
-        
-        // PROCESSAR DOTs no inimigo
-        adicionarLog("⚡ Processando efeitos de status no inimigo...");
-        int danoDOT = GerenciadorHabilidades.processarInicioTurnoInimigo(inimigo);
-        
-        if (danoDOT > 0) {
-            adicionarLog("🔥 " + inimigo.getNome() + " sofre " + danoDOT + " de dano por efeitos!");
-        }
-        
-        if (inimigo.getHp() <= 0) {
-            adicionarLog("💀 " + inimigo.getNome() + " sucumbiu aos efeitos!");
-            vitoria();
-            return;
-        }
-        
-        // ✅ DECISÃO POR IA BASEADA NO TIPO
-        adicionarLog("\n🤖 " + inimigo.getNome() + " está pensando... (" + inimigo.getTipoIA() + ")");
-        
-        // Pequeno delay para dramatização
-        try {
-            Thread.sleep(800);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        
-        // Obter decisão da IA
-        String acaoEscolhida = inimigo.decidirAcao(jogador);
-        executarAcaoInimigoIA(acaoEscolhida);
-        
-        // PROCESSAR FIM DE TURNO
-        GerenciadorHabilidades.processarFimDeTurno(jogador, inimigo);
-        
-        if (jogador.getHp() <= 0) {
-            derrota();
-        } else {
-            habilitarBotoes();
-        }
-        
-        atualizarStatus();
-    }
+		if (inimigo.getHp() <= 0) return;
+		
+		// ✅ VERIFICAR ESQUIVA (ILUSÃO)
+		boolean esquivou = GerenciadorStatus.verificarEsquiva(jogador);
+		
+		if (esquivou) {
+			adicionarLog("🎭 **ILUSÃO ATIVA!** " + jogador.getNome() + " se esquivou completamente do ataque!");
+			habilitarBotoes();
+			return;
+		}
+		
+		// PROCESSAR DOTs no inimigo
+		adicionarLog("⚡ Processando efeitos de status no inimigo...");
+		int danoDOT = GerenciadorHabilidades.processarInicioTurnoInimigo(inimigo);
+		
+		if (danoDOT > 0) {
+			adicionarLog("🔥 " + inimigo.getNome() + " sofre " + danoDOT + " de dano por efeitos!");
+		}
+		
+		if (inimigo.getHp() <= 0) {
+			adicionarLog("💀 " + inimigo.getNome() + " sucumbiu aos efeitos!");
+			vitoria();
+			return;
+		}
+		
+		// ✅ DECISÃO POR IA GEMINI
+		adicionarLog("\n🤖 " + inimigo.getNome() + " está pensando... (" + inimigo.getTipoIA() + ")");
+		
+		// Pequeno delay para dramatização
+		try {
+			Thread.sleep(800);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		
+		// Obter decisão da IA Gemini
+		try {
+			String acaoEscolhida = GeminiAI.decidirAcao(inimigo, jogador);
+			String acaoTraduzida = traduzirAcao(acaoEscolhida);
+			adicionarLog("🎯 " + inimigo.getNome() + " escolheu: " + acaoTraduzida);
+			executarAcaoInimigoIA(acaoEscolhida);
+		} catch (Exception e) {
+			adicionarLog("❌ Erro na IA Gemini: " + e.getMessage());
+			adicionarLog("⚠️ Usando ataque normal como fallback");
+			executarAtaqueNormalInimigo();
+		}
+		
+		// PROCESSAR FIM DE TURNO
+		GerenciadorHabilidades.processarFimDeTurno(jogador, inimigo);
+		
+		if (jogador.getHp() <= 0) {
+			derrota();
+		} else {
+			habilitarBotoes();
+		}
+		
+		atualizarStatus();
+	}
 	
-	 private void executarAcaoInimigoIA(String acao) {
-	        adicionarLog("🎯 " + inimigo.getNome() + " escolheu: " + traduzirAcao(acao));
-	        
-	        switch (acao) {
-	            case "ATAQUE_NORMAL":
-	                executarAtaqueNormal();
-	                break;
-	            case "ATAQUE_PODEROSO":
-	                executarAtaquePoderoso();
-	                break;
-	            case "DEFENDER":
-	                executarDefesaInimigo();
-	                break;
-	            case "GRITAR":
-	            case "GRITAR_GUERRA":
-	                executarGrito();
-	                break;
-	            case "ATAQUE_ESPECIAL_CHEFE":
-	                executarAtaqueEspecialChefe();
-	                break;
-	            case "CURAR":
-	            case "REGENERAR":
-	                executarCuraInimigo();
-	                break;
-	            case "BUFF_DEFESA":
-	            case "DEFESA_TOTAL":
-	                executarBuffDefesa();
-	                break;
-	            case "DEBUFF_JOGADOR":
-	                executarDebuffJogador();
-	                break;
-	            case "FUGIR":
-	                executarFugaInimigo();
-	                break;
-	            default:
-	                executarAtaqueNormal(); // Fallback
-	        }
-	    }
-	 
-	 private void executarAtaqueNormal() {
-	        // ... implementação existente do ataque normal ...
-	    }
-	 
-	   private String traduzirAcao(String acao) {
-	        switch (acao) {
-	            case "ATAQUE_NORMAL": return "Ataque Normal";
-	            case "ATAQUE_PODEROSO": return "Ataque Poderoso ⚔️";
-	            case "DEFENDER": return "Defesa 🛡️";
-	            case "GRITAR": return "Grito de Batalha 🗣️";
-	            case "GRITAR_GUERRA": return "Grito de Guerra 👑";
-	            case "ATAQUE_ESPECIAL_CHEFE": return "Ataque Especial do Chefe 💀";
-	            case "CURAR": return "Cura 💚";
-	            case "REGENERAR": return "Regeneração ✨";
-	            case "BUFF_DEFESA": return "Aumentar Defesa 🔼";
-	            case "DEFESA_TOTAL": return "Defesa Total 🛡️🛡️";
-	            case "DEBUFF_JOGADOR": return "Enfraquecer Jogador ⬇️";
-	            case "FUGIR": return "Fuga 🏃";
-	            default: return acao.replace("_", " ").toLowerCase();
-	        }
-	    }
-	    
-	    private void executarAtaquePoderoso() {
-	        ResultadoAtaque resultado = CalculadoraCombate.calcularAtaqueInimigo(inimigo, jogador);
-	        int danoBase = resultado.getDano();
-	        int danoExtra = (int)(danoBase * 1.5); // 50% mais dano
-	        
-	        if (defesaAtiva) {
-	            danoExtra = Math.max(1, danoExtra / 2);
-	            adicionarLog("🛡️ Sua defesa reduz parte do dano poderoso!");
-	            defesaAtiva = false;
-	        }
-	        
-	        jogador.setHp(jogador.getHp() - danoExtra);
-	        
-	        if (resultado.isCritico()) {
-	            adicionarLog("💥💥 **ATAQUE PODEROSO CRÍTICO!** " + inimigo.getNome() + 
-	                " causa " + danoExtra + " de dano devastador!");
-	        } else {
-	            adicionarLog("💥 " + inimigo.getNome() + " desfere um ataque poderoso causando " + 
-	                danoExtra + " de dano!");
-	        }
-	    }
-	    
-	    private void executarDefesaInimigo() {
-	        adicionarLog("🛡️ " + inimigo.getNome() + " assume posição defensiva!");
-	        adicionarLog("🎯 Próximo ataque do jogador será reduzido!");
-	        
-	        // Aumenta defesa temporariamente para o próximo turno
-	        inimigo.setDefesa(inimigo.getDefesa() + 10);
-	        adicionarLog("⬆️ Defesa aumentada em 10 pontos!");
-	    }
-	    
-	    private void executarGrito() {
-	        adicionarLog("🗣️💥 " + inimigo.getNome() + " solta um grito ensurdecedor!");
-	        adicionarLog("😵 Jogador fica atordoado! Ataque reduzido no próximo turno!");
-	        
-	        // Reduz ataque do jogador temporariamente
-	        jogador.setAtaque(jogador.getAtaque() - 5);
-	        adicionarLog("⬇️ Seu ataque foi reduzido em 5 pontos!");
-	    }
-	    
-	    private void executarAtaqueEspecialChefe() {
-	        adicionarLog("👑🔥 " + inimigo.getNome() + " usa ATAQUE ESPECIAL DO CHEFE!");
-	        
-	        int dano = inimigo.getAtaque() * 2; // Dano dobrado
-	        if (defesaAtiva) {
-	            dano = Math.max(1, dano / 3); // Defesa reduz mais
-	            adicionarLog("🛡️ Sua defesa reduz significativamente o dano especial!");
-	            defesaAtiva = false;
-	        }
-	        
-	        jogador.setHp(jogador.getHp() - dano);
-	        adicionarLog("💀💀 DANO COLOSSAL: " + dano + "!");
-	        
-	        // Efeito adicional para chefes
-	        adicionarLog("⚡ Você ficou atordoado pelo poder do chefe!");
-	    }
+	private void executarAcaoInimigoIA(String acao) {
+		switch (acao) {
+			case "ATAQUE_NORMAL":
+				executarAtaqueNormalInimigo();
+				break;
+			case "ATAQUE_PODEROSO":
+			case "ATAQUE_FEROZ":
+				executarAtaquePoderoso();
+				break;
+			case "DEFENDER":
+				executarDefesaInimigo();
+				break;
+			case "GRITAR":
+			case "RUGIDO":
+			case "GRITAR_GUERRA":
+				executarGrito();
+				break;
+			case "ATAQUE_ESPECIAL_CHEFE":
+				executarAtaqueEspecialChefe();
+				break;
+			case "CURAR":
+			case "REGENERAR":
+				executarCuraInimigo();
+				break;
+			case "BUFF_DEFESA":
+			case "DEFESA_TOTAL":
+				executarBuffDefesa();
+				break;
+			case "DEBUFF_JOGADOR":
+				executarDebuffJogador();
+				break;
+			case "FUGIR":
+				executarFugaInimigo();
+				break;
+			case "FEITICO_MAGICO":
+				executarFeiticoMagico();
+				break;
+			case "ATAQUE_RAPIDO":
+				executarAtaqueRapido();
+				break;
+			default:
+				executarAtaqueNormalInimigo(); // Fallback
+		}
+	}
+	
+	private void executarAtaqueNormalInimigo() {
+		ResultadoAtaque resultado = CalculadoraCombate.calcularAtaqueInimigo(inimigo, jogador);
+		int danoInimigo = resultado.getDano();
+		
+		if (defesaAtiva) {
+			int danoOriginal = danoInimigo;
+			danoInimigo = Math.max(1, danoInimigo / 2);
+			adicionarLog("🛡️ Sua defesa reduz o dano de " + danoOriginal + " para " + danoInimigo + "!");
+			defesaAtiva = false;
+		}
+		
+		jogador.setHp(jogador.getHp() - danoInimigo);
+		
+		if (resultado.isCritico()) {
+			adicionarLog("💥 **CRÍTICO INIMIGO!** " + inimigo.getNome() + " ataca causando " + danoInimigo + " de dano!");
+		} else {
+			adicionarLog("💀 " + inimigo.getNome() + " ataca causando " + danoInimigo + " de dano!");
+		}
+	}
+	
+	private void executarAtaquePoderoso() {
+		ResultadoAtaque resultado = CalculadoraCombate.calcularAtaqueInimigo(inimigo, jogador);
+		int danoBase = resultado.getDano();
+		int danoExtra = (int)(danoBase * 1.5); // 50% mais dano
+		
+		if (defesaAtiva) {
+			danoExtra = Math.max(1, danoExtra / 2);
+			adicionarLog("🛡️ Sua defesa reduz parte do dano poderoso!");
+			defesaAtiva = false;
+		}
+		
+		jogador.setHp(jogador.getHp() - danoExtra);
+		
+		if (resultado.isCritico()) {
+			adicionarLog("💥💥 **ATAQUE PODEROSO CRÍTICO!** Causa " + danoExtra + " de dano devastador!");
+		} else {
+			adicionarLog("💥 Causa " + danoExtra + " de dano!");
+		}
+	}
+	
+	private void executarAtaqueRapido() {
+		adicionarLog("⚡ " + inimigo.getNome() + " ataca rapidamente!");
+		// Dois ataques com dano reduzido
+		for (int i = 0; i < 2; i++) {
+			int dano = inimigo.getAtaque() / 2;
+			jogador.setHp(jogador.getHp() - dano);
+			adicionarLog("💫 Ataque " + (i+1) + ": " + dano + " de dano!");
+		}
+	}
+	
+	private void executarFeiticoMagico() {
+		adicionarLog("🔮 " + inimigo.getNome() + " lança um feitiço mágico!");
+		int danoMagico = inimigo.getAtaque() * 2;
+		
+		if (defesaAtiva) {
+			danoMagico = Math.max(1, danoMagico / 2);
+			adicionarLog("🛡️ Sua defesa reduz parte do dano mágico!");
+			defesaAtiva = false;
+		}
+		
+		jogador.setHp(jogador.getHp() - danoMagico);
+		adicionarLog("✨ Dano mágico: " + danoMagico + "!");
+	}
+	
+	private void executarDefesaInimigo() {
+		adicionarLog("🛡️ " + inimigo.getNome() + " assume posição defensiva!");
+		adicionarLog("🎯 Próximo ataque do jogador será reduzido!");
+		
+		// Aumenta defesa temporariamente para o próximo turno
+		inimigo.setDefesa(inimigo.getDefesa() + 10);
+		adicionarLog("⬆️ Defesa aumentada em 10 pontos!");
+	}
+	
+	private void executarGrito() {
+		adicionarLog("🗣️💥 " + inimigo.getNome() + " solta um grito ensurdecedor!");
+		adicionarLog("😵 Jogador fica atordoado! Ataque reduzido no próximo turno!");
+		
+		// Reduz ataque do jogador temporariamente
+		jogador.setAtaque(Math.max(1, jogador.getAtaque() - 5));
+		adicionarLog("⬇️ Seu ataque foi reduzido em 5 pontos!");
+	}
+	
+	private void executarAtaqueEspecialChefe() {
+		adicionarLog("👑🔥 " + inimigo.getNome() + " usa ATAQUE ESPECIAL DO CHEFE!");
+		
+		int dano = inimigo.getAtaque() * 2; // Dano dobrado
+		if (defesaAtiva) {
+			dano = Math.max(1, dano / 3);
+			adicionarLog("🛡️ Sua defesa reduz significativamente o dano especial!");
+			defesaAtiva = false;
+		}
+		
+		jogador.setHp(jogador.getHp() - dano);
+		adicionarLog("💀💀 DANO COLOSSAL: " + dano + "!");
+		
+		// Efeito adicional
+		jogador.setAtaque(Math.max(1, jogador.getAtaque() - 3));
+		adicionarLog("⚡ Você ficou atordoado! Ataque reduzido!");
+	}
+	
+	private void executarCuraInimigo() {
+		int cura = (int)(inimigo.getHpMax() * 0.2); // Cura 20% do HP máximo
+		int novoHP = Math.min(inimigo.getHpMax(), inimigo.getHp() + cura);
+		int hpCura = novoHP - inimigo.getHp();
+		inimigo.setHp(novoHP);
+		
+		adicionarLog("💚 " + inimigo.getNome() + " se cura em " + hpCura + " HP!");
+		adicionarLog("❤️ HP atual: " + inimigo.getHp() + "/" + inimigo.getHpMax());
+	}
+	
+	private void executarBuffDefesa() {
+		int aumentoDefesa = 15;
+		inimigo.setDefesa(inimigo.getDefesa() + aumentoDefesa);
+		
+		adicionarLog("✨ " + inimigo.getNome() + " fortalece sua defesa!");
+		adicionarLog("🛡️ Defesa aumentada em " + aumentoDefesa + " pontos!");
+	}
+	
+	private void executarDebuffJogador() {
+		adicionarLog("⚠️ " + inimigo.getNome() + " enfraquece você!");
+		
+		// Reduz ataque do jogador
+		int ataqueAnterior = jogador.getAtaque();
+		jogador.setAtaque(Math.max(1, jogador.getAtaque() - 8));
+		int reducaoAtaque = ataqueAnterior - jogador.getAtaque();
+		
+		adicionarLog("⬇️ Ataque reduzido em " + reducaoAtaque + " pontos!");
+		
+		// Se o jogador tiver defesa, reduz também
+		try {
+			java.lang.reflect.Method getDefesaMethod = jogador.getClass().getMethod("getDefesa");
+			java.lang.reflect.Method setDefesaMethod = jogador.getClass().getMethod("setDefesa", int.class);
+			
+			int defesaAtual = (int) getDefesaMethod.invoke(jogador);
+			if (defesaAtual > 0) {
+				int novaDefesa = Math.max(0, defesaAtual - 5);
+				setDefesaMethod.invoke(jogador, novaDefesa);
+				adicionarLog("🛡️ Defesa reduzida em " + (defesaAtual - novaDefesa) + " pontos!");
+			}
+		} catch (Exception e) {
+			// Jogador não tem defesa, ignorar
+		}
+	}
+	
+	private void executarFugaInimigo() {
+		adicionarLog("🏃 " + inimigo.getNome() + " tenta fugir!");
+		if (new Random().nextDouble() < 0.4) { // 40% de chance
+			adicionarLog("✅ " + inimigo.getNome() + " fugiu do combate!");
+			dispose();
+			if (telaAventura != null) {
+				telaAventura.adicionarLog("🏃 " + inimigo.getNome() + " fugiu do combate!");
+			}
+		} else {
+			adicionarLog("❌ " + inimigo.getNome() + " falhou em fugir!");
+		}
+	}
+	
+	private String traduzirAcao(String acao) {
+		switch (acao) {
+			case "ATAQUE_NORMAL": return "Ataque Normal";
+			case "ATAQUE_PODEROSO": return "Ataque Poderoso ⚔️";
+			case "ATAQUE_FEROZ": return "Ataque Feroz 🐾";
+			case "ATAQUE_RAPIDO": return "Ataque Rápido ⚡";
+			case "DEFENDER": return "Defesa 🛡️";
+			case "GRITAR": return "Grito de Batalha 🗣️";
+			case "RUGIDO": return "Rugido 🐾";
+			case "GRITAR_GUERRA": return "Grito de Guerra 👑";
+			case "ATAQUE_ESPECIAL_CHEFE": return "Ataque Especial do Chefe 💀";
+			case "CURAR": return "Cura 💚";
+			case "REGENERAR": return "Regeneração ✨";
+			case "BUFF_DEFESA": return "Aumentar Defesa 🔼";
+			case "DEFESA_TOTAL": return "Defesa Total 🛡️🛡️";
+			case "DEBUFF_JOGADOR": return "Enfraquecer Jogador ⬇️";
+			case "FUGIR": return "Fuga 🏃";
+			case "FEITICO_MAGICO": return "Feitiço Mágico 🔮";
+			default: return acao.replace("_", " ").toLowerCase();
+		}
+	}
 
-	    private void executarCuraInimigo() {
-	        int cura = (int)(inimigo.getHpMax() * 0.2); // Cura 20% do HP máximo
-	        int novoHP = Math.min(inimigo.getHpMax(), inimigo.getHp() + cura);
-	        inimigo.setHp(novoHP);
-	        
-	        adicionarLog("💚 " + inimigo.getNome() + " se cura em " + cura + " HP!");
-	        adicionarLog("❤️ HP atual: " + inimigo.getHp() + "/" + inimigo.getHpMax());
-	    }
-	    
-	    private void executarBuffDefesa() {
-	        int aumentoDefesa = 15;
-	        inimigo.setDefesa(inimigo.getDefesa() + aumentoDefesa);
-	        
-	        adicionarLog("✨ " + inimigo.getNome() + " fortalece sua defesa!");
-	        adicionarLog("🛡️ Defesa aumentada em " + aumentoDefesa + " pontos!");
-	    }
-	    
-	    private void executarDebuffJogador() {
-	        adicionarLog("⚠️ " + inimigo.getNome() + " enfraquece você!");
-	        adicionarLog("⬇️ Seus atributos foram reduzidos!");
-	        
-	        // Reduz ataque e defesa do jogador
-	        jogador.setAtaque(Math.max(1, jogador.getAtaque() - 8));
-	        if (jogador.getDefesa() > 0) {
-	            jogador.setDefesa(Math.max(0, jogador.getDefesa() - 5));
-	        }
-	    }
-	    
-	    private void executarFugaInimigo() {
-	        adicionarLog("🏃 " + inimigo.getNome() + " tenta fugir!");
-	        if (new Random().nextDouble() < 0.4) { // 40% de chance
-	            adicionarLog("✅ " + inimigo.getNome() + " fugiu do combate!");
-	            dispose();
-	            if (telaAventura != null) {
-	                telaAventura.adicionarLog("🏃 " + inimigo.getNome() + " fugiu do combate!");
-	            }
-	        } else {
-	            adicionarLog("❌ " + inimigo.getNome() + " falhou em fugir!");
-	        }
-	    }
-	    
 	protected void vitoria() {
 		adicionarLog("🎉 " + inimigo.getNome() + " foi derrotado!");
 		adicionarLog("💰 Recompensa: +" + inimigo.getRecompensaOuro() + " de ouro!");

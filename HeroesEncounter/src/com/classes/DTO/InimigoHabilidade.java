@@ -4,7 +4,7 @@ public class InimigoHabilidade {
 
 	private int idInimigo;
 	private int idHabilidade;
-	private int chanceUso;
+	private int chance_uso;
 
 	private Inimigo inimigo;
 	private Habilidade habilidade;
@@ -12,10 +12,10 @@ public class InimigoHabilidade {
 	public InimigoHabilidade() {
 	}
 
-	public InimigoHabilidade(int idInimigo, int idHabilidade, int chanceUso) {
+	public InimigoHabilidade(int idInimigo, int idHabilidade, int chance_uso) {
 		this.idInimigo = idInimigo;
 		this.idHabilidade = idHabilidade;
-		this.chanceUso = chanceUso;
+		this.chance_uso = chance_uso;
 	}
 
 	public int getIdInimigo() {
@@ -34,12 +34,13 @@ public class InimigoHabilidade {
 		this.idHabilidade = idHabilidade;
 	}
 
-	public int getChanceUso() {
-		return chanceUso;
+
+	public int getChance_uso() {
+		return chance_uso;
 	}
 
-	public void setChanceUso(int chanceUso) {
-		this.chanceUso = chanceUso;
+	public void setChance_uso(int chance_uso) {
+		this.chance_uso = chance_uso;
 	}
 
 	public Inimigo getInimigo() {
