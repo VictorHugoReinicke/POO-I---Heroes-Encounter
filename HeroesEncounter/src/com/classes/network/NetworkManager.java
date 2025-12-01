@@ -3,7 +3,6 @@ package com.classes.network;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import com.classes.DTO.Jogador;
 
 public class NetworkManager {
     private static final int PORT = 12345;
@@ -40,6 +39,7 @@ public class NetworkManager {
     public Socket waitForClient() {
         try {
             Socket client = serverSocket.accept();
+            this.clientSocket = client; // ✅ CORREÇÃO: Atribuir ao clientSocket
             initializeStreams();
             return client;
         } catch (IOException e) {
@@ -50,18 +50,26 @@ public class NetworkManager {
     
     private void initializeStreams() throws IOException {
         if (isHost) {
-            output = new ObjectOutputStream(clientSocket.getOutputStream());
-            input = new ObjectInputStream(clientSocket.getInputStream());
+            // ✅ CORREÇÃO: Verificar se clientSocket não é null
+            if (clientSocket != null) {
+                output = new ObjectOutputStream(clientSocket.getOutputStream());
+                input = new ObjectInputStream(clientSocket.getInputStream());
+            }
         } else {
-            output = new ObjectOutputStream(clientSocket.getOutputStream());
-            input = new ObjectInputStream(clientSocket.getInputStream());
+            // ✅ CORREÇÃO: Verificar se clientSocket não é null
+            if (clientSocket != null) {
+                output = new ObjectOutputStream(clientSocket.getOutputStream());
+                input = new ObjectInputStream(clientSocket.getInputStream());
+            }
         }
     }
     
     public void sendObject(Object obj) {
         try {
-            output.writeObject(obj);
-            output.flush();
+            if (output != null) {
+                output.writeObject(obj);
+                output.flush();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,11 +77,13 @@ public class NetworkManager {
     
     public Object receiveObject() {
         try {
-            return input.readObject();
+            if (input != null) {
+                return input.readObject();
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
     
     public void close() {
@@ -97,5 +107,9 @@ public class NetworkManager {
     
     public boolean isHost() {
         return isHost;
+    }
+    
+    public boolean isConnected() {
+        return clientSocket != null && !clientSocket.isClosed();
     }
 }
