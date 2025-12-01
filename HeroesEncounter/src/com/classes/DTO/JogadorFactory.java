@@ -35,28 +35,23 @@ public class JogadorFactory {
             Class<?> clazz = Class.forName(nomeCompleto);
 
             Jogador jogador = (Jogador) clazz.getConstructor().newInstance();
-            jogador.setNome(nome); // Pode ser null se não for passado
+            jogador.setNome(nome);
 
-            // Inicializar itens e habilidades
             ItemBO itemBO = new ItemBO();
             HabilidadesBO habBO = new HabilidadesBO();
 
-            // chama o método "inicializarKit"
             clazz.getMethod("inicializarKit", ItemBO.class, HabilidadesBO.class)
                  .invoke(jogador, itemBO, habBO);
 
             if (salvarNoBanco) {
-                // SALVAR JOGADOR NO BANCO
                 boolean salvouJogador = jogadorBO.inserir(jogador);
                 if (salvouJogador) {
                     System.out.println("Jogador criado e salvo no banco de dados com sucesso!");
                     
-                    // SALVAR ITENS DO INVENTÁRIO
                     boolean itensSalvos = salvarItensInventario(jogador);
                     if (itensSalvos) {
                         System.out.println("Itens do inventário salvos com sucesso!");
                         
-                        // EQUIPAR A ARMA INICIAL
                         boolean armaEquipada = equiparArmaInicial(jogador);
                         if (armaEquipada) {
                             System.out.println("Arma inicial equipada com sucesso!");
@@ -80,10 +75,8 @@ public class JogadorFactory {
     private static boolean salvarItensInventario(Jogador jogador) {
         try {
             for (JogadorItem jogadorItem : jogador.getInventario()) {
-                // Define o idJogador no JogadorItem
                 jogadorItem.setIdJogador(jogador.getId());
                 
-                // Usa o método adicionarItem do JogadorItemBO
                 boolean itemSalvo = jogadorItemBO.adicionarItem(
                     jogador.getId(), 
                     jogadorItem.getItem(), 
@@ -95,15 +88,14 @@ public class JogadorFactory {
                     return false;
                 }
                 
-                // Se o item está equipado, chama o método equipar
                 if (jogadorItem.isEquipado()) {
                     boolean equipado = jogadorItemBO.equiparItem(jogador.getId(), jogadorItem.getItem());
                     if (equipado) {
-                        System.out.println("✅ Item equipado: " + jogadorItem.getItem().getNome());
+                        System.out.println(" Item equipado: " + jogadorItem.getItem().getNome());
                     }
                 }
                 
-                System.out.println("✅ Item salvo no inventário: " + jogadorItem.getItem().getNome() + " (x" + jogadorItem.getQuantidade() + ")");
+                System.out.println(" Item salvo no inventário: " + jogadorItem.getItem().getNome() + " (x" + jogadorItem.getQuantidade() + ")");
             }
             return true;
         } catch (Exception e) {
@@ -118,7 +110,7 @@ public class JogadorFactory {
                 // Usa o método equiparItem do JogadorItemBO
                 boolean equipado = jogadorItemBO.equiparItem(jogador.getId(), jogador.getArmaEquipada());
                 if (equipado) {
-                    System.out.println("✅ Arma equipada: " + jogador.getArmaEquipada().getNome());
+                    System.out.println(" Arma equipada: " + jogador.getArmaEquipada().getNome());
                 }
                 return equipado;
             }

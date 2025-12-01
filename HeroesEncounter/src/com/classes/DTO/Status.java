@@ -3,10 +3,10 @@ package com.classes.DTO;
 public class Status {
 
     private int id;
-    private String nome; // Ex: Veneno, Queimadura, Atordoamento
-    private int danoTurno; // Dano que o status causa no final do turno (pode ser 0)
-    private double modificadorDefesa; // Modificador (%) na defesa do alvo (Ex: 0.5 para -50%)
-    private int duracaoTurnos; // Quantos turnos o efeito dura
+    private String nome;
+    private int danoTurno;
+    private double modificadorDefesa;
+    private int duracaoTurnos;
     private double chanceEsquiva;
 
     public Status() {
