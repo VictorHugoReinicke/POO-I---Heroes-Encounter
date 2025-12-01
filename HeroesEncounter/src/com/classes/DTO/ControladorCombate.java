@@ -2,7 +2,7 @@ package com.classes.DTO;
 import java.util.Scanner;
 
 public class ControladorCombate {
-
+    //valeu por ter adicionado o meu código, o intelij da muito problema pra dar commit
 	private SerVivo turnoAtual;
 	private SerVivo outro;
     private boolean acaoExecutada = false;
