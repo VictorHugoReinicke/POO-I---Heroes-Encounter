@@ -4,7 +4,7 @@ import com.classes.BO.*;
 import java.util.List;
 
 public class GerenciadorStatus {
-
+// ficou mt top victor, dps olha oq fiz tbm
 	private static JogadorStatusBO jogadorStatusBO = new JogadorStatusBO();
 	private static InimigoStatusBO inimigoStatusBO = new InimigoStatusBO();
 	private static StatusBO statusBO = new StatusBO();
@@ -20,12 +20,11 @@ public class GerenciadorStatus {
 
 				if (detalhesStatus != null && detalhesStatus.getDanoTurno() > 0) {
 					danoTotal += detalhesStatus.getDanoTurno();
-					System.out.println("🔥 DOT: " + detalhesStatus.getNome() + " causa " + detalhesStatus.getDanoTurno()
+					System.out.println("DOT: " + detalhesStatus.getNome() + " causa " + detalhesStatus.getDanoTurno()
 							+ " de dano");
 				}
 			}
 
-			// Aplica o dano total
 			if (danoTotal > 0) {
 				inimigo.setHp(inimigo.getHp() - danoTotal);
 			}
@@ -37,9 +36,6 @@ public class GerenciadorStatus {
 		return danoTotal;
 	}
 
-	/**
-	 * Calcula modificadores de defesa do inimigo baseado nos status ativos
-	 */
 	public static double calcularModificadorDefesaInimigo(Inimigo inimigo) {
 		double modificadorTotal = 0.0;
 
@@ -61,9 +57,6 @@ public class GerenciadorStatus {
 		return modificadorTotal;
 	}
 
-	/**
-	 * Calcula modificadores de ataque do jogador baseado nos status ativos
-	 */
 	public static double calcularModificadorAtaqueJogador(Jogador jogador) {
 		double modificadorTotal = 0.0;
 
@@ -83,9 +76,7 @@ public class GerenciadorStatus {
 		return modificadorTotal;
 	}
 
-	/**
-	 * Calcula chance de esquiva do jogador baseado nos status ativos
-	 */
+
 	public static double calcularChanceEsquivaJogador(Jogador jogador) {
 		double chanceEsquiva = 0.0;
 
@@ -105,9 +96,7 @@ public class GerenciadorStatus {
 		return chanceEsquiva;
 	}
 
-	/**
-	 * Verifica se o jogador deve esquivar do próximo ataque
-	 */
+
 	public static boolean verificarEsquiva(Jogador jogador) {
 	    try {
 	        List<JogadorStatus> statusAtivos = jogadorStatusBO.listarStatusAtivos(jogador.getId());
@@ -118,7 +107,6 @@ public class GerenciadorStatus {
 	                
 	                boolean esquivou = Math.random() < chanceEsquiva;
 	                
-	                // SEMPRE remover o status após verificação (dura apenas 1 uso)
 	                jogadorStatusBO.removerStatus(jogador.getId(), status.getStatus().getId());
 	                
 	                return esquivou;
@@ -131,49 +119,37 @@ public class GerenciadorStatus {
 	    return false;
 	}
 
-	/**
-	 * Método auxiliar para extrair modificador de defesa do status
-	 */
+
 	private static double getModificadorDefesaDoStatus(Status status) {
 		switch (status.getNome()) {
 		case "Congelamento":
-			return -0.3; // -30% defesa (DEBUFF - inimigo defende menos)
+			return -0.3;
 		case "Proteção Divina":
-			return 0.5; // +50% defesa (BUFF - jogador defende mais)
+			return 0.5;
 		default:
 			return 0.0;
 		}
 	}
 
-	/**
-	 * Método auxiliar para extrair modificador de ataque do status
-	 */
 	private static double getModificadorAtaqueDoStatus(Status status) {
 		switch (status.getNome()) {
 		case "Precisão":
-			return 0.2; // +20% ataque
+			return 0.2;
 		default:
 			return 0.0;
 		}
 	}
 
-	/**
-	 * Método auxiliar para extrair chance de esquiva do status
-	 */
 	private static double getChanceEsquivaDoStatus(Status status) {
 		switch (status.getNome()) {
 		case "Ilusão":
-			return 0.8; // 80% de chance de esquiva (próximo ataque)
+			return 0.8;
 		default:
 			return 0.0;
 		}
 	}
 
-	/**
-	 * Processa todos os status no fim do turno (usando métodos EXISTENTES dos BOs)
-	 */
 	public static void processarFimDeTurno(Jogador jogador, Inimigo inimigo) {
-		// Usa os métodos JÁ EXISTENTES dos seus BOs
 		jogadorStatusBO.processarFimDeTurno(jogador.getId());
 		inimigoStatusBO.gerenciarTurno(inimigo.getId());
 	}

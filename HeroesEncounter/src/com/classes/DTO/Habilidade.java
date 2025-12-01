@@ -10,9 +10,6 @@ public class Habilidade {
     private int idStatus;
     private Status efeitoStatus;
 
-    // ======================
-    // CONSTRUTOR BASE
-    // ======================
     public Habilidade(String nome, int custoMana, double fatorDano, String tipo) {
         this.nome = nome;
         this.custoMana = custoMana;
@@ -23,15 +20,11 @@ public class Habilidade {
     }
 
     public Habilidade() {}
-    // ======================
-    // CONSTRUTOR COM STATUS
-    // ======================
     public Habilidade(String nome, int custoMana, double fatorDano, String tipo, int idStatus) {
         this(nome, custoMana, fatorDano, tipo);
         this.idStatus = idStatus;
     }
 
-    // Getters e setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
