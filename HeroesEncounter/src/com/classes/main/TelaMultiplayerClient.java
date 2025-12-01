@@ -128,7 +128,7 @@ public class TelaMultiplayerClient extends JDialog {
         lblStatus.setForeground(Color.BLUE);
 
         new Thread(() -> {
-            boolean conectado = networkManager.connectAsClient(ip);
+        	boolean conectado = networkManager.startAsClient(ip);
 
             SwingUtilities.invokeLater(() -> {
                 if (conectado) {
@@ -198,7 +198,7 @@ public class TelaMultiplayerClient extends JDialog {
         }
 
         int index = jogadoresDisponiveis.indexOf(jogadorSelecionado);
-        networkManager.sendObject(index);
+        networkManager.sendObjectSafe(index);
 
         lblStatus.setText("Aguardando host iniciar...");
         btnSelecionar.setEnabled(false);
@@ -230,7 +230,7 @@ public class TelaMultiplayerClient extends JDialog {
     }
 
     private void voltar() {
-        networkManager.close();
+    	networkManager.stop();
         dispose();
         telaPai.setVisible(true);
     }

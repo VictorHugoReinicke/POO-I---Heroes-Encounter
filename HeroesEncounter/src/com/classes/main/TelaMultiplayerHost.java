@@ -112,64 +112,62 @@ public class TelaMultiplayerHost extends JDialog {
 	}
 
 	private void iniciarHost() {
-	    // Mostrar que está iniciando
-	    lblStatus.setText("Iniciando servidor...");
-	    lblStatus.setForeground(Color.BLUE);
-	    
-	    // Executar em thread separada para não travar a interface
-	    new Thread(() -> {
-	        if (networkManager.startAsHost()) {
-	            SwingUtilities.invokeLater(() -> {
-	                lblIP.setText(getLocalIP() + " (Porta: " + networkManager.getCurrentPort() + ")");
-	                lblStatus.setText("Jogador 2 conectado! Aguardando seleção...");
-	                lblStatus.setForeground(Color.GREEN);
-	                enviarListaPersonagens();
-	                aguardarSelecaoConvidado();
-	            });
-	        } else {
-	            SwingUtilities.invokeLater(() -> {
-	                lblStatus.setText("Erro: Todas as portas estão ocupadas!");
-	                lblStatus.setForeground(Color.RED);
-	                JOptionPane.showMessageDialog(this, 
-	                    "Não foi possível iniciar o servidor.\nTodas as portas estão ocupadas.\nFeche outros programas e tente novamente.", 
-	                    "Erro ao Iniciar Servidor", 
-	                    JOptionPane.ERROR_MESSAGE);
-	            });
-	        }
-	    }).start();
+		// Mostrar que está iniciando
+		lblStatus.setText("Iniciando servidor...");
+		lblStatus.setForeground(Color.BLUE);
+
+		// Executar em thread separada para não travar a interface
+		new Thread(() -> {
+			if (networkManager.startAsHost()) {
+				SwingUtilities.invokeLater(() -> {
+					lblIP.setText(getLocalIP() + " (Porta: " + networkManager.getCurrentPort() + ")");
+					lblStatus.setText("Jogador 2 conectado! Aguardando seleção...");
+					lblStatus.setForeground(Color.GREEN);
+					enviarListaPersonagens();
+					aguardarSelecaoConvidado();
+				});
+			} else {
+				SwingUtilities.invokeLater(() -> {
+					lblStatus.setText("Erro: Todas as portas estão ocupadas!");
+					lblStatus.setForeground(Color.RED);
+					JOptionPane.showMessageDialog(this,
+							"Não foi possível iniciar o servidor.\nTodas as portas estão ocupadas.\nFeche outros programas e tente novamente.",
+							"Erro ao Iniciar Servidor", JOptionPane.ERROR_MESSAGE);
+				});
+			}
+		}).start();
 	}
 
 	private void enviarListaPersonagens() {
-	    try {
-	        networkManager.sendObject(jogadores);
-	        System.out.println("Lista de personagens enviada para o cliente");
-	    } catch (Exception e) {
-	        System.err.println("Erro ao enviar lista de personagens: " + e.getMessage());
-	    }
+		try {
+			networkManager.sendObject(jogadores);
+			System.out.println("Lista de personagens enviada para o cliente");
+		} catch (Exception e) {
+			System.err.println("Erro ao enviar lista de personagens: " + e.getMessage());
+		}
 	}
 
 	private void aguardarSelecaoConvidado() {
-	    new Thread(() -> {
-	        try {
-	            Object obj = networkManager.receiveObject();
-	            if (obj instanceof Integer) {
-	                int index = (Integer) obj;
-	                SwingUtilities.invokeLater(() -> {
-	                    selecionarPersonagemConvidado(index);
-	                    btnIniciar.setEnabled(true);
-	                    lblStatus.setText("Pronto para iniciar! Clique em INICIAR JOGO");
-	                });
-	            }
-	        } catch (Exception e) {
-	            System.err.println("Erro ao aguardar seleção: " + e.getMessage());
-	            SwingUtilities.invokeLater(() -> {
-	                lblStatus.setText("Erro na comunicação: " + e.getMessage());
-	                lblStatus.setForeground(Color.RED);
-	            });
-	        }
-	    }).start();
+		new Thread(() -> {
+			try {
+				Object obj = networkManager.receiveObject();
+				if (obj instanceof Integer) {
+					int index = (Integer) obj;
+					SwingUtilities.invokeLater(() -> {
+						selecionarPersonagemConvidado(index);
+						btnIniciar.setEnabled(true);
+						lblStatus.setText("Pronto para iniciar! Clique em INICIAR JOGO");
+					});
+				}
+			} catch (Exception e) {
+				System.err.println("Erro ao aguardar seleção: " + e.getMessage());
+				SwingUtilities.invokeLater(() -> {
+					lblStatus.setText("Erro na comunicação: " + e.getMessage());
+					lblStatus.setForeground(Color.RED);
+				});
+			}
+		}).start();
 	}
-
 
 	private void selecionarPersonagemConvidado(int index) {
 		if (index >= 0 && index < jogadores.size()) {
@@ -210,18 +208,19 @@ public class TelaMultiplayerHost extends JDialog {
 		}
 
 		// Enviar confirmação para o cliente
-		networkManager.sendObject("INICIAR");
+		networkManager.sendObjectSafe("INICIAR");
 
 		// Iniciar aventura multiplayer
 		TelaAventuraMultiplayer telaAventura = new TelaAventuraMultiplayer(jogadorHost, jogadorConvidado,
 				networkManager, true);
+
 		telaAventura.setVisible(true);
 		dispose();
 		telaPai.setVisible(false);
 	}
 
 	private void voltar() {
-		networkManager.close();
+		networkManager.stop();
 		dispose();
 		telaPai.setVisible(true);
 	}

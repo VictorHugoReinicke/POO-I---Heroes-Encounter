@@ -28,7 +28,7 @@ public class TelaAventuraMultiplayer extends TelaAventura {
     protected void proximaBatalha() {
         // Sincronizar com o outro jogador
         if (isHost) {
-            networkManager.sendObject("BATALHA_INICIAR");
+            networkManager.sendObjectSafe("BATALHA_INICIAR");
         }
         super.proximaBatalha();
     }
@@ -37,13 +37,13 @@ public class TelaAventuraMultiplayer extends TelaAventura {
     public void batalhaVencida() {
         super.batalhaVencida();
         // Sincronizar vitória
-        networkManager.sendObject("BATALHA_VENCIDA");
+        networkManager.sendObjectSafe("BATALHA_VENCIDA");
     }
     
     @Override
     public void batalhaPerdida() {
         super.batalhaPerdida();
         // Sincronizar derrota
-        networkManager.sendObject("BATALHA_PERDIDA");
+        networkManager.sendObjectSafe("BATALHA_PERDIDA");
     }
 }
