@@ -25,7 +25,6 @@ public class TelaAventura extends JFrame {
 	private JButton btnStatus;
 	private JButton btnShop;
 	private JButton btnVoltarMenu;
-	private JButton btnMultiplayer; // ✅ NOVO BOTÃO
 
 	public TelaAventura(Jogador jogador) {
 		this.jogador = jogador;
@@ -83,13 +82,12 @@ public class TelaAventura extends JFrame {
 		JPanel botoesPanel = new JPanel(new GridLayout(2, 3, 5, 5)); // ✅ Mudei para 2x3
 		botoesPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		botoesPanel.setBackground(new Color(240, 240, 240));
-
+		
 		// ✅ CRIAR TODOS OS BOTÕES SEGUINDO O MESMO PADRÃO
 		btnIniciarJornada = criarBotaoAventura("⚔️ INICIAR JORNADA", new Color(220, 60, 60));
 		btnProximaBatalha = criarBotaoAventura("🎯 PRÓXIMA BATALHA", new Color(60, 120, 220));
 		btnShop = criarBotaoAventura("🛒 VISITAR SHOP", new Color(255, 165, 0));
 		btnStatus = criarBotaoAventura("📊 VER STATUS", new Color(60, 180, 120));
-		btnMultiplayer = criarBotaoAventura("🎮 MULTIJOGADOR", new Color(150, 50, 200)); // ✅ Roxo para multiplayer
 		btnVoltarMenu = criarBotaoAventura("🏠 VOLTAR AO MENU", new Color(100, 100, 100));
 
 		// ✅ CONFIGURAR AÇÕES DOS BOTÕES
@@ -97,7 +95,6 @@ public class TelaAventura extends JFrame {
 		btnProximaBatalha.addActionListener(e -> proximaBatalha());
 		btnShop.addActionListener(e -> visitarShop());
 		btnStatus.addActionListener(e -> mostrarStatus());
-		btnMultiplayer.addActionListener(e -> abrirMultijogador()); // ✅ NOVA AÇÃO
 		btnVoltarMenu.addActionListener(e -> voltarAoMenu());
 
 		// ✅ ADICIONAR TODOS OS BOTÕES AO PAINEL NA ORDEM CORRETA
@@ -105,7 +102,6 @@ public class TelaAventura extends JFrame {
 		botoesPanel.add(btnProximaBatalha);
 		botoesPanel.add(btnShop);
 		botoesPanel.add(btnStatus);
-		botoesPanel.add(btnMultiplayer); // ✅ BOTÃO MULTIPLAYER ADICIONADO
 		botoesPanel.add(btnVoltarMenu);
 
 		// Inicialmente desabilitar próximo batalha e shop
@@ -187,7 +183,7 @@ public class TelaAventura extends JFrame {
 		}
 	}
 
-	private void proximaBatalha() {
+	protected void proximaBatalha() {
 		if (!jornadaAtiva) {
 			JOptionPane.showMessageDialog(this, "Você precisa iniciar a jornada primeiro!", "Jornada Não Iniciada",
 					JOptionPane.WARNING_MESSAGE);
@@ -231,26 +227,7 @@ public class TelaAventura extends JFrame {
 		}
 	}
 
-	// ✅ MÉTODO MULTIPLAYER CORRETAMENTE IMPLEMENTADO
-	private void abrirMultijogador() {
-		try {
-			adicionarLog("🎮 Iniciando modo multijogador...");
-
-			// ✅ CORREÇÃO: Usar o construtor correto da TelaAventuraMultiplayer
-			TelaAventuraMultiplayer telaMultiplayer = new TelaAventuraMultiplayer(jogador);
-			telaMultiplayer.setVisible(true);
-
-			// Opcional: esconder esta tela enquanto a multiplayer estiver aberta
-			this.setVisible(false);
-
-			adicionarLog("🔗 Modo multijogador disponível!");
-		} catch (Exception e) {
-			adicionarLog("❌ Erro ao abrir multijogador: " + e.getMessage());
-			JOptionPane.showMessageDialog(this, "Erro ao iniciar modo multijogador:\n" + e.getMessage(),
-					"Erro Multijogador", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
+	
 	public void batalhaPerdida() {
 		jornadaAtiva = false;
 		adicionarLog("💀 Derrota! A jornada termina aqui...");
@@ -332,24 +309,25 @@ public class TelaAventura extends JFrame {
 		}
 	}
 
+	
 	private void visitarShop() {
-		if (!jornadaAtiva) {
-			JOptionPane.showMessageDialog(this, "Você precisa iniciar a jornada primeiro!", "Jornada Não Iniciada",
-					JOptionPane.WARNING_MESSAGE);
-			return;
-		}
+	    if (!jornadaAtiva) {
+	        JOptionPane.showMessageDialog(this, "Você precisa iniciar a jornada primeiro!", "Jornada Não Iniciada",
+	                JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
 
-		adicionarLog("");
-		adicionarLog("🛒 VISITANDO O SHOP...");
-		adicionarLog("💰 Seu ouro atual: " + jogador.getOuro());
+	    adicionarLog("");
+	    adicionarLog("🛒 VISITANDO O SHOP...");
+	    adicionarLog("💰 Seu ouro atual: " + jogador.getOuro());
 
-		// Abrir TelaShop completa
-		TelaShop telaShop = new TelaShop(this, jogador);
-		telaShop.setVisible(true);
-
-		// Atualizar status após fechar o shop
-		adicionarLog("🏪 Voltando da loja...");
-		adicionarLog("💰 Ouro atual: " + jogador.getOuro());
+	    // Abrir TelaShop completa
+	    TelaShop telaShop = new TelaShop(this, jogador);
+	    telaShop.setVisible(true);
+	    
+	    // Atualizar status após fechar o shop
+	    adicionarLog("🏪 Voltando da loja...");
+	    adicionarLog("💰 Ouro atual: " + jogador.getOuro());
 	}
 
 	private void jornadaCompleta() {
@@ -409,7 +387,7 @@ public class TelaAventura extends JFrame {
 		txtLog.setCaretPosition(txtLog.getDocument().getLength());
 	}
 
-	private String determinarClasse(Jogador jogador) {
+	protected String determinarClasse(Jogador jogador) {
 		if (jogador instanceof Guerreiro) {
 			return "Guerreiro";
 		} else if (jogador instanceof Mago) {
