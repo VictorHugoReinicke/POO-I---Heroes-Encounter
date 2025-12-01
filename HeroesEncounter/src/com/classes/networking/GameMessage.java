@@ -1,7 +1,6 @@
 package com.classes.networking;
 
 import java.io.Serializable;
-import com.classes.DTO.*;
 
 public class GameMessage implements Serializable {
     public enum MessageType {
@@ -11,9 +10,12 @@ public class GameMessage implements Serializable {
         COMBAT_ACTION,      // Ação no combate
         COMBAT_END,         // Fim de combate
         PLAYER_STATS,       // Atualização de stats
+        PLAYER_SYNC,        // ✅ ADICIONADO: Sincronização de jogador
+        INVENTORY_SYNC,     // ✅ ADICIONADO: Sincronização de inventário
         SHOP_PURCHASE,      // Compra na loja
         GAME_SYNC,          // Sincronização geral
-        CHAT_MESSAGE        // Mensagem de chat
+        CHAT_MESSAGE,       // Mensagem de chat
+        PLAYER_READY        // ✅ ADICIONADO: Jogador pronto
     }
     
     private MessageType type;
@@ -40,4 +42,13 @@ public class GameMessage implements Serializable {
     
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    
+    @Override
+    public String toString() {
+        return "GameMessage{" +
+                "type=" + type +
+                ", playerId=" + playerId +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

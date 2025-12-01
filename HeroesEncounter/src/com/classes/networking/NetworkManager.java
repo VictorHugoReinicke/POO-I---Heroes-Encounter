@@ -2,6 +2,7 @@ package com.classes.networking;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import com.classes.DTO.*;
@@ -98,6 +99,24 @@ public class NetworkManager {
                 System.err.println("❌ Erro ao enviar mensagem: " + e.getMessage());
             }
         }
+    }
+    
+    public void sincronizarJogador(Jogador jogador) {
+        GameMessage syncMsg = new GameMessage(
+            GameMessage.MessageType.PLAYER_SYNC,
+            jogador,
+            jogador.getId()
+        );
+        sendMessage(syncMsg);
+    }
+    
+    public void sincronizarInventario(int jogadorId, List<JogadorItem> inventario) {
+        GameMessage invMsg = new GameMessage(
+            GameMessage.MessageType.INVENTORY_SYNC,
+            inventario,
+            jogadorId
+        );
+        sendMessage(invMsg);
     }
     
     /**
