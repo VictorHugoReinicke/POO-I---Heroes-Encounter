@@ -79,44 +79,41 @@ public class JogadorDAO {
         Connection conn = null;
         try {
             conn = Conexao.conectar();
-            conn.setAutoCommit(false); // ✅ INICIA TRANSACTION
+            conn.setAutoCommit(false);
             
             int idJogador = jogador.getId();
-            System.out.println("🗑️ Iniciando deleção em cascata do jogador ID: " + idJogador);
+            System.out.println("Iniciando deleção em cascata do jogador ID: " + idJogador);
             
-            // ✅ 1. PRIMEIRO DELETA OS ITENS DO JOGADOR
-            System.out.println("📦 Deletando itens do jogador...");
+            System.out.println("Deletando itens do jogador...");
             String sqlItens = "DELETE FROM jogadoritem WHERE idJogador = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlItens)) {
                 ps.setInt(1, idJogador);
                 int itensDeletados = ps.executeUpdate();
-                System.out.println("✅ Itens deletados: " + itensDeletados);
+                System.out.println("Itens deletados: " + itensDeletados);
             }
             
-            // ✅ 2. DELETA OS STATUS DO JOGADOR
             System.out.println("⚡ Deletando status do jogador...");
             String sqlStatus = "DELETE FROM jogadorstatus WHERE idJogador = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlStatus)) {
                 ps.setInt(1, idJogador);
                 int statusDeletados = ps.executeUpdate();
-                System.out.println("✅ Status deletados: " + statusDeletados);
+                System.out.println("Status deletados: " + statusDeletados);
             }
                      
                   
-            // ✅ 5. FINALMENTE DELETA O JOGADOR
-            System.out.println("👤 Deletando jogador...");
+            System.out.println("Deletando jogador...");
             String sqlJogador = "DELETE FROM " + NOMEDATABELA + " WHERE id = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlJogador)) {
                 ps.setInt(1, idJogador);
                 int jogadorDeletado = ps.executeUpdate();
                 
                 if (jogadorDeletado > 0) {
-                    conn.commit(); // ✅ CONFIRMA TODAS AS DELEÇÕES
-                    System.out.println("✅ Jogador deletado com sucesso!");
+                    conn.commit();
+                    System.out.println("Jogador deletado com sucesso!");
                     return true;
                 } else {
-                    conn.rollback(); // ✅ CANCELA TUDO SE FALHAR
-                    System.out.println("❌ Nenhum jogador foi deletado");
+                    conn.rollback();
+                    System.out.println("Nenhum jogador foi deletado");
                     return false;
                 }
             }
@@ -124,46 +121,40 @@ public class JogadorDAO {
         } catch (Exception e) {
             try {
                 if (conn != null) {
-                    conn.rollback(); // ✅ CANCELA EM CASO DE ERRO
+                    conn.rollback();
                 }
             } catch (SQLException ex) {
-                System.err.println("❌ Erro no rollback: " + ex.getMessage());
+                System.err.println("Erro no rollback: " + ex.getMessage());
             }
-            System.err.println("❌ Erro ao deletar jogador: " + e.getMessage());
+            System.err.println("Erro ao deletar jogador: " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
             try {
                 if (conn != null) {
-                    conn.setAutoCommit(true); // ✅ RESTAURA AUTO-COMMIT
+                    conn.setAutoCommit(true);
                     conn.close();
                 }
             } catch (SQLException e) {
-                System.err.println("❌ Erro ao fechar conexão: " + e.getMessage());
+                System.err.println("Erro ao fechar conexão: " + e.getMessage());
             }
         }
     }
 
 	public Jogador procurarPorCodigo(Jogador jogador) {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA
-					+ " WHERE id = ?;";
-			PreparedStatement ps = conn.prepareStatement(sql);
+		String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA	+ " WHERE id = ?;";
+		// A estrutura try-with-resources garante que a conexão e o statement serão fechados automaticamente.
+		try (Connection conn = Conexao.conectar();
+			 PreparedStatement ps = conn.prepareStatement(sql)) {
+			
 			ps.setInt(1, jogador.getId());
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				Jogador obj = montarObjeto(rs);
-
-				ps.close();
-				rs.close();
-				conn.close();
-				return obj;
-			} else {
-				ps.close();
-				rs.close();
-				conn.close();
-				return null;
+			
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return montarObjeto(rs);
+				} else {
+					return null;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

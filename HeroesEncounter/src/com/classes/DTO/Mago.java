@@ -39,19 +39,16 @@ public class Mago extends Jogador {
     }
 
     public void inicializarKit(ItemBO itemBO, HabilidadesBO habBO) {
-        // Mago deve usar Cajado (ID 2)
         ItemArma cajado = (ItemArma) itemBO.procurarPorCodigo(2);
         this.setArmaEquipada(cajado);
         this.adicionarItem(cajado, 1, true);
 
-        // Mago usa Poção de Mana (ID 5)
         ItemConsumivel mana = (ItemConsumivel) itemBO.procurarPorCodigo(5);
         this.adicionarItem(mana, 2, false);
         ItemConsumivel cura = (ItemConsumivel) itemBO.procurarPorCodigo(4);
         this.adicionarItem(cura, 1, false);
         
 
-        // Mago deve ter habilidades de Mago (IDs 4,5,6)
         this.getHabilidades().add(habBO.procurarPorCodigo(4));
         this.getHabilidades().add(habBO.procurarPorCodigo(5));
         this.getHabilidades().add(habBO.procurarPorCodigo(6));

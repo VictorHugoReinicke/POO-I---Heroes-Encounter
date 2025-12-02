@@ -22,7 +22,6 @@ public class TelaSelecao extends JFrame {
 		setLayout(new BorderLayout());
 		setResizable(false);
 
-		// Painel de título
 		JPanel tituloPanel = new JPanel();
 		tituloPanel.setBackground(new Color(30, 30, 70));
 		JLabel titulo = new JLabel("HEROES ENCOUNTER");
@@ -30,30 +29,25 @@ public class TelaSelecao extends JFrame {
 		titulo.setForeground(Color.WHITE);
 		tituloPanel.add(titulo);
 
-		// Painel central com botões
 		JPanel botoesPanel = new JPanel();
 		botoesPanel.setLayout(new GridLayout(3, 1, 30, 30));
 		botoesPanel.setBorder(BorderFactory.createEmptyBorder(80, 150, 80, 150));
 		botoesPanel.setBackground(new Color(240, 240, 240));
 
-		// Botão Novo Personagem
-		btnNovoPersonagem = criarBotaoGrande("🎮 NOVO PERSONAGEM", new Color(60, 120, 220));
+		btnNovoPersonagem = criarBotaoGrande("NOVO PERSONAGEM", new Color(60, 120, 220));
 		btnNovoPersonagem.addActionListener(e -> abrirCriacaoPersonagem());
 
-		// Botão Carregar Personagem
-		btnCarregarPersonagem = criarBotaoGrande("📂 CARREGAR PERSONAGEM", new Color(60, 180, 120));
+		btnCarregarPersonagem = criarBotaoGrande("CARREGAR PERSONAGEM", new Color(60, 180, 120));
 		btnCarregarPersonagem.addActionListener(e -> abrirListaPersonagens());
 
 
-		// Botão Sair
-		btnSair = criarBotaoGrande("🚪 SAIR", new Color(200, 60, 60));
+		btnSair = criarBotaoGrande("SAIR", new Color(200, 60, 60));
 		btnSair.addActionListener(e -> System.exit(0));
 
 		botoesPanel.add(btnNovoPersonagem);
 		botoesPanel.add(btnCarregarPersonagem);
 		botoesPanel.add(btnSair);
 
-		// Painel inferior
 		JPanel footerPanel = new JPanel();
 		footerPanel.setBackground(new Color(30, 30, 70));
 		JLabel footer = new JLabel("Sistema de Gerenciamento de Personagens");
@@ -78,7 +72,6 @@ public class TelaSelecao extends JFrame {
 		botao.setBorder(BorderFactory.createRaisedBevelBorder());
 		botao.setPreferredSize(new Dimension(300, 80));
 
-		// Efeito hover
 		botao.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mouseEntered(java.awt.event.MouseEvent evt) {
 				botao.setBackground(cor.brighter());
@@ -106,7 +99,6 @@ public class TelaSelecao extends JFrame {
 
 	}
 
-	// Método para voltar para esta tela
 	public void voltarParaSelecao() {
 		this.setVisible(true);
 		this.toFront();

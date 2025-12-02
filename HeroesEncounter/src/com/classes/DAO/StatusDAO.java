@@ -14,10 +14,6 @@ public class StatusDAO {
 
 	final String NOMEDATABELA = "Status";
 
-	// ------------------------------------------------------------------
-	// --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-	// ------------------------------------------------------------------
-
 	public boolean inserir(Status status) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -92,10 +88,6 @@ public class StatusDAO {
 			return false;
 		}
 	}
-
-	// ------------------------------------------------------------------
-	// --- 2. MÉTODOS DE BUSCA ---
-	// ------------------------------------------------------------------
 
 	public Status procurarPorCodigo(int id) {
 	    try {
@@ -189,9 +181,6 @@ public class StatusDAO {
 		return false;
 	}
 
-	// ------------------------------------------------------------------
-	// --- 3. MÉTODOS AUXILIARES ---
-	// ------------------------------------------------------------------
 	private Status montarObjeto(ResultSet rs) throws Exception {
 	    Status s = new Status();
 	    
@@ -200,7 +189,7 @@ public class StatusDAO {
 	    s.setDanoTurno(rs.getInt("dano_turno"));
 	    s.setModificadorDefesa(rs.getDouble("modificador_defesa")); 
 	    s.setDuracaoTurnos(rs.getInt("duracao_turnos"));
-	    s.setChanceEsquiva(rs.getDouble("chance_esquiva")); // ✅ Nova linha
+	    s.setChanceEsquiva(rs.getDouble("chance_esquiva"));
 	    
 	    return s;
 	}

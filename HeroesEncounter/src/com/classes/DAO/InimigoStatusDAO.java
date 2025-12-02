@@ -11,23 +11,15 @@ import com.classes.Conexao.Conexao;
 import com.classes.DTO.Inimigo;
 import com.classes.DTO.InimigoStatus;
 
-// OBSERVAÇÃO: Este DAO depende da existência de InimigoDAO e StatusDAO para 
-// carregar os objetos relacionados (Inimigo e Status).
 public class InimigoStatusDAO {
 
     final String NOMEDATABELA = "InimigoStatus";
     
-    // Dependências para carregar objetos relacionados
     private InimigoDAO inimigoDAO;
 
     public InimigoStatusDAO() {
         this.inimigoDAO = new InimigoDAO();
-        // this.statusDAO = new StatusDAO(); // Descomentar quando StatusDAO existir
     }
-
-    // ------------------------------------------------------------------
-    // --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-    // ------------------------------------------------------------------
 
     public boolean inserir(InimigoStatus inimigoStatus) {
         try {
@@ -43,7 +35,6 @@ public class InimigoStatusDAO {
 
             ps.executeUpdate();
 
-            // Busca o ID gerado e atualiza o DTO
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 inimigoStatus.setId(rs.getInt(1));
@@ -94,13 +85,6 @@ public class InimigoStatusDAO {
         }
     }
 
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Retorna todos os status ativos para um inimigo específico.
-     */
     public List<InimigoStatus> procurarPorInimigo(int idInimigo) {
         try {
             Connection conn = Conexao.conectar();
@@ -121,29 +105,19 @@ public class InimigoStatusDAO {
         }
     }
 
-    // ------------------------------------------------------------------
-    // --- 3. MÉTODOS AUXILIARES ---
-    // ------------------------------------------------------------------
-    
     private InimigoStatus montarObjeto(ResultSet rs) throws Exception {
         InimigoStatus is = new InimigoStatus();
         
-        // 1. Atributos da tabela de ligação
         is.setId(rs.getInt("id"));
         is.setIdInimigo(rs.getInt("idInimigo"));
         is.setIdStatus(rs.getInt("idStatus"));
         is.setTurnoRestante(rs.getInt("turno_restante"));
         
-        // 2. Carrega os objetos relacionados (o "JOIN" feito no código Java)
-        
-        // Carrega o Inimigo (já usa a Factory)
+
         Inimigo inimigo = inimigoDAO.procurarPorCodigo(is.getIdInimigo());
         is.setInimigo(inimigo);
         
-        // Carrega o Status (Descomentar quando StatusDAO existir)
-        // Status status = statusDAO.procurarPorCodigo(is.getIdStatus());
-        // is.setStatus(status);
-        
+
         return is;
     }
 

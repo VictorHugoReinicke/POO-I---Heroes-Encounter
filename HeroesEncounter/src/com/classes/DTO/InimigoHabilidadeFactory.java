@@ -14,9 +14,6 @@ public class InimigoHabilidadeFactory {
 
         System.out.println(">> Criando habilidades dos inimigos...");
 
-        // ==============================
-        // STATUS PARA INIMIGOS
-        // ==============================
         Status furia = criarOuBuscarStatus(statusBO, "Fúria", 0, 0.5, 2); // +50% ataque por 2 turnos
         Status mordidaProfunda = criarOuBuscarStatus(statusBO, "Mordida Profunda", 8, 0.0, 3); // DOT
         Status veneno = criarOuBuscarStatus(statusBO, "Veneno", 6, -0.1, 4);
@@ -24,12 +21,8 @@ public class InimigoHabilidadeFactory {
         Status atordoamento = criarOuBuscarStatus(statusBO, "Atordoamento", 0, 0.0, 1); // Pula 1 turno
         Status fraqueza = criarOuBuscarStatus(statusBO, "Fraqueza", 0, -0.3, 2); // -30% ataque
 
-        // ==============================
-        // HABILIDADES DE INIMIGOS
-        // ==============================
         Map<String, Habilidade> habilidadesCriadas = new HashMap<>();
 
-        // Habilidades para Bestas
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Arranhão Selvagem", 5, 1.2, "OFENSIVA"));
 
@@ -58,7 +51,6 @@ public class InimigoHabilidadeFactory {
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Ataque Surpresa", 20, 2.5, "OFENSIVA"));
 
-        // Habilidades para Magos
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Bola de Fogo", 15, 2.0, "OFENSIVA"));
 
@@ -71,7 +63,6 @@ public class InimigoHabilidadeFactory {
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Maldição de Fraqueza", 5, 0.0, "DEBUFF", fraqueza.getId()));
 
-        // Habilidades para Chefes
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Rugido Aterrorizante", 0, 0, "DEBUFF"));
 
@@ -81,27 +72,20 @@ public class InimigoHabilidadeFactory {
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Regeneração Monstruosa", 0, 0, "CURA"));
 
-        // ==============================
-        // LISTAR INIMIGOS (JÁ CRIADOS NO MAIN)
-        // ==============================
         List<Inimigo> inimigos = inimigoBO.pesquisarTodos();
         if (inimigos.isEmpty()) {
             System.out.println("⚠ Nenhum inimigo encontrado no banco. Execute o popularInimigos() primeiro.");
             return;
         }
 
-        // ==============================
-        // ATRIBUIR HABILIDADES AOS INIMIGOS
-        // ==============================
         System.out.println(">> Linkando habilidades aos inimigos...");
 
         for (Inimigo i : inimigos) {
             String nomeInimigo = i.getNome();
             String classeInimigo = i.getClass().getSimpleName();
             
-            System.out.println("\n🔗 Configurando " + nomeInimigo + " (" + classeInimigo + "):");
+            System.out.println("\n Configurando " + nomeInimigo + " (" + classeInimigo + "):");
 
-            // Configura chances baseadas no tipo de inimigo
             switch (classeInimigo) {
                 case "Besta":
                     if (nomeInimigo.contains("Urso")) {
@@ -147,10 +131,6 @@ public class InimigoHabilidadeFactory {
         System.out.println("\n✔ Habilidades dos inimigos criadas e vinculadas!");
     }
 
-    // =============================================================
-    // HELPERS
-    // =============================================================
-
     private static Status criarOuBuscarStatus(StatusBO statusBO, String nome, int danoTurno,
             double modificadorDefesa, int duracaoTurnos) {
 
@@ -191,36 +171,31 @@ public class InimigoHabilidadeFactory {
             return;
         }
 
-        // Usando o método adicionarHabilidade do seu BO
         InimigoHabilidade inimigoHab = new InimigoHabilidade();
         inimigoHab.setIdInimigo(inimigo.getId());
         inimigoHab.setIdHabilidade(hab.getId());
         inimigoHab.setChance_uso(chanceUso);
         
         if (ihBO.adicionarHabilidade(inimigoHab)) {
-            System.out.println("   ✅ " + nomeHab + " → " + inimigo.getNome() + " (" + chanceUso + "% chance)");
+            System.out.println(" - " + nomeHab + " → " + inimigo.getNome() + " (" + chanceUso + "% chance)");
         } else {
-            System.out.println("   ❌ Falha ao atribuir " + nomeHab + " a " + inimigo.getNome());
+            System.out.println("Falha ao atribuir " + nomeHab + " a " + inimigo.getNome());
         }
     }
     
-    // Método sobrecarregado para manter compatibilidade com código antigo
     private static void linkar(InimigoHabilidadeBO ihBO, Inimigo inimigo,
             Map<String, Habilidade> map, String nomeHab) {
-        linkar(ihBO, inimigo, map, nomeHab, 30); // Chance padrão de 30%
+        linkar(ihBO, inimigo, map, nomeHab, 30);
     }
     
-    // Método para popular inimigos de exemplo (opcional)
     public static void popularInimigosExemplo(InimigoBO inimigoBO) {
         System.out.println(">> Criando inimigos de exemplo...");
         
-        // Limpa inimigos existentes
         List<Inimigo> existentes = inimigoBO.pesquisarTodos();
         for (Inimigo i : existentes) {
             inimigoBO.excluir(i);
         }
         
-        // Cria novos inimigos
         Inimigo urso = InimigoFactory.criarInimigo("Besta");
         urso.setNome("Urso Selvagem");
         urso.setHpMax(100);
@@ -229,7 +204,7 @@ public class InimigoHabilidadeFactory {
         urso.setDefesa(10);
         urso.setRecompensaOuro(20);
         inimigoBO.inserir(urso);
-        System.out.println("   🐻 Urso Selvagem criado");
+        System.out.println("Urso Selvagem criado");
         
         Inimigo lobo = InimigoFactory.criarInimigo("Besta");
         lobo.setNome("Lobo Feroz");
@@ -239,7 +214,7 @@ public class InimigoHabilidadeFactory {
         lobo.setDefesa(8);
         lobo.setRecompensaOuro(15);
         inimigoBO.inserir(lobo);
-        System.out.println("   🐺 Lobo Feroz criado");
+        System.out.println("Lobo Feroz criado");
         
         Inimigo ladrao = InimigoFactory.criarInimigo("Ladrao");
         ladrao.setNome("Assaltante das Sombras");
@@ -249,7 +224,7 @@ public class InimigoHabilidadeFactory {
         ladrao.setDefesa(5);
         ladrao.setRecompensaOuro(15);
         inimigoBO.inserir(ladrao);
-        System.out.println("   🗡️ Assaltante das Sombras criado");
+        System.out.println("Assaltante das Sombras criado");
         
         Inimigo magico = InimigoFactory.criarInimigo("InimigoMagico");
         magico.setNome("Slime Arcano");
@@ -259,7 +234,7 @@ public class InimigoHabilidadeFactory {
         magico.setDefesa(3);
         magico.setRecompensaOuro(25);
         inimigoBO.inserir(magico);
-        System.out.println("   🔮 Slime Arcano criado");
+        System.out.println("Slime Arcano criado");
         
         Inimigo chefe = InimigoFactory.criarInimigo("Chefe");
         chefe.setNome("Lobo Alfa Supremo");
@@ -270,19 +245,17 @@ public class InimigoHabilidadeFactory {
         chefe.setRecompensaOuro(50);
         chefe.setTipoIA(com.classes.Enums.TipoIA.CHEFE);
         inimigoBO.inserir(chefe);
-        System.out.println("   👑 Lobo Alfa Supremo criado");
+        System.out.println("Lobo Alfa Supremo criado");
         
-        System.out.println("✔ Inimigos de exemplo criados!");
+        System.out.println("Inimigos de exemplo criados!");
     }
     
-    // Método para testar o sistema de habilidades
     public static void testarHabilidades(InimigoHabilidadeBO inimigoHabBO, InimigoBO inimigoBO) {
         System.out.println("\n>> Testando sistema de habilidades...");
         
         for (Inimigo inimigo : inimigoBO.pesquisarTodos()) {
-            System.out.println("\n🎯 " + inimigo.getNome() + ":");
+            System.out.println("\n " + inimigo.getNome() + ":");
             
-            // Lista habilidades configuradas
             List<InimigoHabilidade> habilidades = inimigoHabBO.listarHabilidades(inimigo.getId());
             if (habilidades.isEmpty()) {
                 System.out.println("   Nenhuma habilidade configurada");
@@ -294,8 +267,7 @@ public class InimigoHabilidadeFactory {
                                  " (Chance: " + ih.getChance_uso() + "%)");
             }
             
-            // Testa escolha aleatória
-            System.out.println("\n   🎲 Simulando 10 escolhas de habilidades:");
+            System.out.println("\n Simulando 10 escolhas de habilidades:");
             Map<Integer, Integer> contagem = new HashMap<>();
             for (int i = 0; i < 10; i++) {
                 InimigoHabilidade escolhida = inimigoHabBO.escolherHabilidade(inimigo);
@@ -307,7 +279,6 @@ public class InimigoHabilidadeFactory {
                 }
             }
             
-            // Mostra estatísticas
             for (Map.Entry<Integer, Integer> entry : contagem.entrySet()) {
                 System.out.println("   Habilidade ID " + entry.getKey() + ": " + 
                                  entry.getValue() + " vezes");

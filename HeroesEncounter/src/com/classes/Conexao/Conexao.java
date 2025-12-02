@@ -15,7 +15,7 @@ public class Conexao {
             String url = "jdbc:mysql://127.0.0.1/" + NOME_DO_BANCO;
             
             
-            return DriverManager.getConnection(url, "root", "root");
+            return DriverManager.getConnection(url, "root", "");
         } catch (Exception e) {
         	e.printStackTrace();
             return null;

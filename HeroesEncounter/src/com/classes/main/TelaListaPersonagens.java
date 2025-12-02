@@ -41,7 +41,6 @@ public class TelaListaPersonagens extends JDialog {
 		setLocationRelativeTo(getParent());
 		setResizable(false);
 
-		// Painel de título
 		JPanel tituloPanel = new JPanel();
 		tituloPanel.setBackground(new Color(30, 30, 70));
 		JLabel titulo = new JLabel("SELECIONAR PERSONAGEM PARA AVENTURA");
@@ -49,11 +48,9 @@ public class TelaListaPersonagens extends JDialog {
 		titulo.setForeground(Color.WHITE);
 		tituloPanel.add(titulo);
 
-		// Painel principal
 		JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		// Painel da lista
 		JPanel listaPanel = new JPanel(new BorderLayout());
 		listaPanel.setBorder(BorderFactory.createTitledBorder("Lista de Personagens"));
 
@@ -65,7 +62,6 @@ public class TelaListaPersonagens extends JDialog {
 		JScrollPane scrollLista = new JScrollPane(listaPersonagens);
 		listaPanel.add(scrollLista, BorderLayout.CENTER);
 
-		// Painel de detalhes
 		JPanel detalhesPanel = new JPanel(new BorderLayout());
 		detalhesPanel.setBorder(BorderFactory.createTitledBorder("Detalhes do Personagem"));
 
@@ -81,21 +77,19 @@ public class TelaListaPersonagens extends JDialog {
 		mainPanel.add(listaPanel);
 		mainPanel.add(detalhesPanel);
 
-		// Painel de botões
 		JPanel botoesPanel = new JPanel(new FlowLayout());
-		btnSelecionar = criarBotao("⚔️ INICIAR AVENTURA", new Color(50, 150, 50));
-		btnDeletar = criarBotao("🗑️ DELETAR PERSONAGEM", new Color(200, 50, 50)); // ✅ NOVO BOTÃO
-		btnVoltar = criarBotao("↩️ VOLTAR", new Color(200, 150, 0));
+		btnSelecionar = criarBotao("INICIAR AVENTURA", new Color(50, 150, 50));
+		btnDeletar = criarBotao("DELETAR PERSONAGEM", new Color(200, 50, 50));
+		btnVoltar = criarBotao("VOLTAR", new Color(200, 150, 0));
 
 		btnSelecionar.addActionListener(e -> iniciarAventura());
-		btnDeletar.addActionListener(e -> deletarPersonagem()); // ✅ NOVA AÇÃO
+		btnDeletar.addActionListener(e -> deletarPersonagem());
 		btnVoltar.addActionListener(e -> voltar());
 
 		botoesPanel.add(btnSelecionar);
-		botoesPanel.add(btnDeletar); // ✅ ADICIONADO AO PAINEL
+		botoesPanel.add(btnDeletar);
 		botoesPanel.add(btnVoltar);
 
-		// Listener para seleção na lista
 		listaPersonagens.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
 				exibirDetalhesPersonagem();
@@ -138,7 +132,7 @@ public class TelaListaPersonagens extends JDialog {
 			if (jogadores == null || jogadores.isEmpty()) {
 				listModel.addElement("Nenhum personagem encontrado");
 				btnSelecionar.setEnabled(false);
-				btnDeletar.setEnabled(false); // ✅ DESABILITA BOTÃO DE DELETAR
+				btnDeletar.setEnabled(false);
 				return;
 			}
 
@@ -155,7 +149,7 @@ public class TelaListaPersonagens extends JDialog {
 		} catch (Exception e) {
 			listModel.addElement("Erro ao carregar personagens");
 			btnSelecionar.setEnabled(false);
-			btnDeletar.setEnabled(false); // ✅ DESABILITA BOTÃO DE DELETAR
+			btnDeletar.setEnabled(false);
 			JOptionPane.showMessageDialog(this, "Erro ao carregar personagens: " + e.getMessage(), "Erro",
 					JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
@@ -201,11 +195,10 @@ public class TelaListaPersonagens extends JDialog {
 			txtDetalhes.setText(detalhes.toString());
 			txtDetalhes.setCaretPosition(0);
 			btnSelecionar.setEnabled(true);
-			btnDeletar.setEnabled(true); // ✅ HABILITA BOTÃO DE DELETAR
+			btnDeletar.setEnabled(true);
 		}
 	}
 
-	// ✅ NOVO MÉTODO: DELETAR PERSONAGEM
 	private void deletarPersonagem() {
 		int selectedIndex = listaPersonagens.getSelectedIndex();
 		if (selectedIndex < 0 || selectedIndex >= jogadores.size()) {
@@ -218,26 +211,23 @@ public class TelaListaPersonagens extends JDialog {
 		String nomePersonagem = jogadorSelecionado.getNome();
 		String classePersonagem = determinarClasse(jogadorSelecionado);
 
-		// ✅ CONFIRMAÇÃO DE SEGURANÇA
 		int confirmacao = JOptionPane.showConfirmDialog(this,
-				"⚠️  ATENÇÃO: Esta ação é PERMANENTE!\n\n" + "Tem certeza que deseja deletar o personagem?\n" + "Nome: "
+				"ATENÇÃO: Esta ação é PERMANENTE!\n\n" + "Tem certeza que deseja deletar o personagem?\n" + "Nome: "
 						+ nomePersonagem + "\n" + "Classe: " + classePersonagem + "\n\n"
 						+ "Todos os dados serão perdidos para sempre!",
 				"CONFIRMAR DELEÇÃO", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
 		if (confirmacao == JOptionPane.YES_OPTION) {
 			try {
-				// ✅ TENTA DELETAR O PERSONAGEM
 				boolean deletado = jogadorBO.excluir(jogadorSelecionado);
 
 				if (deletado) {
 					JOptionPane
 							.showMessageDialog(this,
-									"✅ Personagem deletado com sucesso!\n" + "Nome: " + nomePersonagem + "\n"
+									"Personagem deletado com sucesso!\n" + "Nome: " + nomePersonagem + "\n"
 											+ "Classe: " + classePersonagem,
 									"Deleção Bem-sucedida", JOptionPane.INFORMATION_MESSAGE);
 
-					// ✅ CORREÇÃO: ATUALIZA A LISTA LOCAL CORRETAMENTE
 					atualizarListaAposDelecao(selectedIndex);
 
 				} else {
@@ -245,7 +235,7 @@ public class TelaListaPersonagens extends JDialog {
 				}
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(this, "❌ Erro ao deletar personagem:\n" + e.getMessage(),
+				JOptionPane.showMessageDialog(this, "Erro ao deletar personagem:\n" + e.getMessage(),
 						"Erro na Deleção", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
@@ -254,16 +244,12 @@ public class TelaListaPersonagens extends JDialog {
 
 	private void atualizarListaAposDelecao(int indiceDeletado) {
 		try {
-			// ✅ 1. REMOVE DA LISTA LOCAL
 			jogadores.remove(indiceDeletado);
 
-			// ✅ 2. REMOVE DO LISTMODEL
 			listModel.remove(indiceDeletado);
 
-			// ✅ 3. ATUALIZA A LISTA COMPLETA DO BANCO (para garantir sincronização)
 			jogadores = jogadorBO.pesquisarTodos();
 
-			// ✅ 4. LIMPA E RECARREGA O LISTMODEL
 			listModel.clear();
 
 			if (jogadores == null || jogadores.isEmpty()) {
@@ -271,22 +257,18 @@ public class TelaListaPersonagens extends JDialog {
 				btnSelecionar.setEnabled(false);
 				btnDeletar.setEnabled(false);
 
-				// ✅ 5. LIMPA OS DETALHES
 				txtDetalhes.setText("");
 			} else {
-				// ✅ RECARREGA TODOS OS PERSONAGENS
 				for (Jogador jogador : jogadores) {
 					String tipoClasse = determinarClasse(jogador);
 					String info = String.format("%s  - %s", jogador.getNome(), tipoClasse);
 					listModel.addElement(info);
 				}
 
-				// ✅ 6. SELECIONA O PRÓXIMO ITEM OU O ANTERIOR
 				int novoIndice = Math.min(indiceDeletado, listModel.getSize() - 1);
 				if (novoIndice >= 0) {
 					listaPersonagens.setSelectedIndex(novoIndice);
 				} else {
-					// Se não há mais personagens, desabilita botões
 					btnSelecionar.setEnabled(false);
 					btnDeletar.setEnabled(false);
 					txtDetalhes.setText("");
@@ -294,10 +276,9 @@ public class TelaListaPersonagens extends JDialog {
 			}
 
 		} catch (Exception e) {
-			System.err.println("❌ Erro ao atualizar lista após deleção: " + e.getMessage());
+			System.err.println("Erro ao atualizar lista após deleção: " + e.getMessage());
 			e.printStackTrace();
 
-			// ✅ FALLBACK: RECARREGA TUDO DO ZERO
 			carregarPersonagens();
 		}
 	}
@@ -307,13 +288,10 @@ public class TelaListaPersonagens extends JDialog {
 	    if (selectedIndex >= 0 && selectedIndex < jogadores.size()) {
 	        Jogador jogadorSelecionado = jogadores.get(selectedIndex);
 	        
-	        // Fechar esta tela
 	        dispose();
 	        
-	        // Chamar callback se existir
 	        onPersonagemSelecionado(jogadorSelecionado);
 	                        
-	        // Iniciar a aventura com o personagem selecionado
 	        TelaAventura telaAventura = new TelaAventura(jogadorSelecionado);
 	        telaAventura.setVisible(true);
 	    }

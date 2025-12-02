@@ -15,16 +15,14 @@ public class GeminiAI {
     private static final String MODELO_RESERVA = "gemini-1.5-flash";
     
     private static String getApiKey() {
-        // 1. Variável de ambiente
         String envKey = System.getenv("GEMINI_API_KEY");
         if (envKey != null && !envKey.trim().isEmpty()) {
             return envKey.trim();
         }
         
-        // 2. Usar a chave de teste fornecida
         String testKey = "AIzaSyCyKUuKGoJu4kloryKgJ2L7S0dHyAjC_Lg";
         if (testKey != null && !testKey.trim().isEmpty()) {
-            System.out.println("⚠️ Usando API Key de teste");
+            System.out.println("Usando API Key de teste");
             return testKey.trim();
         }
         
@@ -32,46 +30,43 @@ public class GeminiAI {
     }
     
     public static String decidirAcao(Inimigo inimigo, Jogador jogador) {
-        // Verificar se a API Key está configurada
         if (API_KEY == null || API_KEY.isEmpty()) {
-            System.err.println("❌ API Key não configurada, usando fallback local");
+            System.err.println("API Key não configurada, usando fallback local");
             return usarFallbackLocal(inimigo, jogador);
         }
         
-        System.out.println("🤖 Iniciando decisão da IA Gemini...");
-        System.out.println("📊 Inimigo: " + inimigo.getNome() + " (HP: " + inimigo.getHp() + "/" + inimigo.getHpMax() + ")");
-        System.out.println("🎮 Jogador: " + jogador.getNome() + " (HP: " + jogador.getHp() + "/" + jogador.getHpMax() + ")");
+        System.out.println("Iniciando decisão da IA Gemini...");
+        System.out.println("Inimigo: " + inimigo.getNome() + " (HP: " + inimigo.getHp() + "/" + inimigo.getHpMax() + ")");
+        System.out.println("Jogador: " + jogador.getNome() + " (HP: " + jogador.getHp() + "/" + jogador.getHpMax() + ")");
         
-        // Tentar primeiro o modelo principal (agora gemini-2.0-flash-001)
         try {
             return tentarComModelo(MODELO_PRINCIPAL, inimigo, jogador);
         } catch (Exception e) {
-            System.err.println("❌ Erro com " + MODELO_PRINCIPAL + ": " + e.getMessage());
+            System.err.println("Erro com " + MODELO_PRINCIPAL + ": " + e.getMessage());
             
-            // Tentar modelo reserva
             try {
-                System.out.println("🔄 Tentando modelo reserva: " + MODELO_RESERVA);
+                System.out.println("Tentando modelo reserva: " + MODELO_RESERVA);
                 return tentarComModelo(MODELO_RESERVA, inimigo, jogador);
             } catch (Exception e2) {
-                System.err.println("❌ Erro com " + MODELO_RESERVA + ": " + e2.getMessage());
+                System.err.println("Erro com " + MODELO_RESERVA + ": " + e2.getMessage());
             }
         }
         
-        System.out.println("🔄 Usando IA local como fallback...");
+        System.out.println("Usando IA local como fallback...");
         return usarFallbackLocal(inimigo, jogador);
     }
     
     private static String tentarComModelo(String modelo, Inimigo inimigo, Jogador jogador) throws Exception {
-        System.out.println("🔍 Usando modelo: " + modelo);
+        System.out.println("Usando modelo: " + modelo);
         
         String prompt = criarPromptEficiente(inimigo, jogador);
-        System.out.println("📝 Prompt criado (tamanho: " + prompt.length() + " chars)");
+        System.out.println("Prompt criado (tamanho: " + prompt.length() + " chars)");
         
         String resposta = chamarGeminiAPI(prompt, modelo);
         
         if (resposta != null && !resposta.trim().isEmpty()) {
             String acao = processarRespostaEficiente(resposta, inimigo);
-            System.out.println("✅ Ação escolhida pelo Gemini: " + acao);
+            System.out.println("Ação escolhida pelo Gemini: " + acao);
             return acao;
         }
         
@@ -85,10 +80,8 @@ public class GeminiAI {
             API_KEY
         );
         
-        // JSON da requisição
         JSONObject request = new JSONObject();
         
-        // Conteúdo
         JSONObject content = new JSONObject();
         JSONArray parts = new JSONArray();
         JSONObject part = new JSONObject();
@@ -100,14 +93,12 @@ public class GeminiAI {
         contents.put(content);
         request.put("contents", contents);
         
-        // Configurações otimizadas para gemini-2.0-flash-001
         JSONObject generationConfig = new JSONObject();
         generationConfig.put("temperature", 0.7);
         generationConfig.put("maxOutputTokens", 50);
         
         request.put("generationConfig", generationConfig);
         
-        // Configurar conexão
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
@@ -117,15 +108,13 @@ public class GeminiAI {
         connection.setReadTimeout(15000);
         connection.setDoOutput(true);
         
-        // Enviar dados
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = request.toString().getBytes("UTF-8");
             os.write(input, 0, input.length);
         }
         
-        // Obter resposta
         int responseCode = connection.getResponseCode();
-        System.out.println("📡 Código HTTP: " + responseCode);
+        System.out.println("Código HTTP: " + responseCode);
         
         if (responseCode == 200) {
             try (BufferedReader br = new BufferedReader(
@@ -137,25 +126,21 @@ public class GeminiAI {
                 }
                 
                 String responseBody = response.toString();
-                System.out.println("📥 Resposta bruta (início): " + 
+                System.out.println("Resposta bruta (início): " +
                     responseBody.substring(0, Math.min(100, responseBody.length())) + "...");
                 
-                // Parsear resposta
                 JSONObject jsonResponse = new JSONObject(responseBody);
                 
-                // Extrair texto da resposta
-                if (jsonResponse.has("candidates") && 
+                if (jsonResponse.has("candidates") &&
                     jsonResponse.getJSONArray("candidates").length() > 0) {
                     
                     JSONObject candidate = jsonResponse.getJSONArray("candidates").getJSONObject(0);
                     
-                    // Verificar finishReason
                     String finishReason = candidate.optString("finishReason", "");
                     if ("MAX_TOKENS".equals(finishReason)) {
-                        System.out.println("⚠️ Modelo atingiu limite de tokens");
+                        System.out.println("Modelo atingiu limite de tokens");
                     }
                     
-                    // Tentar extrair conteúdo
                     if (candidate.has("content")) {
                         JSONObject contentObj = candidate.getJSONObject("content");
                         if (contentObj.has("parts")) {
@@ -174,7 +159,6 @@ public class GeminiAI {
             }
             
         } else {
-            // Ler erro
             String errorMessage = "HTTP " + responseCode;
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(connection.getErrorStream(), "UTF-8"))) {
@@ -268,25 +252,22 @@ public class GeminiAI {
         
         respostaLimpa = respostaLimpa.replaceAll("[^A-Z0-9_]", "");
         
-        System.out.println("📝 Resposta processada: " + respostaLimpa);
+        System.out.println("Resposta processada: " + respostaLimpa);
         
         List<String> acoes = getAcoesDisponiveis(inimigo);
         
-        // 1. Verificar se a resposta já é uma ação válida
         for (String acao : acoes) {
             if (respostaLimpa.equals(acao)) {
                 return acao;
             }
         }
         
-        // 2. Verificar se contém o nome de uma ação
         for (String acao : acoes) {
             if (respostaLimpa.contains(acao)) {
                 return acao;
             }
         }
         
-        // 3. Mapeamento direto de palavras-chave
         if (respostaLimpa.contains("ATACAR") || respostaLimpa.contains("ATAC") || respostaLimpa.contains("ATTACK")) {
             return "ATAQUE_NORMAL";
         }
@@ -312,8 +293,7 @@ public class GeminiAI {
             return acoes.contains("REGENERAR") ? "REGENERAR" : "DEFENDER";
         }
         
-        // 4. Fallback baseado no tipo
-        System.out.println("⚠️ Resposta não reconhecida: " + resposta + ". Usando fallback.");
+        System.out.println("Resposta não reconhecida: " + resposta + ". Usando fallback.");
         return getFallbackPorTipo(inimigo);
     }
     
@@ -331,20 +311,18 @@ public class GeminiAI {
             case ALEATORIA:
                 List<String> acoes = getAcoesDisponiveis(inimigo);
                 return acoes.get(rand.nextInt(acoes.size()));
-            default: // BALANCEADO
+            default:
                 return rand.nextBoolean() ? "ATAQUE_NORMAL" : "DEFENDER";
         }
     }
     
     private static String usarFallbackLocal(Inimigo inimigo, Jogador jogador) {
-        // IA local melhorada
         double hpPercentInimigo = (double) inimigo.getHp() / inimigo.getHpMax();
         double hpPercentJogador = (double) jogador.getHp() / jogador.getHpMax();
         
         List<String> acoes = getAcoesDisponiveis(inimigo);
         Random rand = new Random();
         
-        // Lógica baseada na personalidade
         switch (inimigo.getTipoIA()) {
             case AGRESSIVO:
                 if (hpPercentJogador < 0.5 && acoes.contains("ATAQUE_PODEROSO")) {
@@ -385,7 +363,7 @@ public class GeminiAI {
             case ALEATORIA:
                 return acoes.get(rand.nextInt(acoes.size()));
                 
-            default: // BALANCEADO
+            default:
                 if (hpPercentInimigo < 0.4) {
                     return "DEFENDER";
                 }
@@ -399,56 +377,56 @@ public class GeminiAI {
     // Teste de conexão atualizado para usar o novo modelo principal
     public static void testarConexao() {
         if (API_KEY == null || API_KEY.isEmpty()) {
-            System.err.println("❌ API Key não configurada!");
+            System.err.println("API Key não configurada!");
             return;
         }
         
-        System.out.println("🧪 Testando conexão com Gemini API...");
-        System.out.println("📡 Modelo principal: " + MODELO_PRINCIPAL);
+        System.out.println("Testando conexão com Gemini API...");
+        System.out.println("Modelo principal: " + MODELO_PRINCIPAL);
         
         try {
             String prompt = "Responda apenas com a palavra 'CONECTADO'";
             String resposta = chamarGeminiAPI(prompt, MODELO_PRINCIPAL);
             
             if (resposta != null && resposta.contains("CONECTADO")) {
-                System.out.println("✅ Conexão estabelecida com sucesso!");
-                System.out.println("🎯 Modelo principal funcionando: " + MODELO_PRINCIPAL);
+                System.out.println("Conexão estabelecida com sucesso!");
+                System.out.println("Modelo principal funcionando: " + MODELO_PRINCIPAL);
             } else {
-                System.out.println("⚠️ Conexão OK, resposta: " + resposta);
+                System.out.println("Conexão OK, resposta: " + resposta);
             }
             
         } catch (Exception e) {
-            System.err.println("❌ Falha no modelo principal: " + e.getMessage());
+            System.err.println("Falha no modelo principal: " + e.getMessage());
             
             // Testar modelo reserva
             try {
-                System.out.println("🔄 Testando modelo reserva: " + MODELO_RESERVA);
+                System.out.println("Testando modelo reserva: " + MODELO_RESERVA);
                 String resposta = chamarGeminiAPI("Resposta: OK", MODELO_RESERVA);
-                System.out.println("✅ Modelo reserva funcionando: " + resposta);
+                System.out.println("Modelo reserva funcionando: " + resposta);
             } catch (Exception e2) {
-                System.err.println("❌ Ambos os modelos falharam");
+                System.err.println("Ambos os modelos falharam");
             }
         }
     }
     
     public static String getDescricaoIA(TipoIA tipo) {
         switch (tipo) {
-            case AGRESSIVO: return "⚔️ Agressivo (Gemini)";
-            case DEFENSIVA: return "🛡️ Defensivo (Gemini)";
-            case ESTRATEGICA: return "🎯 Estratégico (Gemini)";
-            case BALANCEADO: return "⚖️ Balanceado (Gemini)";
-            case ALEATORIA: return "🎲 Aleatório (Gemini)";
-            case CHEFE: return "👑 Chefe (Gemini)";
-            default: return "🤖 IA (Gemini)";
+            case AGRESSIVO: return "Agressivo (Gemini)";
+            case DEFENSIVA: return "Defensivo (Gemini)";
+            case ESTRATEGICA: return "Estratégico (Gemini)";
+            case BALANCEADO: return "Balanceado (Gemini)";
+            case ALEATORIA: return "Aleatório (Gemini)";
+            case CHEFE: return "Chefe (Gemini)";
+            default: return "IA (Gemini)";
         }
     }
     
     // Método para testar rapidamente
     public static void testarRapido() {
-        System.out.println("⚡ Teste rápido do Gemini AI");
-        System.out.println("🔑 API Key configurada: " + (API_KEY != null && !API_KEY.isEmpty()));
-        System.out.println("🎯 Modelo principal: " + MODELO_PRINCIPAL);
-        System.out.println("🔄 Modelo reserva: " + MODELO_RESERVA);
+        System.out.println("Teste rápido do Gemini AI");
+        System.out.println("API Key configurada: " + (API_KEY != null && !API_KEY.isEmpty()));
+        System.out.println("Modelo principal: " + MODELO_PRINCIPAL);
+        System.out.println("Modelo reserva: " + MODELO_RESERVA);
         
         testarConexao();
     }

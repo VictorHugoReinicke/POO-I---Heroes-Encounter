@@ -2,7 +2,7 @@ package com.classes.DTO;
 import java.util.Scanner;
 
 public class ControladorCombate {
-
+    //valeu por ter adicionado o meu código, o intelij da muito problema pra dar commit
 	private SerVivo turnoAtual;
 	private SerVivo outro;
     private boolean acaoExecutada = false;
@@ -82,7 +82,6 @@ private void turnoJogador() {
         System.out.println(inimigo.getNome() + " está decidindo a ação...");
         inimigo.decidirAcao((Jogador) outro); // IA decide
 
-        // IA sempre ataca por padrão caso não implemente habilidades
         atacar(inimigo, outro);
 
         acaoExecutada = true;
@@ -92,7 +91,6 @@ private void atacar(SerVivo atacante, SerVivo alvo) {
 
         int danoBase = atacante.getAtaque();
 
-        // simples: reduzir defesa e aplicar
         int danoFinal = Math.max(1, danoBase - alvo.getDefesa());
 
         alvo.receberDano(danoFinal);
@@ -105,7 +103,6 @@ private void atacar(SerVivo atacante, SerVivo alvo) {
 
     private void curar(SerVivo s) {
         int cura = 5;
-        //s.curar(cura);
         System.out.println(s.getNome() + " recuperou " + cura + " de HP!");
         acaoExecutada = true;
     }

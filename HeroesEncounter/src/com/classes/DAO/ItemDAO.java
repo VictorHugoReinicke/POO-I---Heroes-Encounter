@@ -196,8 +196,6 @@ public class ItemDAO {
 	        conn = Conexao.conectar();
 	        conn.setAutoCommit(false); // Inicia a Transação
 
-	        // --- A. DELETE DA TABELA FILHA (Subtipo) ---
-	        
 	        String sqlSubtipo = "";
 	        
 	        if (item instanceof ItemArma) {
@@ -207,8 +205,6 @@ public class ItemDAO {
 	        } else if (item instanceof ItemConsumivel) {
 	            sqlSubtipo = "DELETE FROM Consumivel WHERE idItem = ?;";
 	        } else {
-	            // Se o item não for de um subtipo conhecido, apenas tentamos excluir da tabela mãe
-	            // Mas, para o seu modelo, é melhor exigir o subtipo
 	            throw new IllegalArgumentException("Tipo de Item inválido para exclusão: " + item.getClass().getSimpleName());
 	        }
 
@@ -217,13 +213,11 @@ public class ItemDAO {
 	        psSubtipo.executeUpdate();
 	        psSubtipo.close();
 
-	        // --- B. DELETE NA TABELA MÃE (Item) ---
 	        String sqlItem = "DELETE FROM Item WHERE id = ?;";
 	        psItem = conn.prepareStatement(sqlItem);
 	        psItem.setInt(1, item.getId());
 	        psItem.executeUpdate();
 
-	        // C. COMMIT da transação
 	        conn.commit();
 	        return true;
 

@@ -16,7 +16,6 @@ public class TelaAventura extends JFrame {
 	private ShopBO shopBO;
 	private Random random;
 
-	// Componentes da interface
 	private JLabel lblStatus;
 	private JLabel lblProgresso;
 	private JTextArea txtLog;
@@ -42,7 +41,6 @@ public class TelaAventura extends JFrame {
 		setLayout(new BorderLayout(10, 10));
 		setResizable(false);
 
-		// Painel de título
 		JPanel tituloPanel = new JPanel();
 		tituloPanel.setBackground(new Color(30, 30, 70));
 		JLabel titulo = new JLabel("AVENTURA - " + jogador.getNome().toUpperCase());
@@ -50,7 +48,6 @@ public class TelaAventura extends JFrame {
 		titulo.setForeground(Color.WHITE);
 		tituloPanel.add(titulo);
 
-		// Painel de status
 		JPanel statusPanel = new JPanel(new GridLayout(2, 1));
 		statusPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		statusPanel.setBackground(Color.WHITE);
@@ -65,7 +62,6 @@ public class TelaAventura extends JFrame {
 		statusPanel.add(lblStatus);
 		statusPanel.add(lblProgresso);
 
-		// Painel de log
 		JPanel logPanel = new JPanel(new BorderLayout());
 		logPanel.setBorder(BorderFactory.createTitledBorder("Log da Aventura"));
 
@@ -78,33 +74,28 @@ public class TelaAventura extends JFrame {
 		JScrollPane scrollLog = new JScrollPane(txtLog);
 		logPanel.add(scrollLog, BorderLayout.CENTER);
 
-		// ✅ PAINEL DE BOTÕES ATUALIZADO - AGORA COM 6 BOTÕES
-		JPanel botoesPanel = new JPanel(new GridLayout(2, 3, 5, 5)); // ✅ Mudei para 2x3
+		JPanel botoesPanel = new JPanel(new GridLayout(2, 3, 5, 5));
 		botoesPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		botoesPanel.setBackground(new Color(240, 240, 240));
 		
-		// ✅ CRIAR TODOS OS BOTÕES SEGUINDO O MESMO PADRÃO
-		btnIniciarJornada = criarBotaoAventura("⚔️ INICIAR JORNADA", new Color(220, 60, 60));
-		btnProximaBatalha = criarBotaoAventura("🎯 PRÓXIMA BATALHA", new Color(60, 120, 220));
-		btnShop = criarBotaoAventura("🛒 VISITAR SHOP", new Color(255, 165, 0));
-		btnStatus = criarBotaoAventura("📊 VER STATUS", new Color(60, 180, 120));
-		btnVoltarMenu = criarBotaoAventura("🏠 VOLTAR AO MENU", new Color(100, 100, 100));
+		btnIniciarJornada = criarBotaoAventura("INICIAR JORNADA", new Color(220, 60, 60));
+		btnProximaBatalha = criarBotaoAventura("PRÓXIMA BATALHA", new Color(60, 120, 220));
+		btnShop = criarBotaoAventura("VISITAR SHOP", new Color(255, 165, 0));
+		btnStatus = criarBotaoAventura("VER STATUS", new Color(60, 180, 120));
+		btnVoltarMenu = criarBotaoAventura("VOLTAR AO MENU", new Color(100, 100, 100));
 
-		// ✅ CONFIGURAR AÇÕES DOS BOTÕES
 		btnIniciarJornada.addActionListener(e -> iniciarJornada());
 		btnProximaBatalha.addActionListener(e -> proximaBatalha());
 		btnShop.addActionListener(e -> visitarShop());
 		btnStatus.addActionListener(e -> mostrarStatus());
 		btnVoltarMenu.addActionListener(e -> voltarAoMenu());
 
-		// ✅ ADICIONAR TODOS OS BOTÕES AO PAINEL NA ORDEM CORRETA
 		botoesPanel.add(btnIniciarJornada);
 		botoesPanel.add(btnProximaBatalha);
 		botoesPanel.add(btnShop);
 		botoesPanel.add(btnStatus);
 		botoesPanel.add(btnVoltarMenu);
 
-		// Inicialmente desabilitar próximo batalha e shop
 		btnProximaBatalha.setEnabled(false);
 		btnShop.setEnabled(false);
 
@@ -116,14 +107,13 @@ public class TelaAventura extends JFrame {
 		pack();
 		setLocationRelativeTo(null);
 
-		// Mensagem de boas-vindas
-		adicionarLog("🎮 Bem-vindo à aventura, " + jogador.getNome() + "!");
-		adicionarLog("🏹 Classe: " + determinarClasse(jogador));
-		adicionarLog("❤️ HP: " + jogador.getHp() + "/" + jogador.getHpMax());
+		adicionarLog("Bem-vindo à aventura, " + jogador.getNome() + "!");
+		adicionarLog("Classe: " + determinarClasse(jogador));
+		adicionarLog("HP: " + jogador.getHp() + "/" + jogador.getHpMax());
 		if (jogador.getManaMax() > 0) {
-			adicionarLog("🔵 Mana: " + jogador.getMana() + "/" + jogador.getManaMax());
+			adicionarLog("Mana: " + jogador.getMana() + "/" + jogador.getManaMax());
 		}
-		adicionarLog("💰 Ouro: " + jogador.getOuro());
+		adicionarLog("Ouro: " + jogador.getOuro());
 		adicionarLog("");
 		adicionarLog("Clique em 'INICIAR JORNADA' para começar sua aventura épica!");
 	}
@@ -158,7 +148,7 @@ public class TelaAventura extends JFrame {
 			batalhasVencidas = 0;
 
 			adicionarLog("==========================================");
-			adicionarLog("⚔️ JORNADA INICIADA! ⚔️");
+			adicionarLog(" JORNADA INICIADA! ");
 			adicionarLog("==========================================");
 			adicionarLog("Sua missão: Vencer 3 batalhas épicas!");
 			adicionarLog("• Batalha 1: Inimigo Aleatório");
@@ -176,7 +166,7 @@ public class TelaAventura extends JFrame {
 			btnShop.setEnabled(true);
 
 			JOptionPane.showMessageDialog(this,
-					"⚔️ JORNADA INICIADA! ⚔️\n\n" + "Sua missão é vencer 3 batalhas:\n" + "• 2 inimigos aleatórios\n"
+					"JORNADA INICIADA! \n\n" + "Sua missão é vencer 3 batalhas:\n" + "• 2 inimigos aleatórios\n"
 							+ "• 1 chefe supremo\n\n" + "Entre as batalhas, visite o SHOP para comprar itens!\n\n"
 							+ "Boa sorte, " + jogador.getNome() + "!",
 					"Jornada Iniciada", JOptionPane.INFORMATION_MESSAGE);
@@ -194,16 +184,15 @@ public class TelaAventura extends JFrame {
 			Inimigo inimigo = obterInimigoAleatorio(batalhasVencidas == 2); // true para chefe na batalha 3
 
 			adicionarLog("");
-			adicionarLog("🎯 INICIANDO BATALHA " + (batalhasVencidas + 1));
+			adicionarLog("INICIANDO BATALHA " + (batalhasVencidas + 1));
 			adicionarLog("Inimigo: " + inimigo.getNome());
 			adicionarLog("HP: " + inimigo.getHp() + " | Ataque: " + inimigo.getAtaque());
 
-			// Abrir tela de combate interativa
 			TelaCombate telaCombate = new TelaCombate(this, jogador, inimigo);
 			telaCombate.setVisible(true);
 
 		} catch (Exception e) {
-			adicionarLog("❌ Erro ao iniciar batalha: " + e.getMessage());
+			adicionarLog("Erro ao iniciar batalha: " + e.getMessage());
 			JOptionPane.showMessageDialog(this, "Erro ao iniciar batalha: " + e.getMessage(), "Erro",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -211,26 +200,25 @@ public class TelaAventura extends JFrame {
 
 	public void batalhaVencida() {
 		batalhasVencidas++;
-		adicionarLog("🎉 Vitória! Batalhas vencidas: " + batalhasVencidas + "/3");
+		adicionarLog("Vitória! Batalhas vencidas: " + batalhasVencidas + "/3");
 		lblProgresso.setText("Progresso: " + batalhasVencidas + "/3 batalhas vencidas");
 
 		if (batalhasVencidas >= 3) {
 			jornadaCompleta();
 		} else {
-			// Restaurar recursos entre batalhas
 			jogador.setHp(Math.min(jogador.getHpMax(), jogador.getHp() + 20));
 			if (jogador.getManaMax() > 0) {
 				jogador.setMana(jogador.getManaMax());
 			}
-			adicionarLog("💖 HP restaurado em 20 pontos!");
-			adicionarLog("🛒 Visite o SHOP para se preparar!");
+			adicionarLog("HP restaurado em 20 pontos!");
+			adicionarLog("Visite o SHOP para se preparar!");
 		}
 	}
 
 	
 	public void batalhaPerdida() {
 		jornadaAtiva = false;
-		adicionarLog("💀 Derrota! A jornada termina aqui...");
+		adicionarLog("Derrota! A jornada termina aqui...");
 		lblStatus.setText("Status: Derrotado");
 		lblProgresso.setText("Progresso: Jornada Falhou");
 
@@ -246,7 +234,6 @@ public class TelaAventura extends JFrame {
 				throw new Exception("Nenhum inimigo encontrado no banco de dados");
 			}
 
-			// Filtrar chefes ou inimigos normais baseado no nome da classe
 			List<Inimigo> inimigosFiltrados = new java.util.ArrayList<>();
 			for (Inimigo inimigo : todosInimigos) {
 				String nomeClasse = inimigo.getClass().getSimpleName();
@@ -258,8 +245,7 @@ public class TelaAventura extends JFrame {
 			}
 
 			if (inimigosFiltrados.isEmpty()) {
-				// Se não encontrou o tipo específico, usar qualquer inimigo disponível
-				adicionarLog("⚠️ Nenhum " + (isChefe ? "chefe" : "inimigo normal")
+				adicionarLog("Nenhum " + (isChefe ? "chefe" : "inimigo normal")
 						+ " encontrado. Usando qualquer inimigo disponível.");
 				inimigosFiltrados = todosInimigos;
 			}
@@ -268,43 +254,36 @@ public class TelaAventura extends JFrame {
 				throw new Exception("Nenhum inimigo disponível no banco de dados");
 			}
 
-			// SELEÇÃO ALEATÓRIA - usar o inimigo original do banco
 			int indexAleatorio = random.nextInt(inimigosFiltrados.size());
 			Inimigo inimigoSelecionado = inimigosFiltrados.get(indexAleatorio);
 
-			// IMPORTANTE: Resetar o HP para o máximo antes da batalha
 			inimigoSelecionado.setHp(inimigoSelecionado.getHpMax());
 
-			// Log para debug
-			adicionarLog("🎲 Inimigo selecionado: " + inimigoSelecionado.getNome() + " (Classe: "
+			adicionarLog("Inimigo selecionado: " + inimigoSelecionado.getNome() + " (Classe: "
 					+ inimigoSelecionado.getClass().getSimpleName() + ")");
 
 			return inimigoSelecionado;
 
 		} catch (Exception e) {
-			adicionarLog("❌ Erro ao carregar inimigo do banco: " + e.getMessage());
+			adicionarLog("Erro ao carregar inimigo do banco: " + e.getMessage());
 
-			// Fallback de emergência - criar inimigos básicos
 			if (isChefe) {
-				// Usar sua factory para criar um chefe
 				Inimigo chefe = InimigoFactory.criarInimigo("Chefe");
 				if (chefe != null) {
-					chefe.setHp(chefe.getHpMax()); // Garantir HP cheio
+					chefe.setHp(chefe.getHpMax());
 					return chefe;
 				}
 			} else {
-				// Criar um inimigo normal aleatório
 				String[] tiposNormais = { "Besta", "Ladrao", "InimigoMagico" };
 				String tipoAleatorio = tiposNormais[random.nextInt(tiposNormais.length)];
 				Inimigo inimigo = InimigoFactory.criarInimigo(tipoAleatorio);
 				if (inimigo != null) {
-					inimigo.setHp(inimigo.getHpMax()); // Garantir HP cheio
+					inimigo.setHp(inimigo.getHpMax());
 					return inimigo;
 				}
 			}
 
-			// Último fallback absoluto - isso não deveria acontecer
-			adicionarLog("💀 ERRO CRÍTICO: Não foi possível criar nenhum inimigo");
+			adicionarLog("ERRO CRÍTICO: Não foi possível criar nenhum inimigo");
 			return null;
 		}
 	}
@@ -318,16 +297,14 @@ public class TelaAventura extends JFrame {
 	    }
 
 	    adicionarLog("");
-	    adicionarLog("🛒 VISITANDO O SHOP...");
-	    adicionarLog("💰 Seu ouro atual: " + jogador.getOuro());
+	    adicionarLog("VISITANDO O SHOP...");
+	    adicionarLog("Seu ouro atual: " + jogador.getOuro());
 
-	    // Abrir TelaShop completa
 	    TelaShop telaShop = new TelaShop(this, jogador);
 	    telaShop.setVisible(true);
 	    
-	    // Atualizar status após fechar o shop
-	    adicionarLog("🏪 Voltando da loja...");
-	    adicionarLog("💰 Ouro atual: " + jogador.getOuro());
+	    adicionarLog("Voltando da loja...");
+	    adicionarLog("Ouro atual: " + jogador.getOuro());
 	}
 
 	private void jornadaCompleta() {
@@ -335,7 +312,7 @@ public class TelaAventura extends JFrame {
 
 		adicionarLog("");
 		adicionarLog("==========================================");
-		adicionarLog("🏆 🏆 🏆 JORNADA COMPLETA! 🏆 🏆 🏆");
+		adicionarLog(" * * * JORNADA COMPLETA! * * * ");
 		adicionarLog("==========================================");
 		adicionarLog("Parabéns, " + jogador.getNome() + "!");
 		adicionarLog("Você venceu todas as 3 batalhas!");
@@ -344,13 +321,13 @@ public class TelaAventura extends JFrame {
 		adicionarLog("==========================================");
 
 		lblStatus.setText("Status: Jornada Completa!");
-		lblProgresso.setText("Progresso: MISSÃO CUMPRIDA! 🏆");
+		lblProgresso.setText("Progresso: MISSÃO CUMPRIDA!");
 
 		btnProximaBatalha.setEnabled(false);
 		btnShop.setEnabled(false);
 
 		JOptionPane.showMessageDialog(this,
-				"🏆 🏆 🏆 JORNADA COMPLETA! 🏆 🏆 🏆\n\n" + "Parabéns, herói!\n"
+				" JORNADA COMPLETA! \n\n" + "Parabéns, herói!\n"
 						+ "Você venceu todas as 3 batalhas e completou sua jornada!\n\n"
 						+ "O reino está salvo graças aos seus esforços!\n" + "Você se tornou uma lenda!",
 				"Jornada Vitoriosa", JOptionPane.INFORMATION_MESSAGE);

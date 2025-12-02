@@ -13,22 +13,13 @@ import com.classes.DTO.Status;
 public class JogadorStatusDAO {
 
 	final String NOMEDATABELA = "JogadorStatus";
-    
-    // DAO necessário para carregar o DTO Status completo
+
 	private StatusDAO statusDAO; 
     
     public JogadorStatusDAO() {
-        // Assume que StatusDAO já existe e está funcional
         this.statusDAO = new StatusDAO(); 
     }
 
-    // ------------------------------------------------------------------
-    // --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Aplica um novo status ao jogador.
-     */
 	public boolean inserir(JogadorStatus js) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -51,10 +42,6 @@ public class JogadorStatusDAO {
 		}
 	}
 
-    /**
-     * Atualiza os turnos restantes de um status ativo.
-     * Usado a cada turno de combate.
-     */
 	public boolean alterar(JogadorStatus js) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -79,9 +66,6 @@ public class JogadorStatusDAO {
 		}
 	}
 
-    /**
-     * Remove um status do jogador (usado quando turnosRestantes chega a zero).
-     */
 	public boolean excluir(JogadorStatus js) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -100,13 +84,6 @@ public class JogadorStatusDAO {
 		}
 	}
 
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Procura um registro específico de status para um jogador (chave composta).
-     */
 	public JogadorStatus procurarRegistro(int idJogador, int idStatus) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -136,9 +113,6 @@ public class JogadorStatusDAO {
 		}
 	}
 
-    /**
-     * Lista todos os status ativos que um jogador possui.
-     */
 	public List<JogadorStatus> listarStatusPorJogador(int idJogador) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -161,28 +135,19 @@ public class JogadorStatusDAO {
 		}
 	}
 
-    // ------------------------------------------------------------------
-    // --- 3. MÉTODOS AUXILIARES ---
-    // ------------------------------------------------------------------
-
 	private JogadorStatus montarObjeto(ResultSet rs) throws Exception {
 		
 		int idStatus = rs.getInt("idStatus");
         
 		JogadorStatus js = new JogadorStatus();
-        
-        // Atributos de JogadorStatus
+
         js.setIdJogador(rs.getInt("idJogador"));
         js.setIdStatus(idStatus);
         js.setTurnosRestantes(rs.getInt("turnos_restantes"));
 
-        // ❗️ CARREGAMENTO DO STATUS COMPLETO
-        // Usa o StatusDAO para carregar os detalhes do efeito (dano/modificador)
         Status statusCompleto = statusDAO.procurarPorCodigo(idStatus);
         js.setStatus(statusCompleto);
-        
-        // NOTE: O DTO Jogador não é carregado aqui para manter a performance.
-        
+
 		return js;
 	}
 
@@ -200,9 +165,6 @@ public class JogadorStatusDAO {
 		}
 	}
 
-    /**
-     * Verifica se a combinação Jogador/Status já existe.
-     */
 	public boolean existe(JogadorStatus js) {
 		try {
 			Connection conn = Conexao.conectar();
