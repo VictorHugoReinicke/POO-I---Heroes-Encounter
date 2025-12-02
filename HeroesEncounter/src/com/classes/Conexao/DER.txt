@@ -1,0 +1,298 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+
+drop schema if exists `poo`;
+
+CREATE SCHEMA IF NOT EXISTS `poo` DEFAULT CHARACTER SET utf8 ;
+USE `poo` ;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Classe`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Classe` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  `bonus_forca` INT NULL,
+  `bonus_magia` INT NULL,
+  `bonus_esquiva` INT NULL,
+  PRIMARY KEY (`id`));
+
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Jogador`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Jogador` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  `gold` INT NULL,
+  `vida_atual` INT NULL,
+  `mana_atual` INT NULL,
+  `idClasse` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idClasse_idx` (`idClasse` ASC) VISIBLE,
+  
+    FOREIGN KEY (`idClasse`)
+    REFERENCES `Classe` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Inimigo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Inimigo` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  `tipo` VARCHAR(45) NULL,
+  `vida_total` INT NULL,
+  `dano` INT NULL,
+  `gold_recompensa` INT NULL,
+  `ia_tipo` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`));
+
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Item`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Item` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  `preco` INT NULL,
+  PRIMARY KEY (`id`));
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Status`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Status` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `dano_turno` INT NULL,
+  `modificador_defesa` INT NULL,
+  `duracao_turnos` VARCHAR(45) NULL,
+  `chance_esquiva` DOUBLE DEFAULT 0.0,
+  PRIMARY KEY (`id`));
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Shop`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Shop` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`));
+
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`JogadorItem`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `JogadorItem` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `idJogador` INT NULL,
+  `idItem` INT NULL,
+  `quantidade` INT NULL,
+  `equipado` TINYINT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idJogador_idx` (`idJogador` ASC) VISIBLE,
+  INDEX `idItem_idx` (`idItem` ASC) VISIBLE,
+  
+    FOREIGN KEY (`idJogador`)
+    REFERENCES `Jogador` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  
+    FOREIGN KEY (`idItem`)
+    REFERENCES `Item` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`ShopItem`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ShopItem` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `idItem` INT NULL,
+  `idShop` INT NULL,
+  `preco_venda` INT NULL,
+  `quantidade` INT NULL,
+  `quantidade_disponivel` int NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idItem_idx` (`idItem` ASC) VISIBLE,
+  INDEX `idShop_idx` (`idShop` ASC) VISIBLE,
+  
+    FOREIGN KEY (`idItem`)
+    REFERENCES `Item` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  
+    FOREIGN KEY (`idShop`)
+    REFERENCES `Shop` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`JogadorStatus`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `JogadorStatus` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `idJogador` INT NULL,
+  `idStatus` INT NULL,
+  `turnos_restantes` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idJogador_idx` (`idJogador` ASC) VISIBLE,
+  INDEX `idStatus_idx` (`idStatus` ASC) VISIBLE,
+  
+    FOREIGN KEY (`idJogador`)
+    REFERENCES `poo`.`Jogador` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    FOREIGN KEY (`idStatus`)
+    REFERENCES `Status` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`InimigoStatus`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `InimigoStatus` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `idInimigo` INT NULL,
+  `idStatus` INT NULL,
+  `turno_restante` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idInimigo_idx` (`idInimigo` ASC) VISIBLE,
+  INDEX `idStatus_idx` (`idStatus` ASC) VISIBLE,
+ 
+    FOREIGN KEY (`idInimigo`)
+    REFERENCES `poo`.`Inimigo` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  
+    FOREIGN KEY (`idStatus`)
+    REFERENCES `Status` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Habilidades`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Habilidades` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  `tipo` VARCHAR(45) NULL,
+  `custo_mana` INT NULL,
+  `fator_dano` DECIMAL NULL,
+  `idStatus` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idStatus_idx` (`idStatus` ASC) VISIBLE,
+  
+    FOREIGN KEY (`idStatus`)
+    REFERENCES `Status` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`ClasseHabilidade`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ClasseHabilidade` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `idClasse` INT NULL,
+  `idHabilidade` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idClasse_idx` (`idClasse` ASC) VISIBLE,
+  INDEX `idHabilidade_idx` (`idHabilidade` ASC) VISIBLE,
+  
+    FOREIGN KEY (`idClasse`)
+    REFERENCES `Classe` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  
+    FOREIGN KEY (`idHabilidade`)
+    REFERENCES `Habilidades` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`InimigoHabilidade`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `InimigoHabilidade` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `idInimigo` INT NULL,
+  `idHabilidade` INT NULL,
+  `chance_uso` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idInimigo_idx` (`idInimigo` ASC) VISIBLE,
+  INDEX `idHabilidade_idx` (`idHabilidade` ASC) VISIBLE,
+    FOREIGN KEY (`idInimigo`)
+    REFERENCES `Inimigo` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    FOREIGN KEY (`idHabilidade`)
+    REFERENCES `Habilidades` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Arma`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Arma` (
+  `idItem` INT NOT NULL AUTO_INCREMENT,
+  `bonusDano` INT NULL,
+  `bonusMagico` INT NULL,
+  `bonusCritico` INT NULL,
+  PRIMARY KEY (`idItem`),
+    FOREIGN KEY (`idItem`)
+    REFERENCES `Item` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Defesa`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Defesa` (
+  `idItem` INT NOT NULL AUTO_INCREMENT,
+  `bonusDefesa` INT NULL,
+  `bonusEsquiva` INT NULL,
+  PRIMARY KEY (`idItem`),
+    FOREIGN KEY (`idItem`)
+    REFERENCES `Item` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`Consumivel`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Consumivel` (
+  `idItem` INT NOT NULL AUTO_INCREMENT,
+  `cura` INT NULL,
+  `mana` INT NULL,
+  PRIMARY KEY (`idItem`),
+  
+    FOREIGN KEY (`idItem`)
+    REFERENCES `Item` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
