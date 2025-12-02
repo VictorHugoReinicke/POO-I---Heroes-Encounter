@@ -14,7 +14,7 @@ public class ItemBO {
 	public boolean inserir(Item item) {
 
 		if (itemDAO.existe(item)) {
-			System.out.println("⚠️ Item '" + item.getNome() + "' já existe. Inserção cancelada.");
+			System.out.println("Item '" + item.getNome() + "' já existe. Inserção cancelada.");
 			return false;
 		}
 

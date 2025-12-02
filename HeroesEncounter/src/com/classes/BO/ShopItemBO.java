@@ -20,7 +20,7 @@ public class ShopItemBO {
 
     public boolean inserir(ShopItem shopItem) {
         if (shopItemDAO.existe(shopItem)) {
-            System.out.println("⚠️ Item (ID: " + shopItem.getIdItem() + ") já está registrado na Loja (ID: "
+            System.out.println("Item (ID: " + shopItem.getIdItem() + ") já está registrado na Loja (ID: "
                     + shopItem.getIdShop() + ").");
             return false;
         }
@@ -43,15 +43,12 @@ public class ShopItemBO {
         return shopItemDAO.listarItensPorShop(idShop);
     }
 
-    /**
-     * ✅ MODIFICADO: Comprar um item do shop (estoque individual por jogador)
-     */
     public boolean comprarItem(int idShop, int idItem, int jogadorId) {
         try {
             // Buscar o item do shop
             ShopItem shopItem = shopItemDAO.procurarRegistro(idShop, idItem);
             if (shopItem == null) {
-                System.out.println("❌ Item não encontrado no shop");
+                System.out.println("Item não encontrado no shop");
                 return false;
             }
 
@@ -61,30 +58,28 @@ public class ShopItemBO {
                 // Fallback: buscar pelo ItemBO caso shopItem.getItem() retorne null
                 item = itemBO.procurarPorCodigo(idItem);
                 if (item == null) {
-                    System.out.println("❌ Item base não encontrado");
+                    System.out.println("Item base não encontrado");
                     return false;
                 }
             }
 
-            // ✅ VERIFICAR LIMITE POR JOGADOR (individual)
             JogadorItem itemExistente = jogadorItemBO.procurarRegistro(jogadorId, idItem);
             int quantidadeAtual = (itemExistente != null) ? itemExistente.getQuantidade() : 0;
-            int limitePorJogador = 10; // Máximo 10 do mesmo item por jogador
+            int limitePorJogador = 10;
             
             if (quantidadeAtual >= limitePorJogador) {
-                System.out.println("❌ Jogador atingiu o limite deste item: " + quantidadeAtual + "/" + limitePorJogador);
+                System.out.println("Jogador atingiu o limite deste item: " + quantidadeAtual + "/" + limitePorJogador);
                 return false;
             }
 
-            // ✅ ADICIONAR AO INVENTÁRIO DO JOGADOR (sem diminuir estoque global)
             boolean itemAdicionado = jogadorItemBO.adicionarItem(jogadorId, item, 1);
             
             if (!itemAdicionado) {
-                System.out.println("❌ Erro ao adicionar item ao jogador");
+                System.out.println("Erro ao adicionar item ao jogador");
                 return false;
             }
 
-            System.out.println("✅ Compra realizada! Jogador agora tem " + (quantidadeAtual + 1) + " unidades");
+            System.out.println("Compra realizada! Jogador agora tem " + (quantidadeAtual + 1) + " unidades");
             return true;
 
         } catch (Exception e) {
@@ -94,23 +89,17 @@ public class ShopItemBO {
         }
     }
 
-    /**
-     * ✅ NOVO: Verificar se jogador pode comprar mais deste item
-     */
     public boolean jogadorPodeComprar(int jogadorId, int idItem) {
         try {
             JogadorItem itemExistente = jogadorItemBO.procurarRegistro(jogadorId, idItem);
             int quantidadeAtual = (itemExistente != null) ? itemExistente.getQuantidade() : 0;
-            return quantidadeAtual < 10; // Limite de 10 por jogador
+            return quantidadeAtual < 10;
         } catch (Exception e) {
             System.err.println("Erro ao verificar limite do jogador: " + e.getMessage());
             return false;
         }
     }
 
-    /**
-     * ✅ NOVO: Obter quantidade atual do jogador
-     */
     public int getQuantidadeJogador(int jogadorId, int idItem) {
         try {
             JogadorItem itemExistente = jogadorItemBO.procurarRegistro(jogadorId, idItem);
