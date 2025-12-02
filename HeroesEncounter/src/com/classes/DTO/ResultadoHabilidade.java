@@ -10,7 +10,6 @@ public class ResultadoHabilidade {
 	private String mensagem;
 	private boolean sucesso;
 
-	// Getters e Setters
 	public String getHabilidadeUsada() {
 		return habilidadeUsada;
 	}
