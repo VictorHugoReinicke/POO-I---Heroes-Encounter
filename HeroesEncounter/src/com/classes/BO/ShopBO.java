@@ -12,19 +12,16 @@ public class ShopBO {
 
 	private ShopDAO shopDAO;
 	private ShopItemBO shopItemBO;
-	// Precisamos de um JogadorBO para atualizar o gold e inventário, mas vamos simplificar por enquanto.
-	// private JogadorBO jogadorBO; 
-	
+
 	public ShopBO() {
 		super();
 		this.shopDAO = new ShopDAO();
 		this.shopItemBO = new ShopItemBO();
-		// this.jogadorBO = new JogadorBO();
 	}
 	
 	public boolean inserir(Shop shop) {
         if (shopDAO.existe(shop)) {
-            System.out.println("⚠️ Loja '" + shop.getNome() + "' já existe. Inserção cancelada.");
+            System.out.println("Loja '" + shop.getNome() + "' já existe. Inserção cancelada.");
             return false;
         }
         return shopDAO.inserir(shop);
@@ -39,9 +36,8 @@ public class ShopBO {
     }
 
 	public void listarItens(Shop shop) {
-        System.out.println("--- 🛒 ESTOQUE DA LOJA: " + shop.getNome().toUpperCase() + " ---");
+        System.out.println("--- ESTOQUE DA LOJA: " + shop.getNome().toUpperCase() + " ---");
         
-        // Delega para o ShopItemBO listar todos os registros de estoque da loja
         List<ShopItem> estoque = shopItemBO.listarItensPorShop(shop.getId());
 
         if (estoque.isEmpty()) {
@@ -49,13 +45,10 @@ public class ShopBO {
             return;
         }
 
-        // Percorre a lista de ShopItem (que já contém o objeto Item completo)
         for (ShopItem si : estoque) {
             Item item = si.getItem();
             
-            // O Item pode ser null se tivermos problema na busca de herança no ItemDAO
             if (item != null) {
-                // Formatação da saída
                 String tipo = item.getClass().getSimpleName().replace("Item", ""); // Ex: ItemArma -> Arma
                 
                 System.out.printf("  [ID: %d] %-20s | Tipo: %-10s | Preço: %-4d GOLD | Estoque: %d\n", 
@@ -80,25 +73,25 @@ public class ShopBO {
         ShopItem registro = shopItemBO.procurarRegistro(shop.getId(), item.getId());
         
         if (registro == null || registro.getQuantidade() <= 0) {
-            System.out.println("❌ " + item.getNome() + " indisponível ou esgotado na loja " + shop.getNome() + ".");
+            System.out.println(" - " + item.getNome() + " indisponível ou esgotado na loja " + shop.getNome() + ".");
             return false;
         }
 
         
         if (jogador.getOuro() < registro.getPrecoVenda()) {
-            System.out.printf("❌ Gold insuficiente. Você tem %d, mas o preço é %d.\n", jogador.getOuro(), registro.getPrecoVenda());
+            System.out.printf("Gold insuficiente. Você tem %d, mas o preço é %d.\n", jogador.getOuro(), registro.getPrecoVenda());
             return false;
         }
         registro.setQuantidade(registro.getQuantidade() - 1);
         boolean sucessoUpdateEstoque = shopItemBO.alterar(registro);
         
         if (sucessoUpdateEstoque) {
-            System.out.printf("✅ Venda de %s para %s concluída! Preço: %d GOLD. Novo estoque: %d.\n", 
+            System.out.printf("Venda de %s para %s concluída! Preço: %d GOLD. Novo estoque: %d.\n",
                 item.getNome(), jogador.getNome(), registro.getPrecoVenda(), registro.getQuantidade());
             return true;
         } else {
             
-            System.out.println("❌ Falha na atualização do estoque (erro no DB). Venda cancelada.");
+            System.out.println("Falha na atualização do estoque (erro no DB). Venda cancelada.");
             return false;
         }
     }

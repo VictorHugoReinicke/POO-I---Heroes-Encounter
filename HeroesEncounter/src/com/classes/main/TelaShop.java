@@ -14,7 +14,6 @@ public class TelaShop extends JDialog {
     private JogadorItemBO jogadorItemBO;
     private ItemBO itemBO;
     
-    // Componentes da interface
     private JLabel lblOuro;
     private JTextArea txtDetalhes;
     private JButton btnComprar;
@@ -42,29 +41,25 @@ public class TelaShop extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         
-        // Painel de título
         JPanel tituloPanel = new JPanel(new BorderLayout());
         tituloPanel.setBackground(new Color(30, 30, 70));
         
-        JLabel titulo = new JLabel("🛒 SHOP - LOJA CENTRAL", JLabel.CENTER);
+        JLabel titulo = new JLabel("SHOP - LOJA CENTRAL", JLabel.CENTER);
         titulo.setFont(new Font("Arial", Font.BOLD, 20));
         titulo.setForeground(Color.WHITE);
         tituloPanel.add(titulo, BorderLayout.CENTER);
         
-        // Painel de ouro
         JPanel ouroPanel = new JPanel();
         ouroPanel.setBackground(new Color(30, 30, 70));
-        lblOuro = new JLabel("💰 Ouro: " + jogador.getOuro());
+        lblOuro = new JLabel("Ouro: " + jogador.getOuro());
         lblOuro.setFont(new Font("Arial", Font.BOLD, 14));
         lblOuro.setForeground(Color.YELLOW);
         ouroPanel.add(lblOuro);
         tituloPanel.add(ouroPanel, BorderLayout.EAST);
         
-        // Painel principal
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Painel da lista de itens
         JPanel listaPanel = new JPanel(new BorderLayout());
         listaPanel.setBorder(BorderFactory.createTitledBorder("Itens Disponíveis na Loja"));
         
@@ -76,7 +71,6 @@ public class TelaShop extends JDialog {
         JScrollPane scrollLista = new JScrollPane(listaItens);
         listaPanel.add(scrollLista, BorderLayout.CENTER);
         
-        // Painel de detalhes
         JPanel detalhesPanel = new JPanel(new BorderLayout());
         detalhesPanel.setBorder(BorderFactory.createTitledBorder("Detalhes do Item"));
         
@@ -92,10 +86,9 @@ public class TelaShop extends JDialog {
         mainPanel.add(listaPanel);
         mainPanel.add(detalhesPanel);
         
-        // Painel de botões
         JPanel botoesPanel = new JPanel(new FlowLayout());
-        btnComprar = criarBotao("🛒 COMPRAR ITEM", new Color(50, 150, 50));
-        btnVoltar = criarBotao("↩️ VOLTAR", new Color(100, 100, 100));
+        btnComprar = criarBotao("COMPRAR ITEM", new Color(50, 150, 50));
+        btnVoltar = criarBotao("VOLTAR", new Color(100, 100, 100));
         
         btnComprar.addActionListener(e -> comprarItem());
         btnVoltar.addActionListener(e -> dispose());
@@ -103,7 +96,6 @@ public class TelaShop extends JDialog {
         botoesPanel.add(btnComprar);
         botoesPanel.add(btnVoltar);
         
-        // Listener para seleção na lista
         listaItens.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 exibirDetalhesItem();
@@ -140,29 +132,25 @@ public class TelaShop extends JDialog {
     
     private void carregarItensShop() {
         try {
-            // Buscar a loja principal
             shop = shopBO.procurarPorNome(new Shop("Loja Central"));
             if (shop == null) {
                 JOptionPane.showMessageDialog(this, "Loja não encontrada!", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            // Buscar itens da loja
             itensShop = shopItemBO.listarItensPorShop(shop.getId());
             
             if (itensShop == null || itensShop.isEmpty()) {
-                listModel.addElement("🏪 Nenhum item disponível na loja");
+                listModel.addElement("Nenhum item disponível na loja");
                 btnComprar.setEnabled(false);
                 return;
             }
             
-            // Carregar itens na lista
             for (ShopItem shopItem : itensShop) {
                 Item itemCompleto = itemBO.procurarPorCodigo(shopItem.getIdItem());
                 if (itemCompleto != null) {
                     shopItem.setItem(itemCompleto);
                     
-                    // ✅ VERIFICAR QUANTIDADE DO JOGADOR
                     int quantidadeJogador = shopItemBO.getQuantidadeJogador(jogador.getId(), shopItem.getIdItem());
                     
                     String info = String.format("%s - %d ouro (Você tem: %d/10)", 
@@ -178,7 +166,7 @@ public class TelaShop extends JDialog {
             }
             
         } catch (Exception e) {
-            listModel.addElement("❌ Erro ao carregar itens da loja");
+            listModel.addElement("Erro ao carregar itens da loja");
             btnComprar.setEnabled(false);
             JOptionPane.showMessageDialog(this, 
                 "Erro ao carregar itens: " + e.getMessage(), 
@@ -194,39 +182,37 @@ public class TelaShop extends JDialog {
             Item item = shopItem.getItem();
             
             if (item == null) {
-                txtDetalhes.setText("❌ Erro: Item não encontrado");
+                txtDetalhes.setText("Erro: Item não encontrado");
                 btnComprar.setEnabled(false);
                 return;
             }
             
-            // ✅ OBTER QUANTIDADE ATUAL DO JOGADOR
             int quantidadeJogador = shopItemBO.getQuantidadeJogador(jogador.getId(), shopItem.getIdItem());
             boolean podeComprar = shopItemBO.jogadorPodeComprar(jogador.getId(), shopItem.getIdItem());
             
             StringBuilder detalhes = new StringBuilder();
-            detalhes.append("📦 NOME: ").append(item.getNome()).append("\n");
-            detalhes.append("💰 PREÇO: ").append(shopItem.getPrecoVenda()).append(" ouro\n");
-            detalhes.append("🎒 SUA QUANTIDADE: ").append(quantidadeJogador).append("/10 unidades\n");
-            detalhes.append("✅ STATUS: ").append(podeComprar ? "Pode comprar" : "LIMITE ATINGIDO").append("\n");
-            detalhes.append("📋 TIPO: ").append(item.getTipoItem()).append("\n\n");
+            detalhes.append("NOME: ").append(item.getNome()).append("\n");
+            detalhes.append("PREÇO: ").append(shopItem.getPrecoVenda()).append(" ouro\n");
+            detalhes.append("SUA QUANTIDADE: ").append(quantidadeJogador).append("/10 unidades\n");
+            detalhes.append("STATUS: ").append(podeComprar ? "Pode comprar" : "LIMITE ATINGIDO").append("\n");
+            detalhes.append("TIPO: ").append(item.getTipoItem()).append("\n\n");
             
-            // Detalhes específicos por tipo de item
             if (item instanceof ItemArma) {
                 ItemArma arma = (ItemArma) item;
-                detalhes.append("⚔️ ARMA DE COMBATE\n");
+                detalhes.append("ARMA DE COMBATE\n");
                 detalhes.append("• Bônus Dano: +").append(arma.getBonusDano()).append("\n");
                 detalhes.append("• Bônus Mágico: +").append(arma.getBonusMagico()).append("\n");
                 detalhes.append("• Chance Crítico: ").append(arma.getBonusCritico()).append("%\n");
                 
             } else if (item instanceof ItemDefesa) {
                 ItemDefesa defesa = (ItemDefesa) item;
-                detalhes.append("🛡️ EQUIPAMENTO DE DEFESA\n");
+                detalhes.append("EQUIPAMENTO DE DEFESA\n");
                 detalhes.append("• Bônus Defesa: +").append(defesa.getBonusDefesa()).append("\n");
                 detalhes.append("• Bônus Esquiva: +").append(defesa.getBonusEsquiva()).append("%\n");
                 
             } else if (item instanceof ItemConsumivel) {
                 ItemConsumivel consumivel = (ItemConsumivel) item;
-                detalhes.append("🧪 ITEM CONSUMÍVEL\n");
+                detalhes.append("ITEM CONSUMÍVEL\n");
                 if (consumivel.getCura() > 0) {
                     detalhes.append("• Cura: +").append(consumivel.getCura()).append(" HP\n");
                 }
@@ -235,7 +221,7 @@ public class TelaShop extends JDialog {
                 }
             }
             
-            detalhes.append("\n💳 SEU OURO: ").append(jogador.getOuro());
+            detalhes.append("\n SEU OURO: ").append(jogador.getOuro());
             
             txtDetalhes.setText(detalhes.toString());
             txtDetalhes.setCaretPosition(0);
@@ -258,7 +244,6 @@ public class TelaShop extends JDialog {
             return;
         }
         
-        // ✅ VERIFICAR SE JOGADOR PODE COMPRAR MAIS
         int quantidadeAtual = shopItemBO.getQuantidadeJogador(jogador.getId(), shopItem.getIdItem());
         boolean podeComprar = shopItemBO.jogadorPodeComprar(jogador.getId(), shopItem.getIdItem());
         
@@ -293,23 +278,18 @@ public class TelaShop extends JDialog {
         
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // Processar compra usando o ShopItemBO
                 boolean sucesso = shopItemBO.comprarItem(shop.getId(), shopItem.getIdItem(), jogador.getId());
                 
                 if (sucesso) {
-                    // Debitar ouro do jogador
                     jogador.setOuro(jogador.getOuro() - shopItem.getPrecoVenda());
                     
-                    // ✅ ATUALIZAR INVENTÁRIO LOCAL
                     List<JogadorItem> inventarioAtual = jogadorItemBO.listarItensPorJogador(jogador.getId());
                     jogador.setInventario(inventarioAtual);
                     
-                    // Atualizar interface
                     atualizarInterface();
                     
-                    // Mensagem de sucesso
                     JOptionPane.showMessageDialog(this,
-                        "✅ COMPRA REALIZADA COM SUCESSO!\n\n" +
+                        "COMPRA REALIZADA COM SUCESSO!\n\n" +
                         "Item: " + item.getNome() + "\n" +
                         "Custo: " + shopItem.getPrecoVenda() + " ouro\n" +
                         "Quantidade: " + (quantidadeAtual + 1) + "/10 unidades\n" +

@@ -16,10 +16,6 @@ public class InimigoDAO {
 
 	final String NOMEDATABELA = "Inimigo";
 
-	// ------------------------------------------------------------------
-	// --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-	// ------------------------------------------------------------------
-
 	public boolean inserir(Inimigo inimigo) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -28,9 +24,7 @@ public class InimigoDAO {
 
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-			// ATRIBUTOS
 			ps.setString(1, inimigo.getNome());
-			// Usamos o nome da classe DTO (Ex: "Besta") para o campo 'tipo' do banco.
 			ps.setString(2, inimigo.getClass().getSimpleName());
 			ps.setInt(3, inimigo.getHpMax()); // Mapeamento: vida_total <-> getHpMax()
 			ps.setInt(4, inimigo.getAtaque());
@@ -40,7 +34,6 @@ public class InimigoDAO {
 
 			ps.executeUpdate();
 
-			// Busca o ID gerado e atualiza o DTO (ID herdado de SerVivo)
 			ResultSet rs = ps.getGeneratedKeys();
 			if (rs.next()) {
 				inimigo.setId(rs.getInt(1));
@@ -62,7 +55,6 @@ public class InimigoDAO {
 					+ " SET nome = ?, tipo = ?, vida_total = ?, dano = ?, gold_recompensa = ?, ia_tipo = ? WHERE id = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
-			// ATRIBUTOS
 			ps.setString(1, inimigo.getNome());
 			ps.setString(2, inimigo.getClass().getSimpleName());
 			ps.setInt(3, inimigo.getHpMax()); // vida_total
@@ -97,13 +89,6 @@ public class InimigoDAO {
 		}
 	}
 
-	// ------------------------------------------------------------------
-	// --- 2. MÉTODOS DE BUSCA ---
-	// ------------------------------------------------------------------
-
-	/**
-	 * Procura um inimigo por ID usando a Factory para instanciar o tipo correto.
-	 */
 	public Inimigo procurarPorCodigo(int id) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -130,9 +115,6 @@ public class InimigoDAO {
 		}
 	}
 
-	/**
-	 * Retorna todos os inimigos, instanciando o tipo correto (Polimorfismo).
-	 */
 	public List<Inimigo> pesquisarTodos() {
 		try {
 			Connection conn = Conexao.conectar();
@@ -153,30 +135,20 @@ public class InimigoDAO {
 		}
 	}
 
-	// ------------------------------------------------------------------
-	// --- 3. MÉTODOS AUXILIARES ---
-	// ------------------------------------------------------------------
-
 	private Inimigo montarObjeto(ResultSet rs) throws Exception {
 
-		// LÊ O TIPO DA CLASSE (e.g., "Besta") SALVO na coluna 'tipoClasse'
 		String tipoClasse = rs.getString("tipo");
 
-		// USA A FACTORY PARA INSTANCIAR O OBJETO CORRETO
 		Inimigo i = InimigoFactory.criarInimigo(tipoClasse);
 
 		if (i == null) {
 			throw new Exception("Falha ao criar instância de Inimigo do tipo: " + tipoClasse);
 		}
 
-		// 1. Atributos HERDADOS de SerVivo
 		i.setId(rs.getInt("id"));
 		i.setNome(rs.getString("nome"));
 		i.setHpMax(rs.getInt("vida_total")); // Mapeamento: vida_total -> setHpMax()
 
-		// 2. Atributos PRÓPRIOS de Inimigo
-		// O campo 'tipo' do banco é ignorado, pois o tipo real já está na instância
-		// 'i'.
 		i.setAtaque(rs.getInt("dano")); // Mapeamento: dano -> setAtaque()
 		i.setRecompensaOuro(rs.getInt("gold_recompensa")); // Mapeamento: gold_recompensa -> setRecompensaOuro()
 		i.setTipoIA(TipoIA.valueOf(rs.getString("ia_tipo"))); // Mapeamento: ia_tipo -> setTipoIA()

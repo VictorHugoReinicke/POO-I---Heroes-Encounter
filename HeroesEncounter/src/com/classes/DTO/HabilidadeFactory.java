@@ -17,18 +17,13 @@ public class HabilidadeFactory {
 		ClasseBO classeBO = new ClasseBO();
 		StatusBO statusBO = new StatusBO();
 
-		// =================================
-		// PRIMEIRO: CRIAR OS STATUS NECESSÁRIOS
-		// =================================
 		System.out.println(">> Criando Status para Habilidades...");
 
-		// Status para habilidades ofensivas (DOT)
 		Status queimadura = criarOuBuscarStatus(statusBO, "Queimadura", 10, 0.0, 3); // 3 de dano por 3 turnos
 		Status sangramento = criarOuBuscarStatus(statusBO, "Sangramento", 11, 0.0, 4); // 2 de dano por 4 turnos
 		Status congelamento = criarOuBuscarStatus(statusBO, "Congelamento", 13, -0.3, 2); // -30% defesa por 2 turnos
 																							// (DEBUFF)
 
-		// Status para habilidades defensivas (BUFFS)
 		Status protecaoDivina = criarOuBuscarStatus(statusBO, "Proteção Divina", 0, 0.9, 2); // +50% defesa por 2 turnos
 																								// (BUFF)
 		Status ilusao = criarOuBuscarStatus(statusBO, "Ilusão", 0, 0.0, 1); // 80% esquiva por 1 turno
@@ -37,23 +32,17 @@ public class HabilidadeFactory {
 		try {
 			statusBO.alterar(ilusao);
 			System.out.println(
-					"✅ Status Ilusão configurado com chance de esquiva: " + (ilusao.getChanceEsquiva() * 100) + "%");
+					"Status Ilusão configurado com chance de esquiva: " + (ilusao.getChanceEsquiva() * 100) + "%");
 		} catch (Exception e) {
-			System.err.println("❌ Erro ao configurar chance de esquiva para Ilusão: " + e.getMessage());
+			System.err.println("Erro ao configurar chance de esquiva para Ilusão: " + e.getMessage());
 		}
 
-		// =================================
-		// PALADINO - HABILIDADES
-		// =================================
 		List<Habilidade> paladino = Arrays.asList(
 				new Habilidade("Defesa Divina", 10, 0, "DEFENSIVA", protecaoDivina.getId()), // Bloqueio
 				new Habilidade("Expurgar", 18, 1.5, "OFENSIVA"), // Dano extra
 				new Habilidade("Benção Divina", 20, 0.6, "CURA") // Cura média
 		);
 
-		// =================================
-		// MAGO - HABILIDADES
-		// =================================
 		List<Habilidade> mago = Arrays.asList(new Habilidade("Ilusão Arcana", 4, 0, "DEFENSIVA", ilusao.getId()), // Bloqueia
 																													// próximo
 																													// ataque
@@ -66,7 +55,6 @@ public class HabilidadeFactory {
 				new Habilidade("Jogo de Pés", 8, 0, "DEFENSIVA", ilusao.getId()),
 				new Habilidade("Sangramento", 7, 1.0, "OFENSIVA", sangramento.getId()));
 
-		// Salva todas as habilidades (garante existência) e monta um mapa nome->obj
 		Map<String, Habilidade> habilidadesMap = new HashMap<>();
 
 		System.out.println(">> Criando Habilidades...");
@@ -74,7 +62,6 @@ public class HabilidadeFactory {
 		mago.forEach(h -> salvarOuBuscar(habBO, h, habilidadesMap));
 		guerreiro.forEach(h -> salvarOuBuscar(habBO, h, habilidadesMap));
 
-		// Recupera classes (assume que as classes já foram criadas no DB; se não, cria)
 		Classe paladinoClasse = new Classe("Paladino", 0, 0, 0);
 		Classe magoClasse = new Classe("Mago", 0, 0, 0);
 		Classe guerreiroClasse = new Classe("Guerreiro", 0, 0, 0);
@@ -95,9 +82,6 @@ public class HabilidadeFactory {
 			return;
 		}
 
-		// ===============================
-		// Fazer a atribuição: Classe -> Habilidade
-		// ===============================
 		System.out.println(">> Linkando Habilidades às Classes...");
 
 		// Paladino
@@ -115,10 +99,8 @@ public class HabilidadeFactory {
 		atribuirSeExistir(chBO, guerreiroClasse.getId(), habilidadesMap, "Jogo de Pés");
 		atribuirSeExistir(chBO, guerreiroClasse.getId(), habilidadesMap, "Sangramento");
 
-		System.out.println("✅ Habilidades criadas e linkadas às classes com sucesso!");
+		System.out.println("Habilidades criadas e linkadas às classes com sucesso!");
 	}
-
-	// ------ HELPER METHODS ------
 
 	private static Status criarOuBuscarStatus(StatusBO statusBO, String nome, int danoTurno, double modificadorDefesa,
 			int duracaoTurnos) {
@@ -143,20 +125,18 @@ public class HabilidadeFactory {
 			} else {
 				Habilidade encontrado = habBO.procurarPorNome(h);
 				if (encontrado != null) {
-					// atualiza referência para ter o id correto
 					h.setId(encontrado.getId());
 					System.out.println("   ✔ Habilidade encontrada: " + h.getNome() + " (ID: " + h.getId() + ")");
 				}
 			}
-			// garante que temos o objeto do DB (com id) no mapa
 			Habilidade doDB = habBO.procurarPorNome(h);
 			if (doDB != null) {
 				map.put(doDB.getNome(), doDB);
 			} else {
-				System.out.println("⚠️ Falha ao garantir habilidade: " + h.getNome());
+				System.out.println("Falha ao garantir habilidade: " + h.getNome());
 			}
 		} catch (Exception e) {
-			System.err.println("❌ Erro ao processar habilidade " + h.getNome() + ": " + e.getMessage());
+			System.err.println("Erro ao processar habilidade " + h.getNome() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -165,11 +145,11 @@ public class HabilidadeFactory {
 			String nomeHabilidade) {
 		Habilidade hab = map.get(nomeHabilidade);
 		if (hab == null) {
-			System.out.println("⚠️ Habilidade '" + nomeHabilidade + "' não encontrada — não foi atribuída à classe ID "
+			System.out.println("Habilidade '" + nomeHabilidade + "' não encontrada — não foi atribuída à classe ID "
 					+ idClasse);
 			return;
 		}
 		chBO.atribuirHabilidade(idClasse, hab.getId());
-		System.out.println("   🔗 " + nomeHabilidade + " → Classe ID " + idClasse);
+		System.out.println("Link " + nomeHabilidade + " → Classe ID " + idClasse);
 	}
 }

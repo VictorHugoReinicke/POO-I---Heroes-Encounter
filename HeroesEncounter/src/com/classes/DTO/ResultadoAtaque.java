@@ -9,7 +9,6 @@ public class ResultadoAtaque {
         this.critico = critico;
     }
     
-    // Getters
     public int getDano() { return dano; }
     public boolean isCritico() { return critico; }
 }

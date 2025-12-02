@@ -9,55 +9,38 @@ import java.util.List;
 public class JogadorStatusBO {
 
 	private JogadorStatusDAO jogadorStatusDAO;
-	// Precisamos de StatusBO para buscar o objeto Status completo
-	private StatusBO statusBO; 
-	// Precisamos de JogadorBO para garantir que o jogador existe (em um sistema completo)
-	// private JogadorBO jogadorBO;
-
+	private StatusBO statusBO;
 	public JogadorStatusBO() {
 		this.jogadorStatusDAO = new JogadorStatusDAO();
-		this.statusBO = new StatusBO(); // Assume que StatusBO já existe
-		// this.jogadorBO = new JogadorBO();
+		this.statusBO = new StatusBO();
 	}
 	
-    // ------------------------------------------------------------------
-    // --- 1. LÓGICA DE NEGÓCIO PRINCIPAL: APLICAR E DECAIR ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Aplica um Status a um Jogador. 
-     * Lógica de Negócio: Se o status já existe, a duração é renovada/substituída.
-     */
 	public boolean aplicarStatus(int idJogador, int idStatus) {
         
-        // 1. Busca os detalhes do Status (para saber a duração base)
         Status statusDetalhe = statusBO.procurarPorCodigo(idStatus);
         
         if (statusDetalhe == null) {
-            System.out.println("❌ Erro: Status ID " + idStatus + " não encontrado.");
+            System.out.println("Erro: Status ID " + idStatus + " não encontrado.");
             return false;
         }
 
-        // 2. Tenta encontrar um registro existente (Duplicidade)
         JogadorStatus registroExistente = jogadorStatusDAO.procurarRegistro(idJogador, idStatus);
         
         if (registroExistente != null) {
-            // Lógica de Renovação/Acúmulo: Renova a duração para a base do status
             registroExistente.setTurnosRestantes(statusDetalhe.getDuracaoTurnos());
-            System.out.printf("✅ Status %s renovado para o Jogador ID %d. Turnos: %d.\n", 
+            System.out.printf("Status %s renovado para o Jogador ID %d. Turnos: %d.\n",
                 statusDetalhe.getNome(), idJogador, statusDetalhe.getDuracaoTurnos());
             
             return jogadorStatusDAO.alterar(registroExistente);
 
         } else {
-            // Aplica um status novo
             JogadorStatus novoRegistro = new JogadorStatus(
                 idJogador, 
                 idStatus, 
                 statusDetalhe.getDuracaoTurnos()
             );
             
-            System.out.printf("✅ Status %s aplicado ao Jogador ID %d. Turnos: %d.\n", 
+            System.out.printf("Status %s aplicado ao Jogador ID %d. Turnos: %d.\n",
                 statusDetalhe.getNome(), idJogador, statusDetalhe.getDuracaoTurnos());
             
             return jogadorStatusDAO.inserir(novoRegistro);
@@ -76,11 +59,7 @@ public class JogadorStatusBO {
             return false;
         }
     }
-	
-    /**
-     * Lógica executada no final de cada turno de combate.
-     * Decrementa a duração e remove status esgotados.
-     */
+
 	public void processarFimDeTurno(int idJogador) {
 	    
 	    List<JogadorStatus> statusAtivos = jogadorStatusDAO.listarStatusPorJogador(idJogador);
@@ -90,21 +69,15 @@ public class JogadorStatusBO {
 	        int turnos = js.getTurnosRestantes();
 	        
 	        if (turnos > 1) {
-	            // Diminui o contador
 	            js.setTurnosRestantes(turnos - 1);
 	            jogadorStatusDAO.alterar(js);
 	            
 	        } else {
-	            // Turno restante chegou a 0 ou 1, então remove (fim do efeito)
 	            jogadorStatusDAO.excluir(js);
 	        }
 	    }
 	}
 
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA E UTILIDADE ---
-    // ------------------------------------------------------------------
-    
     public List<JogadorStatus> listarStatusAtivos(int idJogador) {
         return jogadorStatusDAO.listarStatusPorJogador(idJogador);
     }

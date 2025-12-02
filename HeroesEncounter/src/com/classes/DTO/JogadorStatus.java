@@ -2,29 +2,23 @@ package com.classes.DTO;
 
 public class JogadorStatus {
 
-    // Chaves compostas (Foreign Keys) que formam a chave primária
     private int idJogador;
     private int idStatus;
 
-    // Atributo próprio
-    private int turnosRestantes; 
+    private int turnosRestantes;
 
-    // Objetos DTOs completos para carregar informações no BO
     private Jogador jogador;
     private Status status;
 
-    // Construtor Vazio
     public JogadorStatus() {
     }
 
-    // Construtor com as chaves e o atributo
     public JogadorStatus(int idJogador, int idStatus, int turnosRestantes) {
         this.idJogador = idJogador;
         this.idStatus = idStatus;
         this.turnosRestantes = turnosRestantes;
     }
 
-    // --- Getters e Setters ---
 
     public int getIdJogador() {
         return idJogador;
