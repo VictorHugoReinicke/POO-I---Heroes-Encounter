@@ -15,8 +15,8 @@ public class IniciarMain {
         ItemBO itemBO = new ItemBO();
         ShopBO shopBO = new ShopBO();
         ShopItemBO shopItemBO = new ShopItemBO();
-        StatusBO statusBO = new StatusBO(); // ← NOVO: Adicionado
-        InimigoHabilidadeBO inimigoHabBO = new InimigoHabilidadeBO(); // ← NOVO: Adicionado
+        StatusBO statusBO = new StatusBO();
+        InimigoHabilidadeBO inimigoHabBO = new InimigoHabilidadeBO();
 
         popularClasses(classeBO);
         popularInimigos(inimigoBO);
@@ -48,10 +48,10 @@ public class IniciarMain {
         if (besta != null) {
             besta.setNome("Urso Selvagem");
             besta.setHpMax(70);
-            besta.setHp(besta.getHpMax()); // ← CORREÇÃO: Inicializa HP atual
+            besta.setHp(besta.getHpMax());
             besta.setAtaque(20);
             besta.setDefesa(10);
-            besta.setRecompensaOuro(20); // ← NOVO: Adicionado recompensa
+            besta.setRecompensaOuro(20);
             besta.setTipoIA(com.classes.Enums.TipoIA.BALANCEADO);
             adicionarInimigo(inimigoBO, besta);
         }

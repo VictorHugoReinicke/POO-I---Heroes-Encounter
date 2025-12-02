@@ -142,25 +142,19 @@ public class JogadorDAO {
     }
 
 	public Jogador procurarPorCodigo(Jogador jogador) {
-		try {
-			Connection conn = Conexao.conectar();
-			String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA
-					+ " WHERE id = ?;";
-			PreparedStatement ps = conn.prepareStatement(sql);
+		String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA	+ " WHERE id = ?;";
+		// A estrutura try-with-resources garante que a conexão e o statement serão fechados automaticamente.
+		try (Connection conn = Conexao.conectar();
+			 PreparedStatement ps = conn.prepareStatement(sql)) {
+			
 			ps.setInt(1, jogador.getId());
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				Jogador obj = montarObjeto(rs);
-
-				ps.close();
-				rs.close();
-				conn.close();
-				return obj;
-			} else {
-				ps.close();
-				rs.close();
-				conn.close();
-				return null;
+			
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return montarObjeto(rs);
+				} else {
+					return null;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
