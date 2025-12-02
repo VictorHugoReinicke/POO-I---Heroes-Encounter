@@ -14,27 +14,19 @@ public class HabilidadesDAO {
 
 	final String NOMEDATABELA = "Habilidades";
 
-    // ------------------------------------------------------------------
-    // --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-    // ------------------------------------------------------------------
-
 	public boolean inserir(Habilidade habilidade) {
 		try {
 			Connection conn = Conexao.conectar();
-            // idStatus é a chave estrangeira para a tabela Status (se null, usa NULL)
 			String sql = "INSERT INTO " + NOMEDATABELA
 					+ " (nome, custo_mana, fator_dano, tipo, idStatus) VALUES (?, ?, ?, ?, ?)";
 			
-            // Usamos RETURN_GENERATED_KEYS para obter o ID após a inserção
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
 			ps.setString(1, habilidade.getNome());
 			ps.setInt(2, habilidade.getCustoMana());
-            // Para DECIMAL, usamos setDouble
 			ps.setDouble(3, habilidade.getFatorDano());
 			ps.setString(4, habilidade.getTipo());
             
-            // Lida com o caso onde a Habilidade não aplica Status (idStatus = 0 ou null)
             if (habilidade.getIdStatus() == 0) {
                 ps.setNull(5, java.sql.Types.INTEGER);
             } else {
@@ -43,7 +35,6 @@ public class HabilidadesDAO {
 
 			ps.executeUpdate();
 			
-            // Busca o ID gerado e atualiza o DTO
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 habilidade.setId(rs.getInt(1)); 
@@ -104,10 +95,6 @@ public class HabilidadesDAO {
 			return false;
 		}
 	}
-
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA ---
-    // ------------------------------------------------------------------
 
 	public Habilidade procurarPorCodigo(int id) {
 		try {
@@ -202,10 +189,6 @@ public class HabilidadesDAO {
 		}
 	}
 
-    // ------------------------------------------------------------------
-    // --- 3. MÉTODOS AUXILIARES ---
-    // ------------------------------------------------------------------
-
 	private Habilidade montarObjeto(ResultSet rs) throws Exception {
 		
 		Habilidade h = new Habilidade();
@@ -213,15 +196,10 @@ public class HabilidadesDAO {
         h.setId(rs.getInt("id"));
         h.setNome(rs.getString("nome"));
         h.setCustoMana(rs.getInt("custo_mana"));
-        // Para DECIMAL, usamos getDouble
-        h.setFatorDano(rs.getDouble("fator_dano")); 
+        h.setFatorDano(rs.getDouble("fator_dano"));
         h.setTipo(rs.getString("tipo"));
         
-        // Se idStatus for null no DB, rs.getInt retorna 0
         h.setIdStatus(rs.getInt("idStatus"));
-        
-        // NOTA: O objeto Status DTO (efeitoStatus) não é carregado aqui para manter o DAO simples.
-        // O BO fará essa busca se for necessário (usando StatusBO/DAO).
         
 		return h;
 	}

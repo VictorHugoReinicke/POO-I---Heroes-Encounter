@@ -14,7 +14,6 @@ public class InimigoHabilidadeDAO {
 
     final String NOMEDATABELA = "InimigoHabilidade";
     
-    // Dependências para carregar objetos relacionados
     private InimigoDAO inimigoDAO;
 
     public InimigoHabilidadeDAO() {
@@ -22,14 +21,9 @@ public class InimigoHabilidadeDAO {
         // this.habilidadeDAO = new HabilidadeDAO(); // Descomentar quando HabilidadeDAO existir
     }
 
-    // ------------------------------------------------------------------
-    // --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-    // ------------------------------------------------------------------
-
     public boolean inserir(InimigoHabilidade inimigoHabilidade) {
         try {
             Connection conn = Conexao.conectar();
-            // A tabela de ligação tem chave composta, então não usamos Statement.RETURN_GENERATED_KEYS
             String sql = "INSERT INTO " + NOMEDATABELA
                     + " (idInimigo, idHabilidade, chance_uso) VALUES (?, ?, ?)";
 
@@ -44,7 +38,6 @@ public class InimigoHabilidadeDAO {
             conn.close();
             return true;
         } catch (Exception e) {
-            // Este erro geralmente indica que a ligação já existe (chave duplicada)
             e.printStackTrace();
             return false;
         }
@@ -53,7 +46,6 @@ public class InimigoHabilidadeDAO {
     public boolean alterar(InimigoHabilidade inimigoHabilidade) {
         try {
             Connection conn = Conexao.conectar();
-            // Só permitimos alterar a chance de uso, pois os IDs definem a ligação
             String sql = "UPDATE " + NOMEDATABELA
                     + " SET chance_uso = ? WHERE idInimigo = ? AND idHabilidade = ?;";
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -75,7 +67,6 @@ public class InimigoHabilidadeDAO {
     public boolean excluir(InimigoHabilidade inimigoHabilidade) {
         try {
             Connection conn = Conexao.conectar();
-            // Exclui a ligação pela chave composta
             String sql = "DELETE FROM " + NOMEDATABELA + " WHERE idInimigo = ? AND idHabilidade = ?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, inimigoHabilidade.getIdInimigo());
@@ -90,13 +81,6 @@ public class InimigoHabilidadeDAO {
         }
     }
 
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Retorna todas as habilidades (e suas chances) de um inimigo específico.
-     */
     public List<InimigoHabilidade> procurarPorInimigo(int idInimigo) {
         try {
             Connection conn = Conexao.conectar();
@@ -117,9 +101,6 @@ public class InimigoHabilidadeDAO {
         }
     }
     
-    /**
-     * Verifica se uma ligação específica já existe.
-     */
     public boolean existe(InimigoHabilidade inimigoHabilidade) {
         try {
             Connection conn = Conexao.conectar();
@@ -141,28 +122,14 @@ public class InimigoHabilidadeDAO {
         return false;
     }
 
-
-    // ------------------------------------------------------------------
-    // --- 3. MÉTODOS AUXILIARES ---
-    // ------------------------------------------------------------------
-    
     private InimigoHabilidade montarObjeto(ResultSet rs) throws Exception {
         InimigoHabilidade ih = new InimigoHabilidade();
         
-        // 1. Atributos da tabela de ligação
         ih.setIdInimigo(rs.getInt("idInimigo"));
         ih.setIdHabilidade(rs.getInt("idHabilidade"));
         ih.setChance_uso(rs.getInt("chance_uso"));
-        
-        // 2. Carrega os objetos relacionados (o "JOIN" feito no código Java)
-        
-        // Carrega o Inimigo (já usa a Factory)
         Inimigo inimigo = inimigoDAO.procurarPorCodigo(ih.getIdInimigo());
         ih.setInimigo(inimigo);
-        
-        // Carrega a Habilidade (Descomentar quando HabilidadeDAO existir)
-        // Habilidade habilidade = habilidadeDAO.procurarPorCodigo(ih.getIdHabilidade());
-        // ih.setHabilidade(habilidade);
         
         return ih;
     }

@@ -14,25 +14,15 @@ public class ClasseHabilidadeDAO {
 
 	final String NOMEDATABELA = "ClasseHabilidade";
     
-    // DAO necessário para carregar o DTO Habilidade completo
-	private HabilidadesDAO habilidadesDAO; 
+	private HabilidadesDAO habilidadesDAO;
     
     public ClasseHabilidadeDAO() {
-        // Assume que HabilidadesDAO já existe e está funcional
-        this.habilidadesDAO = new HabilidadesDAO(); 
+        this.habilidadesDAO = new HabilidadesDAO();
     }
 
-    // ------------------------------------------------------------------
-    // --- 1. MÉTODOS DE MANIPULAÇÃO (CRUD) ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Insere uma nova ligação entre Classe e Habilidade.
-     */
 	public boolean inserir(ClasseHabilidade ch) {
 		try {
 			Connection conn = Conexao.conectar();
-            // idClasse e idHabilidade formam a chave composta
 			String sql = "INSERT INTO " + NOMEDATABELA
 					+ " (idClasse, idHabilidade) VALUES (?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -50,9 +40,6 @@ public class ClasseHabilidadeDAO {
 		}
 	}
 
-    /**
-     * Remove uma Habilidade específica de uma Classe.
-     */
 	public boolean excluir(ClasseHabilidade ch) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -71,13 +58,6 @@ public class ClasseHabilidadeDAO {
 		}
 	}
 
-    // ------------------------------------------------------------------
-    // --- 2. MÉTODOS DE BUSCA ---
-    // ------------------------------------------------------------------
-
-    /**
-     * Procura um registro específico (chave composta).
-     */
 	public ClasseHabilidade procurarRegistro(int idClasse, int idHabilidade) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -107,10 +87,6 @@ public class ClasseHabilidadeDAO {
 		}
 	}
 
-    /**
-     * Lista todas as Habilidades pertencentes a uma Classe.
-     * Retorna uma lista de objetos ClasseHabilidade, cada um contendo o DTO Habilidade completo.
-     */
 	public List<ClasseHabilidade> listarHabilidadesPorClasse(int idClasse) {
 		try {
 			Connection conn = Conexao.conectar();
@@ -133,26 +109,17 @@ public class ClasseHabilidadeDAO {
 		}
 	}
 
-    // ------------------------------------------------------------------
-    // --- 3. MÉTODOS AUXILIARES ---
-    // ------------------------------------------------------------------
-
 	private ClasseHabilidade montarObjeto(ResultSet rs) throws Exception {
 		
 		int idHabilidade = rs.getInt("idHabilidade");
         
 		ClasseHabilidade ch = new ClasseHabilidade();
         
-        // Atributos de ClasseHabilidade
         ch.setIdClasse(rs.getInt("idClasse"));
         ch.setIdHabilidade(idHabilidade);
 
-        // ❗️ CARREGAMENTO DA HABILIDADE COMPLETA
-        // Isso assume que o HabilidadesDAO.procurarPorCodigo(int id) existe e funciona.
         Habilidade habilidadeCompleta = habilidadesDAO.procurarPorCodigo(idHabilidade);
         ch.setHabilidade(habilidadeCompleta);
-        
-        // NOTE: O DTO Classe não é carregado aqui para evitar loop infinito de DAOs.
         
 		return ch;
 	}
