@@ -24,15 +24,11 @@ public class IniciarMain {
         popularItens(itemBO);
         popularShop(shopBO, shopItemBO, itemBO);
         
-        // ← NOVA SEÇÃO: Criar habilidades dos inimigos
         criarHabilidadesInimigos(inimigoBO, habBO, inimigoHabBO, statusBO);
 
         System.out.println("\n======== SETUP FINALIZADO COM SUCESSO ========\n");
     }
 
-    // ====================================================
-    // 1. CLASSES
-    // ====================================================
     private static void popularClasses(ClasseBO classeBO) {
         System.out.println(">> Populando Classes...");
 
@@ -43,16 +39,11 @@ public class IniciarMain {
         System.out.println("✔ Classes OK\n");
     }
 
-    // ====================================================
-    // 3. INIMIGOS
-    // ====================================================
     private static void popularInimigos(InimigoBO inimigoBO) {
         System.out.println(">> Populando Inimigos...");
 
-        // Limpa inimigos existentes (opcional - para garantir limpeza)
         limparInimigosExistente(inimigoBO);
 
-        // Besta
         Inimigo besta = InimigoFactory.criarInimigo("Besta");
         if (besta != null) {
             besta.setNome("Urso Selvagem");
@@ -65,7 +56,6 @@ public class IniciarMain {
             adicionarInimigo(inimigoBO, besta);
         }
 
-        // Ladrão
         Inimigo ladrao = InimigoFactory.criarInimigo("Ladrao");
         if (ladrao != null) {
             ladrao.setNome("Assaltante das Sombras");
@@ -78,7 +68,6 @@ public class IniciarMain {
             adicionarInimigo(inimigoBO, ladrao);
         }
 
-        // Mágico
         Inimigo magico = InimigoFactory.criarInimigo("InimigoMagico");
         if (magico != null) {
             magico.setNome("Slime Arcano");
@@ -91,7 +80,6 @@ public class IniciarMain {
             adicionarInimigo(inimigoBO, magico);
         }
 
-        // Chefe
         Inimigo chefe = InimigoFactory.criarInimigo("Chefe");
         if (chefe != null) {
             chefe.setNome("Lobo Alfa Supremo");
@@ -104,7 +92,6 @@ public class IniciarMain {
             adicionarInimigo(inimigoBO, chefe);
         }
 
-        // ← NOVO: Adicionar mais inimigos para variedade
         Inimigo lobo = InimigoFactory.criarInimigo("Besta");
         if (lobo != null) {
             lobo.setNome("Lobo Feroz");
@@ -120,9 +107,6 @@ public class IniciarMain {
         System.out.println("✔ Inimigos OK\n");
     }
 
-    // ====================================================
-    // 4. HABILIDADES
-    // ====================================================
     private static void popularHabilidades(HabilidadesBO habBO) {
         System.out.println(">> Populando Habilidades...");
 
@@ -131,9 +115,6 @@ public class IniciarMain {
         System.out.println("✔ Habilidades OK\n");
     }
 
-    // ====================================================
-    // 5. ITENS
-    // ====================================================
     private static void popularItens(ItemBO itemBO) {
         System.out.println(">> Populando Itens...");
 
@@ -154,9 +135,6 @@ public class IniciarMain {
         System.out.println("✔ Itens OK\n");
     }
 
-    // ====================================================
-    // 6. SHOP
-    // ====================================================
     private static void popularShop(ShopBO shopBO, ShopItemBO siBO, ItemBO itemBO) {
         System.out.println(">> Populando Shop...");
 
@@ -168,7 +146,6 @@ public class IniciarMain {
 
         System.out.println("✔ Loja criada: " + loja.getNome());
 
-        // Itens do Shop
         adicionarShopItem(siBO, loja, itemBO.procurarPorNome("Espada Longa"), 100, 5);
         adicionarShopItem(siBO, loja, itemBO.procurarPorNome("Cajado Arcano"), 150, 3);
         adicionarShopItem(siBO, loja, itemBO.procurarPorNome("Escudo de Madeira"), 80, 4);
@@ -178,9 +155,6 @@ public class IniciarMain {
         System.out.println("✔ Shop OK\n");
     }
 
-    // ====================================================
-    // 7. HABILIDADES DOS INIMIGOS (NOVO MÉTODO)
-    // ====================================================
     private static void criarHabilidadesInimigos(
             InimigoBO inimigoBO,
             HabilidadesBO habBO,
@@ -190,7 +164,6 @@ public class IniciarMain {
         System.out.println(">> Criando Habilidades dos Inimigos...");
         
         try {
-            // Usa o factory que você criou
             InimigoHabilidadeFactory.criarHabilidadesInimigos(
                 inimigoBO, 
                 habBO, 
@@ -198,28 +171,23 @@ public class IniciarMain {
                 statusBO
             );
             
-            // Opcional: Testar o sistema
             System.out.println("\n>> Testando sistema de habilidades...");
             testarHabilidadesInimigos(inimigoBO, inimigoHabBO);
             
         } catch (Exception e) {
-            System.err.println("❌ Erro ao criar habilidades dos inimigos: " + e.getMessage());
+            System.err.println("Erro ao criar habilidades dos inimigos: " + e.getMessage());
             e.printStackTrace();
         }
         
-        System.out.println("✔ Habilidades dos Inimigos OK\n");
+        System.out.println("Habilidades dos Inimigos OK\n");
     }
     
-    // ====================================================
-    // MÉTODO AUXILIAR PARA TESTAR HABILIDADES
-    // ====================================================
     private static void testarHabilidadesInimigos(InimigoBO inimigoBO, InimigoHabilidadeBO inimigoHabBO) {
-        System.out.println("🧪 Testando escolha de habilidades...");
+        System.out.println("Testando escolha de habilidades...");
         
         for (Inimigo inimigo : inimigoBO.pesquisarTodos()) {
-            System.out.println("\n🎯 " + inimigo.getNome() + " (" + inimigo.getClass().getSimpleName() + "):");
+            System.out.println("\n" + inimigo.getNome() + " (" + inimigo.getClass().getSimpleName() + "):");
             
-            // Lista habilidades configuradas
             java.util.List<InimigoHabilidade> habilidades = inimigoHabBO.listarHabilidades(inimigo.getId());
             
             if (habilidades.isEmpty()) {
@@ -227,7 +195,6 @@ public class IniciarMain {
                 continue;
             }
             
-            // Mostra habilidades disponíveis
             int totalChances = 0;
             for (InimigoHabilidade ih : habilidades) {
                 System.out.println("   - Habilidade ID: " + ih.getIdHabilidade() + 
@@ -235,9 +202,8 @@ public class IniciarMain {
                 totalChances += ih.getChance_uso();
             }
             
-            // Testa 5 escolhas aleatórias
-            System.out.println("   🎲 Total chances: " + totalChances + "%");
-            System.out.println("   Simulando 5 turnos:");
+            System.out.println("Total chances: " + totalChances + "%");
+            System.out.println("Simulando 5 turnos:");
             
             java.util.Map<Integer, Integer> contagem = new java.util.HashMap<>();
             for (int i = 1; i <= 5; i++) {
@@ -251,25 +217,19 @@ public class IniciarMain {
                 }
             }
             
-            // Mostra estatísticas
             if (!contagem.isEmpty()) {
-                System.out.println("   📊 Estatísticas:");
+                System.out.println("Estatísticas:");
                 for (java.util.Map.Entry<Integer, Integer> entry : contagem.entrySet()) {
-                    System.out.println("     Habilidade ID " + entry.getKey() + ": " + 
+                    System.out.println("     Habilidade ID " + entry.getKey() + ": " +
                                      entry.getValue() + " vezes");
                 }
             }
         }
     }
-
-    // ====================================================
-    // HELPERS
-    // ====================================================
     private static void limparInimigosExistente(InimigoBO inimigoBO) {
-        // Opcional: Limpa inimigos existentes para começar do zero
         java.util.List<Inimigo> existentes = inimigoBO.pesquisarTodos();
         if (!existentes.isEmpty()) {
-            System.out.println("   🧹 Limpando " + existentes.size() + " inimigos existentes...");
+            System.out.println("Limpando " + existentes.size() + " inimigos existentes...");
             for (Inimigo i : existentes) {
                 inimigoBO.excluir(i);
             }
@@ -299,7 +259,7 @@ public class IniciarMain {
 
     private static void adicionarShopItem(ShopItemBO bo, Shop shop, Item item, int preco, int quantidade) {
         if (item == null) {
-            System.out.println("   ⚠️ Item não encontrado para adicionar ao shop");
+            System.out.println("    Item não encontrado para adicionar ao shop");
             return;
         }
 

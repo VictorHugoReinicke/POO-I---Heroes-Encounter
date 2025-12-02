@@ -14,13 +14,11 @@ public class TelaCriacaoPersonagem extends JFrame {
     private JButton btnVoltar; // DECLARADO CORRETAMENTE
     private JButton btnSair;
 
-    // CONSTRUTOR COM PARÂMETRO
     public TelaCriacaoPersonagem(TelaSelecao pai) {
         this.telaPai = pai;
         initializeTela();
     }
 
-    // CONSTRUTOR SEM PARÂMETRO (para compatibilidade)
     public TelaCriacaoPersonagem() {
         initializeTela();
     }
@@ -31,7 +29,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         setLayout(new BorderLayout(10, 10));
         setResizable(false);
 
-        // Painel de título
         JPanel tituloPanel = new JPanel();
         tituloPanel.setBackground(new Color(30, 30, 70));
         JLabel titulo = new JLabel("CRIAÇÃO DE PERSONAGEM - HEROES ENCOUNTER");
@@ -39,7 +36,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         titulo.setForeground(Color.WHITE);
         tituloPanel.add(titulo);
 
-        // Painel de entrada (formulário)
         JPanel entradaPanel = new JPanel();
         entradaPanel.setLayout(new GridBagLayout());
         entradaPanel.setBorder(BorderFactory.createTitledBorder("Dados do Personagem"));
@@ -49,7 +45,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Nome do personagem
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel lblNome = new JLabel("Nome do Herói:");
@@ -63,7 +58,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         txtNome.setFont(new Font("Arial", Font.PLAIN, 14));
         entradaPanel.add(txtNome, gbc);
 
-        // Classe do personagem
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
@@ -79,7 +73,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         comboClasse.setFont(new Font("Arial", Font.PLAIN, 14));
         entradaPanel.add(comboClasse, gbc);
 
-        // Painel de resultado
         JPanel resultadoPanel = new JPanel(new BorderLayout());
         resultadoPanel.setBorder(BorderFactory.createTitledBorder("Resultado da Criação"));
         
@@ -92,7 +85,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         JScrollPane scrollResultado = new JScrollPane(txtResultado);
         resultadoPanel.add(scrollResultado, BorderLayout.CENTER);
 
-        // Painel de botões (atualizado)
         JPanel botoesPanel = new JPanel(new FlowLayout());
         botoesPanel.setBackground(new Color(240, 240, 240));
         
@@ -111,7 +103,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         botoesPanel.add(btnVoltar);
         botoesPanel.add(btnSair);
 
-        // Adicionar componentes à tela principal
         add(tituloPanel, BorderLayout.NORTH);
         add(entradaPanel, BorderLayout.CENTER);
         add(resultadoPanel, BorderLayout.EAST);
@@ -130,7 +121,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         botao.setBorder(BorderFactory.createRaisedBevelBorder());
         botao.setPreferredSize(new Dimension(180, 40));
 
-        // Efeito hover
         botao.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 botao.setBackground(cor.brighter());
@@ -149,7 +139,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         String nome = txtNome.getText().trim();
         String classe = (String) comboClasse.getSelectedItem();
 
-        // Validações
         if (nome.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Por favor, digite um nome para o seu personagem!",
@@ -169,7 +158,6 @@ public class TelaCriacaoPersonagem extends JFrame {
         }
 
         try {
-            // Mapear nome da classe para ID
             int idClasse;
             switch (classe) {
                 case "Guerreiro":
@@ -185,11 +173,9 @@ public class TelaCriacaoPersonagem extends JFrame {
                     throw new IllegalArgumentException("Classe inválida: " + classe);
             }
 
-            // Usar a JogadorFactory para criar o personagem
             Jogador player1 = JogadorFactory.criarJogador(idClasse, nome);
 
             if (player1 != null) {
-                // Exibir resultado no formato similar ao console
                 StringBuilder resultado = new StringBuilder();
                 resultado.append("==============================\n");
                 resultado.append("JOGADOR CRIADO COM SUCESSO!\n");
@@ -230,9 +216,8 @@ public class TelaCriacaoPersonagem extends JFrame {
                 txtResultado.setText(resultado.toString());
                 txtResultado.setCaretPosition(0);
 
-                // Mensagem de sucesso
                 JOptionPane.showMessageDialog(this,
-                        "🎉 Personagem criado com sucesso!\n\n" +
+                        "Personagem criado com sucesso!\n\n" +
                         "Nome: " + nome + "\n" +
                         "Classe: " + classe + "\n" +
                         "ID: " + player1.getId() + "\n\n" +
@@ -245,7 +230,7 @@ public class TelaCriacaoPersonagem extends JFrame {
             }
 
         } catch (Exception e) {
-            String mensagemErro = "❌ ERRO AO CRIAR PERSONAGEM\n\n" +
+            String mensagemErro = "ERRO AO CRIAR PERSONAGEM\n\n" +
                                  "Mensagem: " + e.getMessage() + 
                                  "\n\nDetalhes técnicos no console.";
             
@@ -267,14 +252,11 @@ public class TelaCriacaoPersonagem extends JFrame {
     }
 
     private void voltar() {
-        // Fecha esta tela
         dispose();
         
-        // Se tiver uma tela pai, volta para ela
         if (telaPai != null) {
             telaPai.setVisible(true);
         } else {
-            // Se não tiver tela pai, volta para a tela de seleção
             new TelaSelecao().setVisible(true);
         }
     }
