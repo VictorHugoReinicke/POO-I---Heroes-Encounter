@@ -26,10 +26,10 @@ public class InimigoDAO {
 
 			ps.setString(1, inimigo.getNome());
 			ps.setString(2, inimigo.getClass().getSimpleName());
-			ps.setInt(3, inimigo.getHpMax()); // Mapeamento: vida_total <-> getHpMax()
+			ps.setInt(3, inimigo.getHpMax());
 			ps.setInt(4, inimigo.getAtaque());
-			ps.setInt(5, inimigo.getRecompensaOuro()); // Mapeamento: gold_recompensa <-> getRecompensaOuro()
-			ps.setString(6, inimigo.getTipoIA().name()); // Mapeamento: ia_tipo <-> TipoIA
+			ps.setInt(5, inimigo.getRecompensaOuro());
+			ps.setString(6, inimigo.getTipoIA().name());
 			
 
 			ps.executeUpdate();
@@ -51,17 +51,16 @@ public class InimigoDAO {
 	public boolean alterar(Inimigo inimigo) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "UPDATE " + NOMEDATABELA
-					+ " SET nome = ?, tipo = ?, vida_total = ?, dano = ?, gold_recompensa = ?, ia_tipo = ? WHERE id = ?;";
+			String sql = "UPDATE " + NOMEDATABELA + " SET nome = ?, tipo = ?, vida_total = ?, dano = ?, gold_recompensa = ?, ia_tipo = ? WHERE id = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.setString(1, inimigo.getNome());
 			ps.setString(2, inimigo.getClass().getSimpleName());
-			ps.setInt(3, inimigo.getHpMax()); // vida_total
+			ps.setInt(3, inimigo.getHpMax());
 			ps.setInt(4, inimigo.getAtaque());
-			ps.setInt(5, inimigo.getRecompensaOuro()); // gold_recompensa
-			ps.setString(6, inimigo.getTipoIA().name()); // ia_tipo
-			ps.setInt(7, inimigo.getId()); // ID herdado
+			ps.setInt(5, inimigo.getRecompensaOuro());
+			ps.setString(6, inimigo.getTipoIA().name());
+			ps.setInt(7, inimigo.getId());
 
 			ps.executeUpdate();
 			ps.close();
@@ -147,11 +146,11 @@ public class InimigoDAO {
 
 		i.setId(rs.getInt("id"));
 		i.setNome(rs.getString("nome"));
-		i.setHpMax(rs.getInt("vida_total")); // Mapeamento: vida_total -> setHpMax()
+		i.setHpMax(rs.getInt("vida_total"));
 
-		i.setAtaque(rs.getInt("dano")); // Mapeamento: dano -> setAtaque()
-		i.setRecompensaOuro(rs.getInt("gold_recompensa")); // Mapeamento: gold_recompensa -> setRecompensaOuro()
-		i.setTipoIA(TipoIA.valueOf(rs.getString("ia_tipo"))); // Mapeamento: ia_tipo -> setTipoIA()
+		i.setAtaque(rs.getInt("dano"));
+		i.setRecompensaOuro(rs.getInt("gold_recompensa"));
+		i.setTipoIA(TipoIA.valueOf(rs.getString("ia_tipo")));
 
 		return i;
 	}

@@ -14,12 +14,12 @@ public class InimigoHabilidadeFactory {
 
         System.out.println(">> Criando habilidades dos inimigos...");
 
-        Status furia = criarOuBuscarStatus(statusBO, "Fúria", 0, 0.5, 2); // +50% ataque por 2 turnos
-        Status mordidaProfunda = criarOuBuscarStatus(statusBO, "Mordida Profunda", 8, 0.0, 3); // DOT
+        Status furia = criarOuBuscarStatus(statusBO, "Fúria", 0, 0.5, 2);
+        Status mordidaProfunda = criarOuBuscarStatus(statusBO, "Mordida Profunda", 8, 0.0, 3);
         Status veneno = criarOuBuscarStatus(statusBO, "Veneno", 6, -0.1, 4);
         Status sangramento = criarOuBuscarStatus(statusBO, "Sangramento", 5, 0.0, 3);
-        Status atordoamento = criarOuBuscarStatus(statusBO, "Atordoamento", 0, 0.0, 1); // Pula 1 turno
-        Status fraqueza = criarOuBuscarStatus(statusBO, "Fraqueza", 0, -0.3, 2); // -30% ataque
+        Status atordoamento = criarOuBuscarStatus(statusBO, "Atordoamento", 0, 0.0, 1);
+        Status fraqueza = criarOuBuscarStatus(statusBO, "Fraqueza", 0, -0.3, 2);
 
         Map<String, Habilidade> habilidadesCriadas = new HashMap<>();
 
@@ -38,7 +38,6 @@ public class InimigoHabilidadeFactory {
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Garras Afiadas", 8, 1.5, "OFENSIVA", sangramento.getId()));
 
-        // Habilidades para Ladrões
         criarOuBuscarHabilidade(habilidadesBO, habilidadesCriadas,
                 new Habilidade("Dardo Venenoso", 8, 1.4, "OFENSIVA", veneno.getId()));
 
@@ -121,7 +120,6 @@ public class InimigoHabilidadeFactory {
                     break;
                     
                 default:
-                    // Fallback para inimigos genéricos
                     linkar(inimigoHabBO, i, habilidadesCriadas, "Arranhão Selvagem", 60);
                     linkar(inimigoHabBO, i, habilidadesCriadas, "Investida", 30);
                     System.out.println("⚠ Tipo de inimigo desconhecido: " + classeInimigo + ". Usando habilidades genéricas.");

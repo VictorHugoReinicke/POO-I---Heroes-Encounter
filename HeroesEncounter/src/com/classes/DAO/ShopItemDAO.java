@@ -17,17 +17,14 @@ public class ShopItemDAO {
 	public boolean inserir(ShopItem shopItem) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "INSERT INTO " + NOMEDATABELA
-					+ " (idShop, idItem, preco_venda, quantidade, quantidade_disponivel) VALUES (?, ?, ?, ?, ?);"; // ✅
-																													// Adicionado
-																													// quantidade_disponivel
+			String sql = "INSERT INTO " + NOMEDATABELA + " (idShop, idItem, preco_venda, quantidade, quantidade_disponivel) VALUES (?, ?, ?, ?, ?);";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.setInt(1, shopItem.getIdShop());
 			ps.setInt(2, shopItem.getIdItem());
 			ps.setInt(3, shopItem.getPrecoVenda());
 			ps.setInt(4, shopItem.getQuantidade());
-			ps.setInt(5, shopItem.getQuantidadeDisponivel()); // ✅ Novo campo
+			ps.setInt(5, shopItem.getQuantidadeDisponivel());
 
 			ps.executeUpdate();
 			ps.close();
@@ -61,15 +58,12 @@ public class ShopItemDAO {
 	public boolean alterar(ShopItem shopItem) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "UPDATE " + NOMEDATABELA + " SET preco_venda = ?, quantidade = ?, quantidade_disponivel = ?" // ✅
-																														// Adicionado
-																														// quantidade_disponivel
-					+ " WHERE idShop = ? AND idItem = ?;";
+			String sql = "UPDATE " + NOMEDATABELA + " SET preco_venda = ?, quantidade = ?, quantidade_disponivel = ?" + " WHERE idShop = ? AND idItem = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.setInt(1, shopItem.getPrecoVenda());
 			ps.setInt(2, shopItem.getQuantidade());
-			ps.setInt(3, shopItem.getQuantidadeDisponivel()); // ✅ Novo campo
+			ps.setInt(3, shopItem.getQuantidadeDisponivel());
 			ps.setInt(4, shopItem.getIdShop());
 			ps.setInt(5, shopItem.getIdItem());
 
@@ -86,10 +80,7 @@ public class ShopItemDAO {
 	public ShopItem procurarRegistro(int idShop, int idItem) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "SELECT idShop, idItem, preco_venda, quantidade, quantidade_disponivel FROM " + NOMEDATABELA // ✅
-																														// Adicionado
-																														// quantidade_disponivel
-					+ " WHERE idShop = ? AND idItem = ?;";
+			String sql = "SELECT idShop, idItem, preco_venda, quantidade, quantidade_disponivel FROM " + NOMEDATABELA + " WHERE idShop = ? AND idItem = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, idShop);
 			ps.setInt(2, idItem);
@@ -118,11 +109,7 @@ public class ShopItemDAO {
 		List<ShopItem> lista = new ArrayList<>();
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "SELECT idShop, idItem, preco_venda, quantidade, quantidade_disponivel FROM " + NOMEDATABELA // ✅
-																														// Adicionado
-																														// quantidade_disponivel
-					+ " WHERE idShop = ? AND quantidade_disponivel > 0 ORDER BY idItem;"; // ✅ Só mostra itens com
-																							// estoque
+			String sql = "SELECT idShop, idItem, preco_venda, quantidade, quantidade_disponivel FROM " + NOMEDATABELA + " WHERE idShop = ? AND quantidade_disponivel > 0 ORDER BY idItem;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, idShop);
 
@@ -152,7 +139,7 @@ public class ShopItemDAO {
 		obj.setIdItem(idItem);
 		obj.setPrecoVenda(rs.getInt("preco_venda"));
 		obj.setQuantidade(rs.getInt("quantidade"));
-		obj.setQuantidadeDisponivel(rs.getInt("quantidade_disponivel")); // ✅ Novo campo
+		obj.setQuantidadeDisponivel(rs.getInt("quantidade_disponivel"));
 
 		obj.setShop(shopDAO.procurarPorCodigo(idShop));
 		obj.setItem(itemDAO.procurarPorCodigo(idItem));

@@ -188,7 +188,6 @@ public class TelaCombate extends JDialog {
 		adicionarLog("Inimigo Defesa: " + inimigo.getDefesa());
 		adicionarLog("Arma Equipada: " + CalculadoraCombate.getInfoArmaEquipada(jogador));
 
-		// MOSTRAR INVENTÁRIO ATUAL
 		if (jogador.getInventario() != null) {
 			adicionarLog("Itens no inventário: " + jogador.getInventario().size());
 			for (JogadorItem ji : jogador.getInventario()) {
@@ -261,7 +260,6 @@ public class TelaCombate extends JDialog {
 
 			adicionarLog(" - " + jogador.getNome() + " usa " + resultado.getHabilidadeUsada() + "!");
 
-			// Mostrar resultados
 			if (resultado.getDanoCausado() > 0) {
 				if (resultado.isCritico()) {
 					adicionarLog("**CRÍTICO!** Causa " + resultado.getDanoCausado() + " de dano!");
@@ -377,7 +375,7 @@ public class TelaCombate extends JDialog {
 	protected void tentarFugir() {
 		desabilitarBotoes();
 
-		double chanceFuga = 0.6; // 60% de chance de fugir
+		double chanceFuga = 0.6;
 		if (Math.random() < chanceFuga) {
 			adicionarLog(" - " + jogador.getNome() + " fugiu do combate!");
 			JOptionPane.showMessageDialog(this, "Fuga bem-sucedida!", "Fuga", JOptionPane.INFORMATION_MESSAGE);
@@ -400,7 +398,6 @@ public class TelaCombate extends JDialog {
 			return;
 		}
 		
-		// PROCESSAR DOTs no inimigo
 		adicionarLog("Processando efeitos de status no inimigo...");
 		int danoDOT = GerenciadorHabilidades.processarInicioTurnoInimigo(inimigo);
 		
@@ -512,7 +509,7 @@ public class TelaCombate extends JDialog {
 	private void executarAtaquePoderoso() {
 		ResultadoAtaque resultado = CalculadoraCombate.calcularAtaqueInimigo(inimigo, jogador);
 		int danoBase = resultado.getDano();
-		int danoExtra = (int)(danoBase * 1.5); // 50% mais dano
+		int danoExtra = (int)(danoBase * 1.5);
 		
 		if (defesaAtiva) {
 			danoExtra = Math.max(1, danoExtra / 2);
@@ -556,7 +553,6 @@ public class TelaCombate extends JDialog {
 		adicionarLog(" - " + inimigo.getNome() + " assume posição defensiva!");
 		adicionarLog("Próximo ataque do jogador será reduzido!");
 		
-		// Aumenta defesa temporariamente para o próximo turno
 		inimigo.setDefesa(inimigo.getDefesa() + 10);
 		adicionarLog("Defesa aumentada em 10 pontos!");
 	}
@@ -565,7 +561,6 @@ public class TelaCombate extends JDialog {
 		adicionarLog(" - " + inimigo.getNome() + " solta um grito ensurdecedor!");
 		adicionarLog("Jogador fica atordoado! Ataque reduzido no próximo turno!");
 		
-		// Reduz ataque do jogador temporariamente
 		jogador.setAtaque(Math.max(1, jogador.getAtaque() - 5));
 		adicionarLog("Seu ataque foi reduzido em 5 pontos!");
 	}
@@ -573,7 +568,7 @@ public class TelaCombate extends JDialog {
 	private void executarAtaqueEspecialChefe() {
 		adicionarLog(" - " + inimigo.getNome() + " usa ATAQUE ESPECIAL DO CHEFE!");
 		
-		int dano = inimigo.getAtaque() * 2; // Dano dobrado
+		int dano = inimigo.getAtaque() * 2;
 		if (defesaAtiva) {
 			dano = Math.max(1, dano / 3);
 			adicionarLog("Sua defesa reduz significativamente o dano especial!");
@@ -583,13 +578,12 @@ public class TelaCombate extends JDialog {
 		jogador.setHp(jogador.getHp() - dano);
 		adicionarLog("DANO COLOSSAL: " + dano + "!");
 		
-		// Efeito adicional
 		jogador.setAtaque(Math.max(1, jogador.getAtaque() - 3));
 		adicionarLog("Você ficou atordoado! Ataque reduzido!");
 	}
 	
 	private void executarCuraInimigo() {
-		int cura = (int)(inimigo.getHpMax() * 0.2); // Cura 20% do HP máximo
+		int cura = (int)(inimigo.getHpMax() * 0.2);
 		int novoHP = Math.min(inimigo.getHpMax(), inimigo.getHp() + cura);
 		int hpCura = novoHP - inimigo.getHp();
 		inimigo.setHp(novoHP);
@@ -631,7 +625,7 @@ public class TelaCombate extends JDialog {
 	
 	private void executarFugaInimigo() {
 		adicionarLog(" - " + inimigo.getNome() + " tenta fugir!");
-		if (new Random().nextDouble() < 0.4) { // 40% de chance
+		if (new Random().nextDouble() < 0.4) {
 			adicionarLog(" - " + inimigo.getNome() + " fugiu do combate!");
 			dispose();
 			if (telaAventura != null) {

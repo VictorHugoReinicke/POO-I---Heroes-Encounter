@@ -45,17 +45,14 @@ public class ShopItemBO {
 
     public boolean comprarItem(int idShop, int idItem, int jogadorId) {
         try {
-            // Buscar o item do shop
             ShopItem shopItem = shopItemDAO.procurarRegistro(idShop, idItem);
             if (shopItem == null) {
                 System.out.println("Item não encontrado no shop");
                 return false;
             }
 
-            // Buscar o objeto Item completo
             Item item = shopItem.getItem();
             if (item == null) {
-                // Fallback: buscar pelo ItemBO caso shopItem.getItem() retorne null
                 item = itemBO.procurarPorCodigo(idItem);
                 if (item == null) {
                     System.out.println("Item base não encontrado");

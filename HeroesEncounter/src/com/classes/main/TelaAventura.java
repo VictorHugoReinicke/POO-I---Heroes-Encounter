@@ -181,7 +181,7 @@ public class TelaAventura extends JFrame {
 		}
 
 		try {
-			Inimigo inimigo = obterInimigoAleatorio(batalhasVencidas == 2); // true para chefe na batalha 3
+			Inimigo inimigo = obterInimigoAleatorio(batalhasVencidas == 2);
 
 			adicionarLog("");
 			adicionarLog("INICIANDO BATALHA " + (batalhasVencidas + 1));

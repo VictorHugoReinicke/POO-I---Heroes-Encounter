@@ -15,7 +15,7 @@ public class Habilidade {
         this.custoMana = custoMana;
         this.fatorDano = fatorDano;
         this.tipo = tipo;
-        this.idStatus = 0;         // padrão: sem status
+        this.idStatus = 0;
         this.efeitoStatus = null;
     }
 

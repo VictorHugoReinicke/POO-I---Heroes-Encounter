@@ -255,7 +255,6 @@ public class TelaShop extends JDialog {
             return;
         }
         
-        // Verificar ouro suficiente
         if (jogador.getOuro() < shopItem.getPrecoVenda()) {
             JOptionPane.showMessageDialog(this, 
                 "Ouro insuficiente!\n\n" +
@@ -265,7 +264,6 @@ public class TelaShop extends JDialog {
             return;
         }
         
-        // Confirmar compra
         int confirm = JOptionPane.showConfirmDialog(this,
             "CONFIRMAR COMPRA\n\n" +
             "Item: " + item.getNome() + "\n" +
@@ -297,7 +295,6 @@ public class TelaShop extends JDialog {
                         "Compra Bem-sucedida",
                         JOptionPane.INFORMATION_MESSAGE);
                     
-                    // Atualizar log na aventura
                     if (telaAventura != null) {
                         telaAventura.adicionarLog("🛒 Comprou " + item.getNome() + " por " + shopItem.getPrecoVenda() + " ouro");
                     }
@@ -307,7 +304,7 @@ public class TelaShop extends JDialog {
                 
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
-                    "❌ ERRO NA COMPRA\n\n" +
+                    "ERRO NA COMPRA\n\n" +
                     "Não foi possível completar a compra.\n" +
                     "Erro: " + e.getMessage(),
                     "Erro na Compra",
@@ -318,14 +315,11 @@ public class TelaShop extends JDialog {
     }
     
     private void atualizarInterface() {
-        // Atualizar ouro
-        lblOuro.setText("💰 Ouro: " + jogador.getOuro());
+        lblOuro.setText("Ouro: " + jogador.getOuro());
         
-        // Recarregar itens da loja
         listModel.clear();
         carregarItensShop();
         
-        // Atualizar detalhes do item selecionado
         exibirDetalhesItem();
     }
 }

@@ -107,14 +107,13 @@ public class JogadorFactory {
     private static boolean equiparArmaInicial(Jogador jogador) {
         try {
             if (jogador.getArmaEquipada() != null) {
-                // Usa o método equiparItem do JogadorItemBO
                 boolean equipado = jogadorItemBO.equiparItem(jogador.getId(), jogador.getArmaEquipada());
                 if (equipado) {
                     System.out.println(" Arma equipada: " + jogador.getArmaEquipada().getNome());
                 }
                 return equipado;
             }
-            return true; // Se não tem arma para equipar, considera sucesso
+            return true;
         } catch (Exception e) {
             System.out.println("Erro ao equipar arma inicial: " + e.getMessage());
             return false;

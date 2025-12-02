@@ -20,7 +20,6 @@ public class JogadorDAO {
 	    try {
 	        Connection conn = Conexao.conectar();
 	        String sql = "INSERT INTO " + NOMEDATABELA + " (nome, gold, vida_atual, idClasse, mana_atual) VALUES (?, ?, ?, ?, ?)";
-	        // Use RETURN_GENERATED_KEYS para obter o ID gerado
 	        PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
 	        ps.setString(1, jogador.getNome());
@@ -32,11 +31,10 @@ public class JogadorDAO {
 	        int linhasAfetadas = ps.executeUpdate();
 	        
 	        if (linhasAfetadas > 0) {
-	            // Obter o ID gerado
 	            ResultSet generatedKeys = ps.getGeneratedKeys();
 	            if (generatedKeys.next()) {
 	                int idGerado = generatedKeys.getInt(1);
-	                jogador.setId(idGerado); // Define o ID no objeto jogador
+	                jogador.setId(idGerado);
 	            }
 	            generatedKeys.close();
 	        }
@@ -143,7 +141,6 @@ public class JogadorDAO {
 
 	public Jogador procurarPorCodigo(Jogador jogador) {
 		String sql = "SELECT id, nome, gold, idClasse, vida_atual, mana_atual FROM " + NOMEDATABELA	+ " WHERE id = ?;";
-		// A estrutura try-with-resources garante que a conexão e o statement serão fechados automaticamente.
 		try (Connection conn = Conexao.conectar();
 			 PreparedStatement ps = conn.prepareStatement(sql)) {
 			

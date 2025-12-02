@@ -19,16 +19,14 @@ public class HabilidadeFactory {
 
 		System.out.println(">> Criando Status para Habilidades...");
 
-		Status queimadura = criarOuBuscarStatus(statusBO, "Queimadura", 10, 0.0, 3); // 3 de dano por 3 turnos
-		Status sangramento = criarOuBuscarStatus(statusBO, "Sangramento", 11, 0.0, 4); // 2 de dano por 4 turnos
-		Status congelamento = criarOuBuscarStatus(statusBO, "Congelamento", 13, -0.3, 2); // -30% defesa por 2 turnos
-																							// (DEBUFF)
+		Status queimadura = criarOuBuscarStatus(statusBO, "Queimadura", 10, 0.0, 3);
+		Status sangramento = criarOuBuscarStatus(statusBO, "Sangramento", 11, 0.0, 4);
+		Status congelamento = criarOuBuscarStatus(statusBO, "Congelamento", 13, -0.3, 2);
 
-		Status protecaoDivina = criarOuBuscarStatus(statusBO, "Proteção Divina", 0, 0.9, 2); // +50% defesa por 2 turnos
-																								// (BUFF)
-		Status ilusao = criarOuBuscarStatus(statusBO, "Ilusão", 0, 0.0, 1); // 80% esquiva por 1 turno
+		Status protecaoDivina = criarOuBuscarStatus(statusBO, "Proteção Divina", 0, 0.9, 2);
+		Status ilusao = criarOuBuscarStatus(statusBO, "Ilusão", 0, 0.0, 1);
 
-		ilusao.setChanceEsquiva(0.8); // 80% de chance de esquiva
+		ilusao.setChanceEsquiva(0.8);
 		try {
 			statusBO.alterar(ilusao);
 			System.out.println(
@@ -38,17 +36,15 @@ public class HabilidadeFactory {
 		}
 
 		List<Habilidade> paladino = Arrays.asList(
-				new Habilidade("Defesa Divina", 10, 0, "DEFENSIVA", protecaoDivina.getId()), // Bloqueio
-				new Habilidade("Expurgar", 18, 1.5, "OFENSIVA"), // Dano extra
-				new Habilidade("Benção Divina", 20, 0.6, "CURA") // Cura média
+				new Habilidade("Defesa Divina", 10, 0, "DEFENSIVA", protecaoDivina.getId()),
+				new Habilidade("Expurgar", 18, 1.5, "OFENSIVA"),
+				new Habilidade("Benção Divina", 20, 0.6, "CURA")
 		);
 
-		List<Habilidade> mago = Arrays.asList(new Habilidade("Ilusão Arcana", 4, 0, "DEFENSIVA", ilusao.getId()), // Bloqueia
-																													// próximo
-																													// ataque
-				new Habilidade("Bola de Fogo", 12, 2.2, "OFENSIVA", queimadura.getId()), // Dano médio + DOT fogo
-				new Habilidade("Estaca de Gelo", 10, 3.0, "OFENSIVA", congelamento.getId()) // Projétil alto + debuff
-																							// defesa
+		List<Habilidade> mago = Arrays.asList(new Habilidade("Ilusão Arcana", 4, 0, "DEFENSIVA", ilusao.getId()),
+
+				new Habilidade("Bola de Fogo", 12, 2.2, "OFENSIVA", queimadura.getId()),
+				new Habilidade("Estaca de Gelo", 10, 3.0, "OFENSIVA", congelamento.getId())
 		);
 
 		List<Habilidade> guerreiro = Arrays.asList(new Habilidade("Golpe Forte", 13, 2.0, "OFENSIVA"),
@@ -84,17 +80,14 @@ public class HabilidadeFactory {
 
 		System.out.println(">> Linkando Habilidades às Classes...");
 
-		// Paladino
 		atribuirSeExistir(chBO, paladinoClasse.getId(), habilidadesMap, "Defesa Divina");
 		atribuirSeExistir(chBO, paladinoClasse.getId(), habilidadesMap, "Expurgar");
 		atribuirSeExistir(chBO, paladinoClasse.getId(), habilidadesMap, "Benção Divina");
 
-		// Mago
 		atribuirSeExistir(chBO, magoClasse.getId(), habilidadesMap, "Ilusão Arcana");
 		atribuirSeExistir(chBO, magoClasse.getId(), habilidadesMap, "Bola de Fogo");
 		atribuirSeExistir(chBO, magoClasse.getId(), habilidadesMap, "Estaca de Gelo");
 
-		// Guerreiro
 		atribuirSeExistir(chBO, guerreiroClasse.getId(), habilidadesMap, "Golpe Forte");
 		atribuirSeExistir(chBO, guerreiroClasse.getId(), habilidadesMap, "Jogo de Pés");
 		atribuirSeExistir(chBO, guerreiroClasse.getId(), habilidadesMap, "Sangramento");

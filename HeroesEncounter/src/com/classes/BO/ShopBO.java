@@ -3,7 +3,7 @@ package com.classes.BO;
 import com.classes.DTO.Shop;
 import com.classes.DTO.Item;
 import com.classes.DTO.Jogador;
-import com.classes.DTO.ShopItem; // Necessário para a lógica de estoque
+import com.classes.DTO.ShopItem;
 import com.classes.DAO.ShopDAO;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class ShopBO {
             Item item = si.getItem();
             
             if (item != null) {
-                String tipo = item.getClass().getSimpleName().replace("Item", ""); // Ex: ItemArma -> Arma
+                String tipo = item.getClass().getSimpleName().replace("Item", "");
                 
                 System.out.printf("  [ID: %d] %-20s | Tipo: %-10s | Preço: %-4d GOLD | Estoque: %d\n", 
                     item.getId(), 

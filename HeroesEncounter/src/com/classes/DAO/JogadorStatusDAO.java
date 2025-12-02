@@ -23,7 +23,6 @@ public class JogadorStatusDAO {
 	public boolean inserir(JogadorStatus js) {
 		try {
 			Connection conn = Conexao.conectar();
-            // idJogador e idStatus formam a chave composta
 			String sql = "INSERT INTO " + NOMEDATABELA
 					+ " (idJogador, idStatus, turnos_restantes) VALUES (?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -52,7 +51,6 @@ public class JogadorStatusDAO {
 
 			ps.setInt(1, js.getTurnosRestantes());
             
-            // Chaves compostas
 			ps.setInt(2, js.getIdJogador());
 			ps.setInt(3, js.getIdStatus());
 

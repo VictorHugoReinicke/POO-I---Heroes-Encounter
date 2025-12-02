@@ -18,14 +18,12 @@ public class InimigoHabilidadeDAO {
 
     public InimigoHabilidadeDAO() {
         this.inimigoDAO = new InimigoDAO();
-        // this.habilidadeDAO = new HabilidadeDAO(); // Descomentar quando HabilidadeDAO existir
     }
 
     public boolean inserir(InimigoHabilidade inimigoHabilidade) {
         try {
             Connection conn = Conexao.conectar();
-            String sql = "INSERT INTO " + NOMEDATABELA
-                    + " (idInimigo, idHabilidade, chance_uso) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO " + NOMEDATABELA + " (idInimigo, idHabilidade, chance_uso) VALUES (?, ?, ?)";
 
             PreparedStatement ps = conn.prepareStatement(sql);
 

@@ -15,7 +15,7 @@ public class HabilidadesBO {
 
 	public boolean inserir(Habilidade habilidade) {
         if (habilidadesDAO.existe(habilidade)) {
-            System.out.println("⚠️ Habilidade '" + habilidade.getNome() + "' já existe. Inserção cancelada.");
+            System.out.println("Habilidade '" + habilidade.getNome() + "' já existe. Inserção cancelada.");
             return false;
         }
         String tipo = habilidade.getTipo().toUpperCase();
@@ -23,7 +23,7 @@ public class HabilidadesBO {
         if (habilidade.getFatorDano() <= 0 && 
             (tipo.equals("FÍSICO") || tipo.equals("MÁGICO")) ) {
              
-             System.out.println("⚠️ Fator de dano deve ser maior que zero para habilidades de ataque. Inserção cancelada.");
+             System.out.println("Fator de dano deve ser maior que zero para habilidades de ataque. Inserção cancelada.");
              return false;
         }
 

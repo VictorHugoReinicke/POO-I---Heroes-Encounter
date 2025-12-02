@@ -232,7 +232,7 @@ public class GeminiAI {
                 acoes.add("GRITAR");
                 acoes.add("CURAR");
                 break;
-            default: // BALANCEADO
+            default:
                 acoes.add("ATAQUE_PODEROSO");
                 acoes.add("GRITAR");
         }
@@ -374,7 +374,6 @@ public class GeminiAI {
         }
     }
     
-    // Teste de conexão atualizado para usar o novo modelo principal
     public static void testarConexao() {
         if (API_KEY == null || API_KEY.isEmpty()) {
             System.err.println("API Key não configurada!");
@@ -398,7 +397,6 @@ public class GeminiAI {
         } catch (Exception e) {
             System.err.println("Falha no modelo principal: " + e.getMessage());
             
-            // Testar modelo reserva
             try {
                 System.out.println("Testando modelo reserva: " + MODELO_RESERVA);
                 String resposta = chamarGeminiAPI("Resposta: OK", MODELO_RESERVA);
@@ -421,7 +419,6 @@ public class GeminiAI {
         }
     }
     
-    // Método para testar rapidamente
     public static void testarRapido() {
         System.out.println("Teste rápido do Gemini AI");
         System.out.println("API Key configurada: " + (API_KEY != null && !API_KEY.isEmpty()));

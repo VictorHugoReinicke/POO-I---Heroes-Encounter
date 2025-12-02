@@ -9,7 +9,7 @@ import com.classes.DTO.Jogador;
 
 public class Teste {
     public static void main(String[] args) {
-        System.out.println("🧪 Testando Gemini AI...");
+        System.out.println("Testando Gemini AI...");
 
         try {
             Inimigo inimigo = new Besta();

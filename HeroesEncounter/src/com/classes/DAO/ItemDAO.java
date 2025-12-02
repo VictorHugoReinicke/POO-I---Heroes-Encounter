@@ -194,7 +194,7 @@ public class ItemDAO {
 	    
 	    try {
 	        conn = Conexao.conectar();
-	        conn.setAutoCommit(false); // Inicia a Transação
+	        conn.setAutoCommit(false);
 
 	        String sqlSubtipo = "";
 	        

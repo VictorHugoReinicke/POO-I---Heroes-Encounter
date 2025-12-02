@@ -17,10 +17,7 @@ public class StatusDAO {
 	public boolean inserir(Status status) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "INSERT INTO " + NOMEDATABELA
-					+ " (nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva) VALUES (?, ?, ?, ?, ?)"; // ✅
-																														// Adicionado
-																														// chance_esquiva
+			String sql = "INSERT INTO " + NOMEDATABELA + " (nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva) VALUES (?, ?, ?, ?, ?)";
 
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
@@ -28,7 +25,7 @@ public class StatusDAO {
 			ps.setInt(2, status.getDanoTurno());
 			ps.setDouble(3, status.getModificadorDefesa());
 			ps.setInt(4, status.getDuracaoTurnos());
-			ps.setDouble(5, status.getChanceEsquiva()); // ✅ Novo parâmetro
+			ps.setDouble(5, status.getChanceEsquiva());
 
 			ps.executeUpdate();
 
@@ -49,18 +46,14 @@ public class StatusDAO {
 	public boolean alterar(Status status) {
 		try {
 			Connection conn = Conexao.conectar();
-			String sql = "UPDATE " + NOMEDATABELA
-					+ " SET nome = ?, dano_turno = ?, modificador_defesa = ?, duracao_turnos = ?, chance_esquiva = ? " // ✅
-																														// Adicionado
-																														// chance_esquiva
-					+ "WHERE id = ?;";
+			String sql = "UPDATE " + NOMEDATABELA + " SET nome = ?, dano_turno = ?, modificador_defesa = ?, duracao_turnos = ?, chance_esquiva = ? " + "WHERE id = ?;";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.setString(1, status.getNome());
 			ps.setInt(2, status.getDanoTurno());
 			ps.setDouble(3, status.getModificadorDefesa());
 			ps.setInt(4, status.getDuracaoTurnos());
-			ps.setDouble(5, status.getChanceEsquiva()); // ✅ Novo parâmetro
+			ps.setDouble(5, status.getChanceEsquiva());
 			ps.setInt(6, status.getId());
 
 			ps.executeUpdate();
@@ -92,8 +85,7 @@ public class StatusDAO {
 	public Status procurarPorCodigo(int id) {
 	    try {
 	        Connection conn = Conexao.conectar();
-	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA // ✅ Adicionado chance_esquiva
-	                + " WHERE id = ?;";
+	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA + " WHERE id = ?;";
 	        PreparedStatement ps = conn.prepareStatement(sql);
 	        ps.setInt(1, id);
 	        ResultSet rs = ps.executeQuery();
@@ -119,8 +111,7 @@ public class StatusDAO {
 	public Status procurarPorNome(Status status) {
 	    try {
 	        Connection conn = Conexao.conectar();
-	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA // ✅ Adicionado chance_esquiva
-	                + " WHERE nome = ?;";
+	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA + " WHERE nome = ?;";
 	        PreparedStatement ps = conn.prepareStatement(sql);
 	        ps.setString(1, status.getNome());
 	        ResultSet rs = ps.executeQuery();
@@ -146,7 +137,7 @@ public class StatusDAO {
 	public List<Status> pesquisarTodos() {
 	    try {
 	        Connection conn = Conexao.conectar();
-	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA + ";"; // ✅ Adicionado chance_esquiva
+	        String sql = "SELECT id, nome, dano_turno, modificador_defesa, duracao_turnos, chance_esquiva FROM " + NOMEDATABELA + ";";
 	        PreparedStatement ps = conn.prepareStatement(sql);
 	        ResultSet rs = ps.executeQuery();
 	        List<Status> listObj = montarLista(rs);

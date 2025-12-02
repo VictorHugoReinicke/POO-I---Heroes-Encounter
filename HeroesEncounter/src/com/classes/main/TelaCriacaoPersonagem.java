@@ -5,13 +5,13 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TelaCriacaoPersonagem extends JFrame {
-    private TelaSelecao telaPai; // REFERÊNCIA PARA A TELA PAI
+    private TelaSelecao telaPai;
     private JTextField txtNome;
     private JComboBox<String> comboClasse;
     private JTextArea txtResultado;
     private JButton btnCriar;
     private JButton btnLimpar;
-    private JButton btnVoltar; // DECLARADO CORRETAMENTE
+    private JButton btnVoltar;
     private JButton btnSair;
 
     public TelaCriacaoPersonagem(TelaSelecao pai) {
