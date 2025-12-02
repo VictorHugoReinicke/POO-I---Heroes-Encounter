@@ -1,134 +1,133 @@
 package com.classes.DTO;
+
 import java.util.Scanner;
 
 public class ControladorCombate {
 
 	private SerVivo turnoAtual;
 	private SerVivo outro;
-    private boolean acaoExecutada = false;
-    private boolean combateAtivo = false;
+	private boolean acaoExecutada = false;
+	private boolean combateAtivo = false;
 
-    private final Scanner scanner = new Scanner(System.in);
+	private final Scanner scanner = new Scanner(System.in);
 
-    public void iniciarCombate(Jogador p, Inimigo e) {
-        System.out.println("\n===== COMBATE INICIADO =====");
+	public void iniciarCombate(Jogador p, Inimigo e) {
+		System.out.println("\n===== COMBATE INICIADO =====");
 
-        turnoAtual = p;
-        outro = e;
-        combateAtivo = true;
+		turnoAtual = p;
+		outro = e;
+		combateAtivo = true;
 
-        System.out.println("Jogador: " + p.getNome() + "  VS  Inimigo: " + e.getNome());
-        System.out.println("------------------------------------");
+		System.out.println("Jogador: " + p.getNome() + "  VS  Inimigo: " + e.getNome());
+		System.out.println("------------------------------------");
 
-        while (combateAtivo) {
-            executarTurno();
-        }
+		while (combateAtivo) {
+			executarTurno();
+		}
 
-        System.out.println("===== FIM DO COMBATE =====");
-    }
+		System.out.println("===== FIM DO COMBATE =====");
+	}
 
-    private void executarTurno() {
-        acaoExecutada = false;
+	private void executarTurno() {
+		acaoExecutada = false;
 
-        System.out.println("\n> Turno de: " + turnoAtual.getNome());
-        System.out.println(turnoAtual.getNome() + " HP: " + turnoAtual.getHp());
-        System.out.println(outro.getNome() + " HP: " + outro.getHp());
+		System.out.println("\n> Turno de: " + turnoAtual.getNome());
+		System.out.println(turnoAtual.getNome() + " HP: " + turnoAtual.getHp());
+		System.out.println(outro.getNome() + " HP: " + outro.getHp());
 
-        if (turnoAtual instanceof Jogador) {
-            turnoJogador();
-        } else if (turnoAtual instanceof Inimigo inimigo) {
-            turnoInimigo(inimigo);
-        }
+		if (turnoAtual instanceof Jogador) {
+			turnoJogador();
+		} else if (turnoAtual instanceof Inimigo inimigo) {
+			turnoInimigo(inimigo);
+		}
 
-        if (!outro.estaVivo()) {
-            System.out.println("\n" + outro.getNome() + " foi derrotado!");
-            combateAtivo = false;
-            return;
-        }
+		if (!outro.estaVivo()) {
+			System.out.println("\n" + outro.getNome() + " foi derrotado!");
+			combateAtivo = false;
+			return;
+		}
 
-        proximoTurno();
-    }
-private void turnoJogador() {
-        while (!acaoExecutada) {
-            System.out.print("Escolha sua ação (atk/heal/status/sair): ");
-            String acao = scanner.nextLine();
+		proximoTurno();
+	}
 
-            switch (acao) {
-                case "atk":
-                    atacar(turnoAtual, outro);
-                    break;
+	private void turnoJogador() {
+		while (!acaoExecutada) {
+			System.out.print("Escolha sua ação (atk/heal/status/sair): ");
+			String acao = scanner.nextLine();
 
-                case "heal":
-                    curar(turnoAtual);
-                    break;
+			switch (acao) {
+			case "atk":
+				atacar(turnoAtual, outro);
+				break;
 
-                case "status":
-                    mostrarStatus(turnoAtual);
-                    break;
+			case "heal":
+				curar(turnoAtual);
+				break;
 
-                case "sair":
-                    System.out.println("Encerrando combate...");
-                    combateAtivo = false;
-                    acaoExecutada = true;
-                    break;
+			case "status":
+				mostrarStatus(turnoAtual);
+				break;
 
-                default:
-                    System.out.println("Ação inválida.");
-            }
-        }
-    }
+			case "sair":
+				System.out.println("Encerrando combate...");
+				combateAtivo = false;
+				acaoExecutada = true;
+				break;
 
-    private void turnoInimigo(Inimigo inimigo) {
-        System.out.println(inimigo.getNome() + " está decidindo a ação...");
-        inimigo.decidirAcao((Jogador) outro); // IA decide
+			default:
+				System.out.println("Ação inválida.");
+			}
+		}
+	}
 
-        // IA sempre ataca por padrão caso não implemente habilidades
-        atacar(inimigo, outro);
+	private void turnoInimigo(Inimigo inimigo) {
+		System.out.println("\n" + inimigo.getNome() + " está decidindo a ação...");
 
-        acaoExecutada = true;
-    }
-private void atacar(SerVivo atacante, SerVivo alvo) {
-        if (!alvo.estaVivo()) return;
+		inimigo.decidirAcao((Jogador) outro);
 
-        int danoBase = atacante.getAtaque();
+		acaoExecutada = true;
+	}
 
-        // simples: reduzir defesa e aplicar
-        int danoFinal = Math.max(1, danoBase - alvo.getDefesa());
+	private void atacar(SerVivo atacante, SerVivo alvo) {
+		if (!alvo.estaVivo())
+			return;
 
-        alvo.receberDano(danoFinal);
+		int danoBase = atacante.getAtaque();
 
-        System.out.println(atacante.getNome() + " atacou " + alvo.getNome() +
-                " causando " + danoFinal + " de dano!");
+		// simples: reduzir defesa e aplicar
+		int danoFinal = Math.max(1, danoBase - alvo.getDefesa());
 
-        acaoExecutada = true;
-    }
+		alvo.receberDano(danoFinal);
 
-    private void curar(SerVivo s) {
-        int cura = 5;
-        //s.curar(cura);
-        System.out.println(s.getNome() + " recuperou " + cura + " de HP!");
-        acaoExecutada = true;
-    }
+		System.out.println(atacante.getNome() + " atacou " + alvo.getNome() + " causando " + danoFinal + " de dano!");
 
-    private void mostrarStatus(SerVivo s) {
-        System.out.println("Status de " + s.getNome() + ":");
-        if (s.getStatusAtivo().isEmpty()) {
-            System.out.println("Nenhum status ativo.");
-        } else {
-            s.getStatusAtivo().forEach(st ->
-                    System.out.println("- " + st.getNome() + " (" + st.getDuracaoTurnos() + " turnos)")
-            );
-        }
-    }
+		acaoExecutada = true;
+	}
 
-    public void proximoTurno() {
-        SerVivo temp = turnoAtual;
-        turnoAtual = outro;
-        outro = temp;
-    }
+	private void curar(SerVivo s) {
+		int cura = 5;
+		// s.curar(cura);
+		System.out.println(s.getNome() + " recuperou " + cura + " de HP!");
+		acaoExecutada = true;
+	}
 
-    public boolean acaoExecutada(SerVivo s) {
-        return acaoExecutada;
-    }
+	private void mostrarStatus(SerVivo s) {
+		System.out.println("Status de " + s.getNome() + ":");
+		if (s.getStatusAtivo().isEmpty()) {
+			System.out.println("Nenhum status ativo.");
+		} else {
+			s.getStatusAtivo()
+					.forEach(st -> System.out.println("- " + st.getNome() + " (" + st.getDuracaoTurnos() + " turnos)"));
+		}
+	}
+
+	public void proximoTurno() {
+		SerVivo temp = turnoAtual;
+		turnoAtual = outro;
+		outro = temp;
+	}
+
+	public boolean acaoExecutada(SerVivo s) {
+		return acaoExecutada;
+	}
 }
-

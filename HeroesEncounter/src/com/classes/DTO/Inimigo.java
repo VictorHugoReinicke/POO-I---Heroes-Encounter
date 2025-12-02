@@ -1,7 +1,6 @@
 package com.classes.DTO;
 
 import com.classes.Enums.TipoIA;
-import com.classes.main.*;
 
 public abstract class Inimigo extends SerVivo {
 
@@ -9,6 +8,8 @@ public abstract class Inimigo extends SerVivo {
 	private int ataque;
 	private int defesa;
 	private TipoIA tipoIA;
+	private boolean esquivandoProximoAtaque = false;
+	private boolean fugiu = false;
 
 	public Inimigo() {
 		super();
@@ -47,13 +48,25 @@ public abstract class Inimigo extends SerVivo {
 		this.tipoIA = tipoIA;
 	}
 
-	// Método para decidir e executar ação
+	public boolean isEsquivandoProximoAtaque() {
+		return esquivandoProximoAtaque;
+	}
+
+	public void setEsquivandoProximoAtaque(boolean esquivando) {
+		this.esquivandoProximoAtaque = esquivando;
+	}
+
+	public boolean isFugiu() {
+		return fugiu;
+	}
+
+	public void setFugiu(boolean fugiu) {
+		this.fugiu = fugiu;
+	}
+
 	public void decidirAcao(Jogador jogador) {
-		// Usa a IA para decidir a ação
-		String acaoEscolhida = InimigoIA.decidirAcao(this, jogador);
-		
-		// Executa a ação escolhida
-		InimigoIA.executarAcao(this, jogador, acaoEscolhida);
+	    String acaoEscolhida = InimigoIA.decidirAcao(this, jogador);
+	    InimigoIA.executarAcao(this, jogador, acaoEscolhida);
 	}
 
 	public String getDescricaoCompleta() {

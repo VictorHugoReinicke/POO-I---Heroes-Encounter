@@ -2,6 +2,8 @@ package com.classes.main;
 
 import com.classes.BO.*;
 import com.classes.DTO.*;
+import com.classes.main.gemini.api.GeminiAI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
